@@ -12,14 +12,11 @@ export const validate = (validations: ValidationChain[]) => {
       return next();
     }
 
-    // const errorMessages: Record<string, string[]> = {};
+    
     const errorMessages: ApiError[] = [];
     errors.array().forEach(error => {
       if (error.type === 'field') {
-        // if (!errorMessages[error.path]) {
-        //   errorMessages[error.path] = [];
-        // }
-        const errorParse = {
+          const errorParse = {
           type: 'field',
           code: 2001,
           name: error.path,

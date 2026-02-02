@@ -69,12 +69,7 @@ export function errorMiddleware(logger: Logger) {
   return (error: Error, req: Request, res: Response, next: NextFunction): void => {
 
     logError(logger, req, error)
-    // logger.error({
-    //   error: error.message,
-    //   stack: error.stack,
-    //   path: req.path,
-    //   method: req.method,
-    // });
+    
 
     const handler = ERROR_HANDLERS.find(h => h.supports(error));
     if (!handler) {
@@ -94,11 +89,10 @@ function sendErrorResponse(res: Response, req: Request, statusCode: StatusCode, 
   
   const audit = new AuditDataBuilder('ERROR', 'INTERNAL')
     .withRequest(req.ip, req.get('user-agent'))
-    // .withDetails({ errors: payload })
     .build();
 
-  ResponseHandler.error(res, statusCode, payload, audit);
-  return;
+  return ResponseHandler.error(res, statusCode, payload, audit);
+  
   
 }
 
