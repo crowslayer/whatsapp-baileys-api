@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 import { validationResult, ValidationChain } from 'express-validator';
+import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
+import { ApiError } from '@shared/infrastructure/ErrorHandler';
 
 export const validate = (validations: ValidationChain[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -11,13 +12,20 @@ export const validate = (validations: ValidationChain[]) => {
       return next();
     }
 
-    const errorMessages: Record<string, string[]> = {};
+    // const errorMessages: Record<string, string[]> = {};
+    const errorMessages: ApiError[] = [];
     errors.array().forEach(error => {
       if (error.type === 'field') {
-        if (!errorMessages[error.path]) {
-          errorMessages[error.path] = [];
+        // if (!errorMessages[error.path]) {
+        //   errorMessages[error.path] = [];
+        // }
+        const errorParse = {
+          type: 'field',
+          code: 2001,
+          name: error.path,
+          description: error.msg
         }
-        errorMessages[error.path].push(error.msg);
+        errorMessages.push(errorParse);
       }
     });
 

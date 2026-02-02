@@ -2,7 +2,8 @@ import { CreateInstanceCommand } from "@application/Commands/CreateInstanceComma
 import { WhatsAppInstanceAggregate } from "@domain/Aggregates/WhatsAppInstanceAggregate";
 import { IWhatsAppInstanceRepository } from "@domain/Repositories/IWhatsAppInstanceRepository";
 import { BaileysConnectionManager } from "@infrastructure/Baileys/BaileysConnectionManager";
-import { ConflictError } from "@shared/infrastructure/ErrorHandler";
+import { ConflictError } from "@shared/infrastructure/Error/ConflictError";
+
 
 export class CreateInstanceHandler {
     constructor(

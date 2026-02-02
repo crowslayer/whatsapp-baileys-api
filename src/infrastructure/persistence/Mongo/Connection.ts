@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { config } from '@config/env';
 
 import { Logger } from '@infrastructure/Logger/Logger';
+import { DatabaseConfigurationError } from '@shared/infrastructure/Error/DatabaseConfigurationError';
 
 
 export const connectDatabase = async (logger:Logger): Promise<void> => {
@@ -24,6 +25,7 @@ export const connectDatabase = async (logger:Logger): Promise<void> => {
     });
   } catch (error) {
     logger.error('Failed to connect to MongoDB:', error);
+    throw new DatabaseConfigurationError(error)
     process.exit(1);
   }
 };

@@ -10,7 +10,7 @@ import { Boom } from '@hapi/boom';
 import QRCode from 'qrcode';
 import pino from 'pino';
 import path from 'path';
-import { WhatsAppConnectionError } from '@shared/infrastructure/ErrorHandler';
+import { WhatsAppConnectionError } from '@shared/infrastructure/Error/WhatsAppConnectionError';
 
 export interface BaileysConnectionOptions {
   instanceId: string;

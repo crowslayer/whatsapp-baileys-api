@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { body, param } from 'express-validator';
 import { IWhatsAppInstanceRepository } from '@domain/Repositories/IWhatsAppInstanceRepository';
 import { BaileysConnectionManager } from '@infrastructure/Baileys/BaileysConnectionManager';
@@ -24,45 +24,45 @@ export const createInstanceRouter = (
       body('usePairingCode').optional().isBoolean(),
       body('phoneNumber').optional().isString().matches(/^\d{10,15}$/),
     ]),
-    (req, res) => controller.create(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.create(req, res, next)
   );
 
-  router.get('/', (req, res) => controller.list(req, res));
+  router.get('/', (req:Request, res:Response, next:NextFunction) => controller.list(req, res, next));
 
   router.get(
     '/:instanceId',
     validate([param('instanceId').isString().notEmpty()]),
-    (req, res) => controller.getById(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.getById(req, res, next)
   );
   // Vista HTML del QR
   router.get(
     '/:instanceId/qr/view',
     validate([param('instanceId').isString().notEmpty()]),
-    (req, res) => qrViewController.renderQRPage(req, res)
+    (req:Request, res:Response, next:NextFunction) => qrViewController.renderQRPage(req, res, next)
   );
 
   // API JSON del QR y status
   router.get(
     '/:instanceId/qr/status',
     validate([param('instanceId').isString().notEmpty()]),
-    (req, res) => qrViewController.getQRStatus(req, res)
+    (req:Request, res:Response, next:NextFunction) => qrViewController.getQRStatus(req, res,next)
   );
   router.get(
     '/:instanceId/qr',
     validate([param('instanceId').isString().notEmpty()]),
-    (req, res) => controller.getQR(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.getQR(req, res,next)
   );
 
   router.delete(
     '/:instanceId',
     validate([param('instanceId').isString().notEmpty()]),
-    (req, res) => controller.delete(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.delete(req, res,next)
   );
 
   router.post(
     '/:instanceId/disconnect',
     validate([param('instanceId').isString().notEmpty()]),
-    (req, res) => controller.disconnect(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.disconnect(req, res,next)
   );
 
   return router;

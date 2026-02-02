@@ -3,8 +3,8 @@ import { IWhatsAppInstanceRepository } from "@domain/Repositories/IWhatsAppInsta
 import { ConnectionStatus } from "@domain/Value-Objects/ConnectionStatus";
 import { InstanceId } from "@domain/Value-Objects/InstanceId";
 import { PhoneNumber } from "@domain/Value-Objects/PhoneNumber";
-import { InfrastructureError } from "@shared/infrastructure/ErrorHandler";
-import { WhatsAppInstanceModel } from "../Models/WhatsAppInstanceModel";
+import { WhatsAppInstanceModel } from "@infrastructure/persistence/Mongo/Models/WhatsAppInstanceModel";
+import { InfrastructureError } from "@shared/infrastructure/Error/InfrastructureError";
 
 
 

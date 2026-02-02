@@ -20,6 +20,7 @@ import { BaileysConnectionManager } from '@infrastructure/Baileys/BaileysConnect
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 import pino from 'pino';
+import { NotFoundError } from '@shared/infrastructure/Error/NotFoundError';
 export class MultimediaController {
     private logger = pino();
   
@@ -28,13 +29,13 @@ export class MultimediaController {
       private connectionManager: BaileysConnectionManager
     ) {}
   
-    async sendImage(req: Request, res: Response): Promise<Response> {
+    async sendImage(req: Request, res: Response, next:NextFunction): Promise<void> {
       try {
         const { instanceId } = req.params;
         const { to, caption, fileName } = req.body;
   
         if (!req.file) {
-          return ResponseHandler.badRequest(res, 'Image file is required');
+          throw new NotFoundError('Image file is required');
         }
   
         const audit = new AuditDataBuilder('SEND', 'IMAGE')
@@ -50,19 +51,19 @@ export class MultimediaController {
         this.logger.info(`Image sent from instance ${instanceId} to ${to}`);
   
         return ResponseHandler.success(res, { sent: true }, 'Image sent successfully', 200, audit);
+        
       } catch (error: any) {
-        this.logger.error('Error sending image:', error);
-        return this.handleError(error, res, req);
+        next(error);
       }
     }
   
-    async sendDocument(req: Request, res: Response): Promise<Response> {
+    async sendDocument(req: Request, res: Response, next:NextFunction): Promise<void> {
       try {
         const { instanceId } = req.params;
         const { to, caption } = req.body;
   
         if (!req.file) {
-          return ResponseHandler.badRequest(res, 'Document file is required');
+          throw new NotFoundError('Document file is required')
         }
   
         const audit = new AuditDataBuilder('SEND', 'DOCUMENT')
@@ -85,19 +86,19 @@ export class MultimediaController {
         this.logger.info(`Document sent from instance ${instanceId} to ${to}`);
   
         return ResponseHandler.success(res, { sent: true }, 'Document sent successfully', 200, audit);
+        
       } catch (error: any) {
-        this.logger.error('Error sending document:', error);
-        return this.handleError(error, res, req);
+        next(error);
       }
     }
   
-    async sendAudio(req: Request, res: Response): Promise<Response> {
+    async sendAudio(req: Request, res: Response, next:NextFunction): Promise<void> {
       try {
         const { instanceId } = req.params;
         const { to, ptt } = req.body;
   
         if (!req.file) {
-          return ResponseHandler.badRequest(res, 'Audio file is required');
+          throw new NotFoundError('Audio file is required')
         }
   
         const audit = new AuditDataBuilder('SEND', 'AUDIO')
@@ -119,19 +120,19 @@ export class MultimediaController {
         this.logger.info(`Audio sent from instance ${instanceId} to ${to}`);
   
         return ResponseHandler.success(res, { sent: true }, 'Audio sent successfully', 200, audit);
+        
       } catch (error: any) {
-        this.logger.error('Error sending audio:', error);
-        return this.handleError(error, res, req);
+        next(error);
       }
     }
   
-    async sendVideo(req: Request, res: Response): Promise<Response> {
+    async sendVideo(req: Request, res: Response, next:NextFunction): Promise<void> {
       try {
         const { instanceId } = req.params;
         const { to, caption, gifPlayback, fileName } = req.body;
   
         if (!req.file) {
-          return ResponseHandler.badRequest(res, 'Video file is required');
+          throw new NotFoundError('Video file is required')
         }
   
         const audit = new AuditDataBuilder('SEND', 'VIDEO')
@@ -154,13 +155,13 @@ export class MultimediaController {
         this.logger.info(`Video sent from instance ${instanceId} to ${to}`);
   
         return ResponseHandler.success(res, { sent: true }, 'Video sent successfully', 200, audit);
+        
       } catch (error: any) {
-        this.logger.error('Error sending video:', error);
-        return this.handleError(error, res, req);
+        next(error);
       }
     }
   
-    async sendLocation(req: Request, res: Response): Promise<Response> {
+    async sendLocation(req: Request, res: Response, next:NextFunction): Promise<void> {
       try {
         const { instanceId } = req.params;
         const { to, latitude, longitude, name, address } = req.body;
@@ -185,13 +186,13 @@ export class MultimediaController {
         this.logger.info(`Location sent from instance ${instanceId} to ${to}`);
   
         return ResponseHandler.success(res, { sent: true }, 'Location sent successfully', 200, audit);
+        
       } catch (error: any) {
-        this.logger.error('Error sending location:', error);
-        return this.handleError(error, res, req);
+        next(error);
       }
     }
   
-    async sendReaction(req: Request, res: Response): Promise<Response> {
+    async sendReaction(req: Request, res: Response, next:NextFunction): Promise<void> {
       try {
         const { instanceId } = req.params;
         const { messageId, emoji, chatId } = req.body;
@@ -209,19 +210,19 @@ export class MultimediaController {
         this.logger.info(`Reaction sent from instance ${instanceId}`);
 
         return ResponseHandler.success(res, { sent: true }, 'Reaction sent successfully', 200, audit);
+        
       } catch (error: any) {
-        this.logger.error('Error sending reaction:', error);
-        return this.handleError(error, res, req);
+        next(error);
       }
     }
 
-    async sendContact(req: Request, res: Response): Promise<Response> {
+    async sendContact(req: Request, res: Response, next:NextFunction): Promise<void> {
       try {
         const { instanceId } = req.params;
         const { to, contacts } = req.body;
 
         if (!contacts || !Array.isArray(contacts) || contacts.length === 0) {
-          return ResponseHandler.badRequest(res, 'At least one contact with displayName and vcard is required');
+          throw new NotFoundError('At least one contact with displayName and vcard is required');
         }
 
         const validContacts = contacts.map((c: { displayName?: string; vcard?: string }) => ({
@@ -242,19 +243,19 @@ export class MultimediaController {
         this.logger.info(`Contact(s) sent from instance ${instanceId} to ${to}`);
 
         return ResponseHandler.success(res, { sent: true }, 'Contact(s) sent successfully', 200, audit);
+        
       } catch (error: any) {
-        this.logger.error('Error sending contact:', error);
-        return this.handleError(error, res, req);
+        next(error);
       }
     }
 
-    async sendSticker(req: Request, res: Response): Promise<Response> {
+    async sendSticker(req: Request, res: Response, next:NextFunction): Promise<void> {
       try {
         const { instanceId } = req.params;
         const { to } = req.body;
 
         if (!req.file) {
-          return ResponseHandler.badRequest(res, 'Sticker file is required');
+          throw new NotFoundError('Sticker file is required')
         }
 
         const audit = new AuditDataBuilder('SEND', 'STICKER')
@@ -270,24 +271,9 @@ export class MultimediaController {
         this.logger.info(`Sticker sent from instance ${instanceId} to ${to}`);
 
         return ResponseHandler.success(res, { sent: true }, 'Sticker sent successfully', 200, audit);
+        
       } catch (error: any) {
-        this.logger.error('Error sending sticker:', error);
-        return this.handleError(error, res, req);
+        next(error);
       }
-    }
-
-    private handleError(error: any, res: Response, req: Request): Response {
-      const audit = new AuditDataBuilder('ERROR', 'MULTIMEDIA')
-        .withRequest(req.ip, req.get('user-agent'))
-        .withDetails({ error: error.message })
-        .build();
-  
-      if (error.name === 'ValidationError') {
-        return ResponseHandler.badRequest(res, error.message, error.fields, audit);
-      }
-      if (error.name === 'NotFoundError') {
-        return ResponseHandler.notFound(res, error.message, audit);
-      }
-      return ResponseHandler.internalError(res, error.message, undefined, audit);
     }
   }

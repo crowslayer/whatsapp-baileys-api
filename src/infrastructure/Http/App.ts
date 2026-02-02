@@ -1,18 +1,18 @@
+import express, { Application } from "express";
+import path from "path";
+import  {dirname} from "path";
+import { fileURLToPath } from "url";
+import helmet from "helmet";
+import cors from "cors";
 import { IWhatsAppInstanceRepository } from "@domain/Repositories/IWhatsAppInstanceRepository";
 import { BaileysConnectionManager } from "@infrastructure/Baileys/BaileysConnectionManager";
-import express, { Application } from "express";
 import { errorMiddleware } from "./Middlewares/ErrorMiddleware";
 import { loggerMiddleware } from "./Middlewares/LoggerMiddleware";
 import { createGroupRouter } from "./Routes/group.routes";
 import { createInstanceRouter } from "./Routes/instance.routes";
 import { createMessageRouter } from "./Routes/message.routes";
 import { createMultimediaRouter } from "./Routes/multimedia.routes";
-import path from "path";
-import  {dirname} from "path";
-import { fileURLToPath } from "url";
 import { Logger } from "@infrastructure/Logger/Logger";
-import helmet from "helmet";
-import cors from "cors";
 
 export const createApp = (
     repository: IWhatsAppInstanceRepository,
@@ -34,17 +34,13 @@ export const createApp = (
     const loggerMiddlewareHandler = loggerMiddleware(logger);
     app.use(loggerMiddlewareHandler);
     
-    try {
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = dirname(__filename);
-        
-        app.set('view engine', 'ejs')
-        app.set('views', path.join(__dirname, '../Views'))
-    } catch (error) {
-        console.log(error);
-    }       //views
-
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
     
+    //views temporal
+    app.set('view engine', 'ejs')
+    app.set('views', path.join(__dirname, '../Views'))
+        
 
     // Health check
     app.get('/health', (req, res) => {

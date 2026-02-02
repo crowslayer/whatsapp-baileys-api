@@ -1,4 +1,5 @@
 import { ValueObject } from "@shared/domain/ValueObject";
+import { ValidationError } from "@shared/infrastructure/Error/ValidationError";
 
 export enum ConnectionStatusEnum {
     DISCONNECTED = 'disconnected',
@@ -45,7 +46,7 @@ export enum ConnectionStatusEnum {
     protected validate(): void {
       const validStatuses = Object.values(ConnectionStatusEnum);
       if (!validStatuses.includes(this._value)) {
-        throw new Error(`Invalid connection status: ${this._value}`);
+        throw new ValidationError([{field:'conectionStataus', message:'Invalid connection status'}]);
       }
     }
   

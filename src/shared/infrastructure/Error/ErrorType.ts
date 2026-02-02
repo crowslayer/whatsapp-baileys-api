@@ -1,0 +1,17 @@
+export enum ErrorType {
+    AUTHENTICATION = 'authentication',
+    AUTHORIZATION = 'authorization',
+    VALIDATION = 'validation',
+    INTERNAL = 'internal',
+    DATABASE = 'database',
+    UNAUTHORIZED = 'unauthorized',
+    FORBIDDEN = 'forbidden',
+    UNKNOWN = 'unknown',
+    RATELIMIT = 'rateLimit',
+    LOGIN = 'login',
+    LOGGER = 'logger',
+    DOMAIN = 'bussines violation rule',
+    BAD_REQUEST = 'bad request',
+    NOT_FOUND = 'not found',
+    EVENT = 'event',
+  }

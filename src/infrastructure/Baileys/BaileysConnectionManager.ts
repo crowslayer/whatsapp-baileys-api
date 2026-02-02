@@ -3,6 +3,8 @@ import { ConnectionStatusEnum } from "@domain/Value-Objects/ConnectionStatus";
 import { BaileysAdapter } from "./BaileysAdapter";
 import { Logger } from "@infrastructure/Logger/Logger";
 import axios, { AxiosInstance } from "axios";
+import { NotFoundError } from "@shared/infrastructure/Error/NotFoundError";
+import { DatabaseConnectionError } from "@shared/infrastructure/Error/DatabaseConnectionError";
 
 export class BaileysConnectionManager {
   private connections: Map<string, BaileysAdapter> = new Map();
@@ -18,7 +20,7 @@ export class BaileysConnectionManager {
     try {
       const instance = await this.repository.findById(instanceId);
       if (!instance) {
-        throw new Error(`Instance ${instanceId} not found`);
+        throw new NotFoundError(`Instance ${instanceId} not found`);
       }
 
       if (instance.webhookUrl) {
@@ -123,6 +125,7 @@ export class BaileysConnectionManager {
           this.logger.info(`Restored connection for instance ${instance.instanceId}`);
         } catch (error) {
           this.logger.error(`Failed to restore connection for instance ${instance.instanceId}:`, error);
+          throw new DatabaseConnectionError(error);
         }
       }
     }

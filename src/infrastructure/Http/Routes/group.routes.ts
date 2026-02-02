@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { body, param } from 'express-validator';
 import { validate } from '../Middlewares/ValidationMiddleware';
 import { IWhatsAppInstanceRepository } from '@domain/Repositories/IWhatsAppInstanceRepository';
@@ -22,7 +22,7 @@ export const createGroupRouter = (
         body('participants').isArray({ min: 1 }).withMessage('At least one participant required'),
         body('participants.*').isString().matches(/^\d{10,15}@s\.whatsapp\.net$/),
       ]),
-      (req, res) => controller.create(req, res)
+      (req:Request, res:Response, next:NextFunction) => controller.create(req, res, next)
     );
   
     router.post(
@@ -33,7 +33,7 @@ export const createGroupRouter = (
         body('participants').isArray({ min: 1 }),
         body('participants.*').isString().matches(/^\d{10,15}@s\.whatsapp\.net$/),
       ]),
-      (req, res) => controller.addParticipants(req, res)
+      (req:Request, res:Response, next:NextFunction) => controller.addParticipants(req, res, next)
     );
   
     router.post(
@@ -44,7 +44,7 @@ export const createGroupRouter = (
         body('participants').isArray({ min: 1 }),
         body('participants.*').isString().matches(/^\d{10,15}@s\.whatsapp\.net$/),
       ]),
-      (req, res) => controller.removeParticipants(req, res)
+      (req:Request, res:Response, next:NextFunction) => controller.removeParticipants(req, res, next)
     );
   
     return router;

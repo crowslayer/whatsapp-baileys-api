@@ -1,7 +1,7 @@
 import { GetInstanceQuery } from "@application/Queries/GetInstanceQuery";
 import { WhatsAppInstanceAggregate } from "@domain/Aggregates/WhatsAppInstanceAggregate";
 import { IWhatsAppInstanceRepository } from "@domain/Repositories/IWhatsAppInstanceRepository";
-import { NotFoundError } from "@shared/infrastructure/ErrorHandler";
+import { NotFoundError } from "@shared/infrastructure/Error/NotFoundError";
 
 export class GetInstanceHandler {
     constructor(private repository: IWhatsAppInstanceRepository) {}

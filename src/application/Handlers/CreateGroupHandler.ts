@@ -1,7 +1,9 @@
 import { CreateGroupCommand } from "@application/Commands/CreateGroupCommand";
 import { IWhatsAppInstanceRepository } from "@domain/Repositories/IWhatsAppInstanceRepository";
 import { BaileysConnectionManager } from "@infrastructure/Baileys/BaileysConnectionManager";
-import { NotFoundError, ValidationError } from "@shared/infrastructure/ErrorHandler";
+import { NotFoundError } from "@shared/infrastructure/Error/NotFoundError";
+import { ValidationError } from "@shared/infrastructure/Error/ValidationError";
+
 
 export class CreateGroupHandler {
     constructor(
@@ -16,12 +18,12 @@ export class CreateGroupHandler {
       }
   
       if (!instance.canSendMessages()) {
-        throw new ValidationError(`Instance ${command.instanceId} is not connected`);
+        throw new ValidationError([{field:'instance', message:`Instance ${command.instanceId} is not connected`}]);
       }
   
       const adapter = this.connectionManager.getConnection(command.instanceId);
       if (!adapter) {
-        throw new ValidationError(`Instance ${command.instanceId} adapter not found`);
+        throw new ValidationError([{field: 'instance', message:`Instance ${command.instanceId} adapter not found`}]);
       }
   
       const groupId = await adapter.createGroup(command.name, command.participants);

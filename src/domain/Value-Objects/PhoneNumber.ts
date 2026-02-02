@@ -1,4 +1,5 @@
 import { ValueObject } from "@shared/domain/ValueObject";
+import { ValidationError } from "@shared/infrastructure/Error/ValidationError";
 
 export class PhoneNumber extends ValueObject<string> {
     private constructor(value: string) {
@@ -12,7 +13,7 @@ export class PhoneNumber extends ValueObject<string> {
     protected validate(): void {
       const phoneRegex = /^\d{10,15}$/;
       if (!phoneRegex.test(this._value)) {
-        throw new Error('Invalid phone number format. Must be 10-15 digits');
+        throw new ValidationError([{field:'phonenumber',message:'Invalid phone number format. Must be 10-15 digits'}]);
       }
     }
   

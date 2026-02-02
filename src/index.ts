@@ -1,10 +1,10 @@
-// src/index.ts
-import { connectDatabase } from '@infrastructure/persistence/Mongo/Connection';
-import { config } from './config/env';
-import { BaileysConnectionManager } from '@infrastructure/Baileys/BaileysConnectionManager';
-import { createApp } from '@infrastructure/Http/App';
-import { MongoWhatsAppInstanceRepository } from '@infrastructure/persistence/Mongo/Repositories/MongoWhatsAppInstanceRepository';
-import { PinoLogger } from '@infrastructure/Logger/PinoLogger/PinoLogger';
+import { config } from "@config/env.js";
+import { createApp } from "@infrastructure/Http/App";
+import { PinoLogger } from "@infrastructure/Logger/PinoLogger/PinoLogger";
+import { BaileysConnectionManager } from "@infrastructure/Baileys/BaileysConnectionManager";
+import { connectDatabase } from "@infrastructure/persistence/Mongo/Connection";
+import { MongoWhatsAppInstanceRepository } from "@infrastructure/persistence/Mongo/Repositories/MongoWhatsAppInstanceRepository";
+
 
 const logger = new PinoLogger();
 

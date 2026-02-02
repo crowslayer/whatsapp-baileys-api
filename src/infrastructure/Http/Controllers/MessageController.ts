@@ -15,7 +15,7 @@ export class MessageController {
       private connectionManager: BaileysConnectionManager
     ) {}
   
-    async send(req: Request, res: Response): Promise<Response> {
+    async send(req: Request, res: Response, next:NextFunction): Promise<void> {
       try {
         const { instanceId } = req.params;
         const { to, message } = req.body;
@@ -33,24 +33,10 @@ export class MessageController {
         this.logger.info(`Message sent from instance ${instanceId} to ${to}`);
   
         return ResponseHandler.success(res, { sent: true }, 'Message sent successfully', 200, audit);
+        
       } catch (error: any) {
-        this.logger.error('Error sending message:', error);
-        return this.handleError(error, res, req);
+        next(error);
       }
     }
   
-    private handleError(error: any, res: Response, req: Request): Response {
-      const audit = new AuditDataBuilder('ERROR', 'MESSAGE')
-        .withRequest(req.ip, req.get('user-agent'))
-        .withDetails({ error: error.message })
-        .build();
-  
-      if (error.name === 'ValidationError') {
-        return ResponseHandler.badRequest(res, error.message, error.fields, audit);
-      }
-      if (error.name === 'NotFoundError') {
-        return ResponseHandler.notFound(res, error.message, audit);
-      }
-      return ResponseHandler.internalError(res, error.message, undefined, audit);
-    }
   }

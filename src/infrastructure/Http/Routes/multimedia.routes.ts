@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request,NextFunction, Response } from 'express';
 import { body, param } from 'express-validator';
 import { validate } from "../Middlewares/ValidationMiddleware";
 import { IWhatsAppInstanceRepository } from '@domain/Repositories/IWhatsAppInstanceRepository';
@@ -71,7 +71,7 @@ export const createMultimediaRouter = (
       body('caption').optional().isString(),
       body('fileName').optional().isString(),
     ]),
-    (req, res) => controller.sendImage(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.sendImage(req, res, next)
   );
 
   // Enviar documento
@@ -83,7 +83,7 @@ export const createMultimediaRouter = (
       body('to').isString().notEmpty().withMessage('Recipient is required'),
       body('caption').optional().isString(),
     ]),
-    (req, res) => controller.sendDocument(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.sendDocument(req, res, next)
   );
 
   // Enviar audio
@@ -95,7 +95,7 @@ export const createMultimediaRouter = (
       body('to').isString().notEmpty().withMessage('Recipient is required'),
       body('ptt').optional().isString(), // 'true' o 'false'
     ]),
-    (req, res) => controller.sendAudio(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.sendAudio(req, res, next)
   );
 
   // Enviar video
@@ -109,7 +109,7 @@ export const createMultimediaRouter = (
       body('gifPlayback').optional().isString(),
       body('fileName').optional().isString(),
     ]),
-    (req, res) => controller.sendVideo(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.sendVideo(req, res, next)
   );
 
   // Enviar ubicación
@@ -123,7 +123,7 @@ export const createMultimediaRouter = (
       body('name').optional().isString(),
       body('address').optional().isString(),
     ]),
-    (req, res) => controller.sendLocation(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.sendLocation(req, res, next)
   );
 
   // Enviar reacción (emoji)
@@ -135,7 +135,7 @@ export const createMultimediaRouter = (
       body('chatId').isString().notEmpty().withMessage('Chat ID is required'),
       body('emoji').isString().notEmpty().withMessage('Emoji is required'),
     ]),
-    (req, res) => controller.sendReaction(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.sendReaction(req, res, next)
   );
 
   // Enviar contacto(s)
@@ -148,7 +148,7 @@ export const createMultimediaRouter = (
       body('contacts.*.displayName').optional().isString(),
       body('contacts.*.vcard').isString().notEmpty().withMessage('vcard is required for each contact'),
     ]),
-    (req, res) => controller.sendContact(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.sendContact(req, res, next)
   );
 
   // Enviar sticker (imagen WebP)
@@ -159,7 +159,7 @@ export const createMultimediaRouter = (
       param('instanceId').isString().notEmpty(),
       body('to').isString().notEmpty().withMessage('Recipient is required'),
     ]),
-    (req, res) => controller.sendSticker(req, res)
+    (req:Request, res:Response, next:NextFunction) => controller.sendSticker(req, res, next)
   );
 
   return router;

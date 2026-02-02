@@ -1,15 +1,12 @@
 import { Response } from 'express';
 import { AuditData } from './AuditData';
+import { ApiError } from './ErrorHandler';
 
 export interface ApiResponse<T = any> {
     success: boolean;
     message: string;
     data?: T;
-    error?: {
-      code: string;
-      message: string;
-      details?: any;
-    };
+    errors?:ApiError[] ;
     metadata: {
       timestamp: Date;
       requestId: string;
@@ -24,7 +21,7 @@ export interface ApiResponse<T = any> {
       message: string = 'Operation successful',
       statusCode: number = 200,
       audit?: AuditData
-    ): Response {
+    ): void {
       const response: ApiResponse<T> = {
         success: true,
         message,
@@ -36,25 +33,20 @@ export interface ApiResponse<T = any> {
         },
       };
   
-      return res.status(statusCode).json(response);
+      res.status(statusCode).json(response);
+      
     }
   
     static error(
       res: Response,
-      message: string,
-      errorCode: string = 'INTERNAL_ERROR',
       statusCode: number = 500,
-      details?: any,
+      errors?:ApiError[],
       audit?: AuditData
-    ): Response {
+    ): void {
       const response: ApiResponse = {
         success: false,
         message: 'Operation failed',
-        error: {
-          code: errorCode,
-          message,
-          details,
-        },
+        errors ,
         metadata: {
           timestamp: new Date(),
           requestId: res.locals.requestId || this.generateRequestId(),
@@ -62,7 +54,7 @@ export interface ApiResponse<T = any> {
         },
       };
   
-      return res.status(statusCode).json(response);
+      res.status(statusCode).json(response);
     }
   
     static created<T>(
@@ -70,63 +62,85 @@ export interface ApiResponse<T = any> {
       data: T,
       message: string = 'Resource created successfully',
       audit?: AuditData
-    ): Response {
-      return this.success(res, data, message, 201, audit);
+    ): void {
+      this.success(res, data, message, 201, audit);
     }
   
-    static noContent(res: Response, audit?: AuditData): Response {
-      return res.status(204).send();
+    static noContent(res: Response, audit?: AuditData): void {
+      res.status(204).send();
     }
   
     static badRequest(
       res: Response,
       message: string = 'Bad request',
-      details?: any,
+      errors?: ApiError[],
       audit?: AuditData
-    ): Response {
-      return this.error(res, message, 'BAD_REQUEST', 400, details, audit);
+    ): void {
+      this.error(res,  400, errors, audit);
     }
   
     static unauthorized(
       res: Response,
       message: string = 'Unauthorized',
       audit?: AuditData
-    ): Response {
-      return this.error(res, message, 'UNAUTHORIZED', 401, undefined, audit);
+    ): void {
+      this.error(res, 401, undefined, audit);
     }
   
     static forbidden(
       res: Response,
-      message: string = 'Forbidden',
+      statusCode:number =  403,
+      errors = [{
+        code: 1002,
+        type: 'FORBIDDEN',
+        name: 'Forbidden',
+        description: 'Forbidden'
+      }],
       audit?: AuditData
-    ): Response {
-      return this.error(res, message, 'FORBIDDEN', 403, undefined, audit);
+    ): void {
+      this.error(res,  statusCode, errors, audit);
     }
   
     static notFound(
       res: Response,
-      message: string = 'Resource not found',
+      statusCode:number = 404,
+      errors = [{
+        code: 6001,
+        type: 'NOT_FOUND',
+        name: 'NotFoundError',
+        description: 'Resource not found'
+      }],
       audit?: AuditData
-    ): Response {
-      return this.error(res, message, 'NOT_FOUND', 404, undefined, audit);
+    ): void {
+      this.error(res,  404, errors, audit);
     }
   
     static conflict(
       res: Response,
-      message: string = 'Resource conflict',
-      details?: any,
+      statusCode:number = 409,
+      errors = [{
+        code: 6002,
+        type: 'INTERNAL',
+        name: 'ConflictError',
+        description: 'Resource conflict'
+      }],
       audit?: AuditData
-    ): Response {
-      return this.error(res, message, 'CONFLICT', 409, details, audit);
+    ): void {
+      this.error(res, statusCode, errors, audit);
     }
   
     static internalError(
       res: Response,
-      message: string = 'Internal server error',
-      details?: any,
+      statusCode: number = 500,
+      errors = [{
+        code: 5000,
+        type: 'INTERNAL',
+        name: 'InternalError',
+        description: 'Internal server error'
+      }],
       audit?: AuditData
-    ): Response {
-      return this.error(res, message, 'INTERNAL_ERROR', 500, details, audit);
+    ): void {
+      this.error(res, statusCode, errors, audit);
     }
   
     private static generateRequestId(): string {

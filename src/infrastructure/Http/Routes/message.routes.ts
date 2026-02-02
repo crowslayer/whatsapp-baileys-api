@@ -1,8 +1,8 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { body, param } from 'express-validator';
 import { validate } from '../Middlewares/ValidationMiddleware';
-import { IWhatsAppInstanceRepository } from '@domain/Repositories/IWhatsAppInstanceRepository';
-import { BaileysConnectionManager } from '@infrastructure/Baileys/BaileysConnectionManager';
+import { IWhatsAppInstanceRepository } from '../../../domain/Repositories/IWhatsAppInstanceRepository.js';
+import { BaileysConnectionManager } from '../../Baileys/BaileysConnectionManager.js';
 import { MessageController } from '../Controllers/MessageController';
 export const createMessageRouter = (
     repository: IWhatsAppInstanceRepository,
@@ -18,7 +18,7 @@ export const createMessageRouter = (
         body('to').isString().notEmpty().withMessage('Recipient is required'),
         body('message').isString().notEmpty().withMessage('Message is required'),
       ]),
-      (req, res) => controller.send(req, res)
+      (req:Request, res:Response, next:NextFunction) => controller.send(req, res, next)
     );
   
     return router;

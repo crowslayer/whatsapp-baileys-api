@@ -1,4 +1,5 @@
 import { ValueObject } from '@shared/domain/ValueObject';
+import { ValidationError } from '@shared/infrastructure/Error/ValidationError';
 import { v4 as uuidv4 } from 'uuid';
 
 export class InstanceId extends ValueObject<string> {
@@ -12,7 +13,7 @@ export class InstanceId extends ValueObject<string> {
 
   protected validate(): void {
     if (!this._value || this._value.trim().length === 0) {
-      throw new Error('InstanceId cannot be empty');
+      throw new ValidationError([{field:'instanceId', message:'InstanceId cannot be empty' }]);
     }
   }
 }

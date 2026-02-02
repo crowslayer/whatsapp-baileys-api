@@ -1,5 +1,5 @@
 import { AggregateRoot } from '@shared/domain/AggregateRoot';
-import { ValidationError } from '@shared/infrastructure/ErrorHandler';
+import { ValidationError } from '@shared/infrastructure/Error/ValidationError';
 import { PairingCodeGeneratedEvent } from '@domain/Events/PairingCodeGeneratedEvent';
 import { QRCodeGeneratedEvent } from '@domain/Events/QRCodeGeneratedEvent';
 import { InstanceConnectedEvent } from '@domain/Events/InstanceConnectedEvent';
@@ -174,11 +174,11 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
 
   protected validate(): void {
     if (!this._name || this._name.trim().length === 0) {
-      throw new ValidationError('Instance name is required');
+      throw new ValidationError([{field:'name', message:'Instance name is required'}]);
     }
 
     if (this._name.length > 100) {
-      throw new ValidationError('Instance name must be less than 100 characters');
+      throw new ValidationError([{field:'name',message:'Instance name must be less than 100 characters'}]);
     }
   }
 
