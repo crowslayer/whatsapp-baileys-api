@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp QR - <%= instanceName %></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .instance-name {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .instance-id {
+            color: #999;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+
+        .status-connecting {
+            background: #FFF3CD;
+            color: #856404;
+        }
+
+        .status-qr_ready {
+            background: #D1ECF1;
+            color: #0C5460;
+        }
+
+        .status-connected {
+            background: #D4EDDA;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #F8D7DA;
+            color: #721C24;
+        }
+
+        .qr-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-code {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            background: white;
+            padding: 15px;
+        }
+
+        .qr-placeholder {
+            color: #999;
+            font-size: 16px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #25D366;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .instructions {
+            background: #E7F3FF;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .instructions h3 {
+            color: #1976D2;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin: 5px 0;
+        }
+
+        .connected-info {
+            background: #D4EDDA;
+            border-left: 4px solid #28A745;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .connected-info h3 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .phone-number {
+            font-size: 20px;
+            font-weight: 600;
+            color: #28A745;
+            font-family: monospace;
+        }
+
+        .refresh-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .auto-refresh {
+            color: #999;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .error-message {
+            background: #F8D7DA;
+            border-left: 4px solid #DC3545;
+            padding: 15px;
+            border-radius: 5px;
+            color: #721C24;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">📱</div>
+            <h1>Conectar WhatsApp</h1>
+            <p class="instance-name"><%= instanceName %></p>
+            <p class="instance-id">ID: <%= instanceId %></p>
+        </div>
+
+        <div id="status-container">
+            <span class="status-badge status-<%= status %>">
+                <span id="status-text"><%= status %></span>
+            </span>
+        </div>
+
+        <div class="qr-container" id="qr-container">
+            <% if (status === 'connected' && phoneNumber) { %>
+                <div class="connected-info">
+                    <h3> ¡Conectado Exitosamente!</h3>
+                    <p class="phone-number"><%= phoneNumber %></p>
+                </div>
+            <% } else if (qrCode && status === 'qr_ready') { %>
+                <img src="<%= qrCode %>" alt="QR Code" class="qr-code" id="qr-image">
+            <% } else { %>
+                <div class="spinner"></div>
+                <p class="qr-placeholder">Generando código QR...</p>
+            <% } %>
+        </div>
+
+        <% if (status !== 'connected') { %>
+        <div class="instructions">
+            <h3> Instrucciones:</h3>
+            <ol>
+                <li>Abre WhatsApp en tu teléfono</li>
+                <li>Toca <strong>Menú</strong> o <strong>Configuración</strong></li>
+                <li>Selecciona <strong>Dispositivos vinculados</strong></li>
+                <li>Toca <strong>Vincular un dispositivo</strong></li>
+                <li>Escanea este código QR</li>
+            </ol>
+        </div>
+        <% } %>
+
+        <button class="refresh-btn" onclick="refreshQR()">
+             Actualizar
+        </button>
+        
+        <p class="auto-refresh">Actualización automática cada 3 segundos</p>
+    </div>
+
+    <script>
+        let refreshInterval;
+
+        async function refreshQR() {
+            try {
+                const response = await fetch('/api/v1/instances/<%= instanceId %>/qr/status');
+                const data = await response.json();
+
+                // Actualizar status
+                const statusText = document.getElementById('status-text');
+                const statusBadge = statusText.parentElement;
+                statusBadge.className = 'status-badge status-' + data.status;
+                statusText.textContent = data.status;
+
+                const qrContainer = document.getElementById('qr-container');
+
+                if (data.connected && data.phoneNumber) {
+                    // Mostrar conectado
+                    qrContainer.innerHTML = `
+                        <div class="connected-info">
+                            <h3> ¡Conectado Exitosamente!</h3>
+                            <p class="phone-number">${data.phoneNumber}</p>
+                        </div>
+                    `;
+                    clearInterval(refreshInterval);
+                } else if (data.qrCode && data.status === 'qr_ready') {
+                    // Mostrar QR
+                    qrContainer.innerHTML = `
+                        <img src="${data.qrCode}" alt="QR Code" class="qr-code" id="qr-image">
+                    `;
+                } else {
+                    // Mostrar cargando
+                    qrContainer.innerHTML = `
+                        <div class="spinner"></div>
+                        <p class="qr-placeholder">Generando código QR...</p>
+                    `;
+                }
+            } catch (error) {
+                
+                const qrContainer = document.getElementById('qr-container');
+                qrContainer.innerHTML = `
+                    <div class="error-message">
+                         Error al actualizar. Intenta de nuevo.
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-refresh cada 3 segundos
+        refreshInterval = setInterval(refreshQR, 3000);
+
+        // Refresh inicial después de 1 segundo
+        setTimeout(refreshQR, 1000);
+    </script>
+</body>
+</html>
