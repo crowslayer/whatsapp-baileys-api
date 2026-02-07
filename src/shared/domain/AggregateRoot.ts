@@ -1,20 +1,20 @@
-import { DomainEvent } from "@shared/domain/DomainEvent";
-import { Entity } from "@shared/domain/Entity";
+import { DomainEvent } from '@shared/domain/DomainEvent';
+import { Entity } from '@shared/domain/Entity';
 
 export abstract class AggregateRoot<T> extends Entity<T> {
-    private _domainEvents: DomainEvent[] = [];
-  
-    get domainEvents(): DomainEvent[] {
-      return this._domainEvents;
-    }
-  
-    protected addDomainEvent(event: DomainEvent): void {
-      this._domainEvents.push(event);
-    }
-  
-    public clearEvents(): void {
-      this._domainEvents = [];
-    }
-  
-    protected abstract validate(): void;
+  private _domainEvents: DomainEvent[] = [];
+
+  get domainEvents(): DomainEvent[] {
+    return this._domainEvents;
   }
+
+  protected addDomainEvent(event: DomainEvent): void {
+    this._domainEvents.push(event);
+  }
+
+  public clearEvents(): void {
+    this._domainEvents = [];
+  }
+
+  protected abstract validate(): void;
+}

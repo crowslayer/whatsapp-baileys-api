@@ -1,15 +1,17 @@
+import path from 'path';
+
+import { Boom } from '@hapi/boom';
 import makeWASocket, {
   DisconnectReason,
-  useMultiFileAuthState,
+  WASocket,
   fetchLatestBaileysVersion,
   makeCacheableSignalKeyStore,
-  WASocket,
   proto,
+  useMultiFileAuthState,
 } from '@whiskeysockets/baileys';
-import { Boom } from '@hapi/boom';
-import QRCode from 'qrcode';
 import pino from 'pino';
-import path from 'path';
+import QRCode from 'qrcode';
+
 import { WhatsAppConnectionError } from '@shared/infrastructure/Error/WhatsAppConnectionError';
 
 export interface BaileysConnectionOptions {
@@ -45,8 +47,8 @@ export class BaileysAdapter {
           creds: state.creds,
           keys: makeCacheableSignalKeyStore(state.keys, this.logger),
         },
-        browser: ['WhatsApp API', 'Chrome', '4.0.0'], 
-        markOnlineOnConnect: false, 
+        browser: ['WhatsApp API', 'Chrome', '4.0.0'],
+        markOnlineOnConnect: false,
         generateHighQualityLinkPreview: true,
         syncFullHistory: false,
         getMessage: async (key) => {
@@ -115,7 +117,7 @@ export class BaileysAdapter {
 
         if (shouldReconnect) {
           const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
-          
+
           // Manejo de errores específicos
           if (statusCode === DisconnectReason.restartRequired) {
             this.logger.info('Restart required, reconnecting...');
@@ -204,7 +206,12 @@ export class BaileysAdapter {
     }
   }
 
-  async sendAudio(to: string, audio: Buffer, ptt: boolean = false, mimetype?: string): Promise<void> {
+  async sendAudio(
+    to: string,
+    audio: Buffer,
+    ptt: boolean = false,
+    mimetype?: string
+  ): Promise<void> {
     if (!this.socket) {
       throw new WhatsAppConnectionError('Socket not connected');
     }
@@ -294,7 +301,7 @@ export class BaileysAdapter {
       await this.socket.sendMessage(to, {
         contacts: {
           displayName: contacts[0]?.displayName || 'Contact',
-          contacts: contacts.map(c => ({ vcard: c.vcard })),
+          contacts: contacts.map((c) => ({ vcard: c.vcard })),
         },
       });
     } catch (error: any) {
@@ -355,10 +362,7 @@ export class BaileysAdapter {
     try {
       await this.socket.groupParticipantsUpdate(groupId, participants, 'add');
     } catch (error: any) {
-      throw new WhatsAppConnectionError(
-        `Failed to add participants: ${error.message}`,
-        error
-      );
+      throw new WhatsAppConnectionError(`Failed to add participants: ${error.message}`, error);
     }
   }
 
@@ -370,10 +374,7 @@ export class BaileysAdapter {
     try {
       await this.socket.groupParticipantsUpdate(groupId, participants, 'remove');
     } catch (error: any) {
-      throw new WhatsAppConnectionError(
-        `Failed to remove participants: ${error.message}`,
-        error
-      );
+      throw new WhatsAppConnectionError(`Failed to remove participants: ${error.message}`, error);
     }
   }
 

@@ -1,3 +1,3 @@
 export class GetQRCodeQuery {
-    constructor(public readonly instanceId: string) {}
-}  
+  constructor(public readonly instanceId: string) {}
+}

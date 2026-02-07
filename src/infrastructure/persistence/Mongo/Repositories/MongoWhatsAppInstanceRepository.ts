@@ -1,12 +1,12 @@
-import { WhatsAppInstanceAggregate } from "@domain/Aggregates/WhatsAppInstanceAggregate";
-import { IWhatsAppInstanceRepository } from "@domain/Repositories/IWhatsAppInstanceRepository";
-import { ConnectionStatus } from "@domain/Value-Objects/ConnectionStatus";
-import { InstanceId } from "@domain/Value-Objects/InstanceId";
-import { PhoneNumber } from "@domain/Value-Objects/PhoneNumber";
-import { WhatsAppInstanceModel } from "@infrastructure/persistence/Mongo/Models/WhatsAppInstanceModel";
-import { InfrastructureError } from "@shared/infrastructure/Error/InfrastructureError";
+import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
+import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { ConnectionStatus } from '@domain/value-objects/ConnectionStatus';
+import { InstanceId } from '@domain/value-objects/InstanceId';
+import { PhoneNumber } from '@domain/value-objects/PhoneNumber';
 
+import { WhatsAppInstanceModel } from '@infrastructure/persistence/Mongo/Models/WhatsAppInstanceModel';
 
+import { InfrastructureError } from '@shared/infrastructure/Error/InfrastructureError';
 
 export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceRepository {
   async save(instance: WhatsAppInstanceAggregate): Promise<void> {
@@ -26,10 +26,7 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
 
       await document.save();
     } catch (error: any) {
-      throw new InfrastructureError(
-        `Failed to save WhatsApp instance: ${error.message}`,
-        error
-      );
+      throw new InfrastructureError(`Failed to save WhatsApp instance: ${error.message}`, error);
     }
   }
 
@@ -40,10 +37,7 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
 
       return this.toDomain(document);
     } catch (error: any) {
-      throw new InfrastructureError(
-        `Failed to find WhatsApp instance: ${error.message}`,
-        error
-      );
+      throw new InfrastructureError(`Failed to find WhatsApp instance: ${error.message}`, error);
     }
   }
 
@@ -64,7 +58,7 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
   async findAll(): Promise<WhatsAppInstanceAggregate[]> {
     try {
       const documents = await WhatsAppInstanceModel.find().sort({ createdAt: -1 });
-      return documents.map(doc => this.toDomain(doc));
+      return documents.map((doc) => this.toDomain(doc));
     } catch (error: any) {
       throw new InfrastructureError(
         `Failed to find all WhatsApp instances: ${error.message}`,
@@ -93,10 +87,7 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
         }
       );
     } catch (error: any) {
-      throw new InfrastructureError(
-        `Failed to update WhatsApp instance: ${error.message}`,
-        error
-      );
+      throw new InfrastructureError(`Failed to update WhatsApp instance: ${error.message}`, error);
     }
   }
 
@@ -104,10 +95,7 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
     try {
       await WhatsAppInstanceModel.deleteOne({ instanceId });
     } catch (error: any) {
-      throw new InfrastructureError(
-        `Failed to delete WhatsApp instance: ${error.message}`,
-        error
-      );
+      throw new InfrastructureError(`Failed to delete WhatsApp instance: ${error.message}`, error);
     }
   }
 

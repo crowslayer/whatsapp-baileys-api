@@ -1,8 +1,11 @@
-import { SendContactCommand } from "@application/Commands/SendContactCommand";
-import { IWhatsAppInstanceRepository } from "@domain/Repositories/IWhatsAppInstanceRepository";
-import { BaileysConnectionManager } from "@infrastructure/Baileys/BaileysConnectionManager";
-import { NotFoundError } from "@shared/infrastructure/Error/NotFoundError";
-import { ValidationError } from "@shared/infrastructure/Error/ValidationError";
+import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+
+import { SendContactCommand } from '@application/commands/SendContactCommand';
+
+import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
+
+import { NotFoundError } from '@shared/infrastructure/Error/NotFoundError';
+import { ValidationError } from '@shared/infrastructure/Error/ValidationError';
 
 export class SendContactHandler {
   constructor(
@@ -17,12 +20,16 @@ export class SendContactHandler {
     }
 
     if (!instance.canSendMessages()) {
-      throw new ValidationError([{field:'instance', message:`Instance ${command.instanceId} is not connected`}]);
+      throw new ValidationError([
+        { field: 'instance', message: `Instance ${command.instanceId} is not connected` },
+      ]);
     }
 
     const adapter = this.connectionManager.getConnection(command.instanceId);
     if (!adapter) {
-      throw new ValidationError([{field:'instance', message: `Instance ${command.instanceId} adapter not found`}]);
+      throw new ValidationError([
+        { field: 'instance', message: `Instance ${command.instanceId} adapter not found` },
+      ]);
     }
 
     await adapter.sendContact(command.to, command.contacts);

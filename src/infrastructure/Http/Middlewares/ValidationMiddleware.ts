@@ -1,27 +1,27 @@
-import { Request, Response, NextFunction } from 'express';
-import { validationResult, ValidationChain } from 'express-validator';
-import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
+import { NextFunction, Request, Response } from 'express';
+import { ValidationChain, validationResult } from 'express-validator';
+
 import { ApiError } from '@shared/infrastructure/ErrorHandler';
+import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export const validate = (validations: ValidationChain[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    await Promise.all(validations.map(validation => validation.run(req)));
+    await Promise.all(validations.map((validation) => validation.run(req)));
 
     const errors = validationResult(req);
     if (errors.isEmpty()) {
       return next();
     }
 
-    
     const errorMessages: ApiError[] = [];
-    errors.array().forEach(error => {
+    errors.array().forEach((error) => {
       if (error.type === 'field') {
-          const errorParse = {
+        const errorParse = {
           type: 'field',
           code: 2001,
           name: error.path,
-          description: error.msg
-        }
+          description: error.msg,
+        };
         errorMessages.push(errorParse);
       }
     });

@@ -1,10 +1,10 @@
-import { config } from "@config/env.js";
-import { createApp } from "@infrastructure/Http/App";
-import { PinoLogger } from "@infrastructure/Logger/PinoLogger/PinoLogger";
-import { BaileysConnectionManager } from "@infrastructure/Baileys/BaileysConnectionManager";
-import { connectDatabase } from "@infrastructure/persistence/Mongo/Connection";
-import { MongoWhatsAppInstanceRepository } from "@infrastructure/persistence/Mongo/Repositories/MongoWhatsAppInstanceRepository";
+import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
+import { createApp } from '@infrastructure/Http/App';
+import { PinoLogger } from '@infrastructure/Logger/PinoLogger/PinoLogger';
+import { connectDatabase } from '@infrastructure/persistence/Mongo/Connection';
+import { MongoWhatsAppInstanceRepository } from '@infrastructure/persistence/Mongo/Repositories/MongoWhatsAppInstanceRepository';
 
+import { config } from '@config/env.js';
 
 const logger = new PinoLogger();
 
@@ -30,14 +30,12 @@ async function bootstrap() {
       logger.info(`Environment: ${config.nodeEnv}`);
       logger.info(`Port: ${config.port}`);
       logger.info(`API: http://localhost:${config.port}/api/v1`);
-                          
-                
     });
 
     // Graceful shutdown
     const gracefulShutdown = async () => {
       logger.info('Shutting down gracefully...');
-      
+
       server.close(() => {
         logger.info('HTTP server closed');
       });
@@ -58,7 +56,6 @@ async function bootstrap() {
 
     process.on('SIGTERM', gracefulShutdown);
     process.on('SIGINT', gracefulShutdown);
-
   } catch (error) {
     logger.error('Failed to start application:', error);
     process.exit(1);

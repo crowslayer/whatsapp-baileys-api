@@ -1,10 +1,14 @@
-import { IWhatsAppInstanceRepository } from "@domain/Repositories/IWhatsAppInstanceRepository";
-import { ConnectionStatusEnum } from "@domain/Value-Objects/ConnectionStatus";
-import { BaileysAdapter } from "./BaileysAdapter";
-import { Logger } from "@infrastructure/Logger/Logger";
-import axios, { AxiosInstance } from "axios";
-import { NotFoundError } from "@shared/infrastructure/Error/NotFoundError";
-import { DatabaseConnectionError } from "@shared/infrastructure/Error/DatabaseConnectionError";
+import axios, { AxiosInstance } from 'axios';
+
+import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { ConnectionStatusEnum } from '@domain/value-objects/ConnectionStatus';
+
+import { Logger } from '@infrastructure/Logger/Logger';
+
+import { DatabaseConnectionError } from '@shared/infrastructure/Error/DatabaseConnectionError';
+import { NotFoundError } from '@shared/infrastructure/Error/NotFoundError';
+
+import { BaileysAdapter } from './BaileysAdapter';
 
 export class BaileysConnectionManager {
   private connections: Map<string, BaileysAdapter> = new Map();
@@ -12,11 +16,18 @@ export class BaileysConnectionManager {
   private webhookClients: Map<string, AxiosInstance> = new Map();
   private logger: Logger;
 
-  constructor(private repository: IWhatsAppInstanceRepository, logger: Logger) {
+  constructor(
+    private repository: IWhatsAppInstanceRepository,
+    logger: Logger
+  ) {
     this.logger = logger;
   }
 
-  async createConnection(instanceId: string, usePairingCode: boolean = false, phoneNumber?: string): Promise<void> {
+  async createConnection(
+    instanceId: string,
+    usePairingCode: boolean = false,
+    phoneNumber?: string
+  ): Promise<void> {
     try {
       const instance = await this.repository.findById(instanceId);
       if (!instance) {
@@ -25,11 +36,14 @@ export class BaileysConnectionManager {
 
       if (instance.webhookUrl) {
         const baseURL = instance.webhookUrl.replace(/\/$/, '');
-        this.webhookClients.set(instanceId, axios.create({
-          baseURL,
-          timeout: 10000,
-          headers: { 'Content-Type': 'application/json' },
-        }));
+        this.webhookClients.set(
+          instanceId,
+          axios.create({
+            baseURL,
+            timeout: 10000,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
         this.logger.info(`Webhook configured for instance ${instanceId}: ${baseURL}`);
       }
 
@@ -124,7 +138,10 @@ export class BaileysConnectionManager {
           await this.createConnection(instance.instanceId);
           this.logger.info(`Restored connection for instance ${instance.instanceId}`);
         } catch (error) {
-          this.logger.error(`Failed to restore connection for instance ${instance.instanceId}:`, error);
+          this.logger.error(
+            `Failed to restore connection for instance ${instance.instanceId}:`,
+            error
+          );
           throw new DatabaseConnectionError(error);
         }
       }

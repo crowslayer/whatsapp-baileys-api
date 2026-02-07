@@ -1,10 +1,13 @@
-import { Router, Request,NextFunction, Response } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import { body, param } from 'express-validator';
-import { validate } from "../Middlewares/ValidationMiddleware";
-import { IWhatsAppInstanceRepository } from '@domain/Repositories/IWhatsAppInstanceRepository';
-import { BaileysConnectionManager } from '@infrastructure/Baileys/BaileysConnectionManager';
-import { MultimediaController } from '../Controllers/MultimediaController';
 import multer from 'multer';
+
+import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+
+import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
+
+import { MultimediaController } from '../Controllers/MultimediaController';
+import { validate } from '../Middlewares/ValidationMiddleware';
 
 // Configuración de multer para manejo de archivos
 const storage = multer.memoryStorage();
@@ -71,7 +74,7 @@ export const createMultimediaRouter = (
       body('caption').optional().isString(),
       body('fileName').optional().isString(),
     ]),
-    (req:Request, res:Response, next:NextFunction) => controller.sendImage(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => controller.sendImage(req, res, next)
   );
 
   // Enviar documento
@@ -83,7 +86,7 @@ export const createMultimediaRouter = (
       body('to').isString().notEmpty().withMessage('Recipient is required'),
       body('caption').optional().isString(),
     ]),
-    (req:Request, res:Response, next:NextFunction) => controller.sendDocument(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => controller.sendDocument(req, res, next)
   );
 
   // Enviar audio
@@ -95,7 +98,7 @@ export const createMultimediaRouter = (
       body('to').isString().notEmpty().withMessage('Recipient is required'),
       body('ptt').optional().isString(), // 'true' o 'false'
     ]),
-    (req:Request, res:Response, next:NextFunction) => controller.sendAudio(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => controller.sendAudio(req, res, next)
   );
 
   // Enviar video
@@ -109,7 +112,7 @@ export const createMultimediaRouter = (
       body('gifPlayback').optional().isString(),
       body('fileName').optional().isString(),
     ]),
-    (req:Request, res:Response, next:NextFunction) => controller.sendVideo(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => controller.sendVideo(req, res, next)
   );
 
   // Enviar ubicación
@@ -123,7 +126,7 @@ export const createMultimediaRouter = (
       body('name').optional().isString(),
       body('address').optional().isString(),
     ]),
-    (req:Request, res:Response, next:NextFunction) => controller.sendLocation(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => controller.sendLocation(req, res, next)
   );
 
   // Enviar reacción (emoji)
@@ -135,7 +138,7 @@ export const createMultimediaRouter = (
       body('chatId').isString().notEmpty().withMessage('Chat ID is required'),
       body('emoji').isString().notEmpty().withMessage('Emoji is required'),
     ]),
-    (req:Request, res:Response, next:NextFunction) => controller.sendReaction(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => controller.sendReaction(req, res, next)
   );
 
   // Enviar contacto(s)
@@ -146,9 +149,12 @@ export const createMultimediaRouter = (
       body('to').isString().notEmpty().withMessage('Recipient is required'),
       body('contacts').isArray().withMessage('Contacts array is required'),
       body('contacts.*.displayName').optional().isString(),
-      body('contacts.*.vcard').isString().notEmpty().withMessage('vcard is required for each contact'),
+      body('contacts.*.vcard')
+        .isString()
+        .notEmpty()
+        .withMessage('vcard is required for each contact'),
     ]),
-    (req:Request, res:Response, next:NextFunction) => controller.sendContact(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => controller.sendContact(req, res, next)
   );
 
   // Enviar sticker (imagen WebP)
@@ -159,7 +165,7 @@ export const createMultimediaRouter = (
       param('instanceId').isString().notEmpty(),
       body('to').isString().notEmpty().withMessage('Recipient is required'),
     ]),
-    (req:Request, res:Response, next:NextFunction) => controller.sendSticker(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => controller.sendSticker(req, res, next)
   );
 
   return router;

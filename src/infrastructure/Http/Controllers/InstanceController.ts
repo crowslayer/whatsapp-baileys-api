@@ -1,17 +1,21 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateInstanceCommand } from "@application/Commands/CreateInstanceCommand";
-import { CreateInstanceHandler } from "@application/Handlers/CreateInstanceHandler";
-import { GetInstanceHandler } from "@application/Handlers/GetInstanceHandler";
-import { ListInstancesHandler } from "@application/Handlers/ListInstancesHandler";
-import { GetInstanceQuery } from "@application/Queries/GetInstanceQuery";
-import { ListInstancesQuery } from "@application/Queries/ListInstancesQuery";
-import { IWhatsAppInstanceRepository } from "@domain/Repositories/IWhatsAppInstanceRepository";
-import { BaileysConnectionManager } from "@infrastructure/Baileys/BaileysConnectionManager";
-import { AuditDataBuilder } from "@shared/infrastructure/AuditData";
-import { ResponseHandler } from "@shared/infrastructure/ResponseHandler";
-import pino from "pino";
+import pino from 'pino';
+
+import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+
+import { CreateInstanceCommand } from '@application/commands/CreateInstanceCommand';
+import { CreateInstanceHandler } from '@application/handlers/CreateInstanceHandler';
+import { GetInstanceHandler } from '@application/handlers/GetInstanceHandler';
+import { ListInstancesHandler } from '@application/handlers/ListInstancesHandler';
+import { GetInstanceQuery } from '@application/queries/GetInstanceQuery';
+import { ListInstancesQuery } from '@application/queries/ListInstancesQuery';
+
+import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
+
+import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { NotFoundError } from '@shared/infrastructure/Error/NotFoundError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/Error/WhatsAppConnectionError';
+import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class InstanceController {
   private logger = pino();
@@ -19,7 +23,7 @@ export class InstanceController {
   constructor(
     private repository: IWhatsAppInstanceRepository,
     private connectionManager: BaileysConnectionManager
-  ) { }
+  ) {}
 
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -36,10 +40,14 @@ export class InstanceController {
 
       this.logger.info(`Instance created: ${instance.instanceId}`);
 
-      return ResponseHandler.created(res, instance.toJSON(), 'Instance created successfully', audit);
-      
+      return ResponseHandler.created(
+        res,
+        instance.toJSON(),
+        'Instance created successfully',
+        audit
+      );
     } catch (error: any) {
-      next(error)
+      next(error);
     }
   }
 
@@ -56,11 +64,15 @@ export class InstanceController {
       const query = new GetInstanceQuery(instanceId);
       const instance = await handler.execute(query);
 
-      return ResponseHandler.success(res, instance.toJSON(), 'Instance retrieved successfully', 200, audit);
-
+      return ResponseHandler.success(
+        res,
+        instance.toJSON(),
+        'Instance retrieved successfully',
+        200,
+        audit
+      );
     } catch (error: any) {
       next(error);
-      
     }
   }
 
@@ -74,12 +86,11 @@ export class InstanceController {
       const query = new ListInstancesQuery();
       const instances = await handler.execute(query);
 
-      const data = instances.map(i => i.toJSON());
+      const data = instances.map((i) => i.toJSON());
 
       return ResponseHandler.success(res, data, 'Instances retrieved successfully', 200, audit);
     } catch (error: any) {
       next(error);
-      
     }
   }
 
@@ -100,7 +111,6 @@ export class InstanceController {
       return ResponseHandler.success(res, null, 'Instance deleted successfully', 200, audit);
     } catch (error: any) {
       next(error);
-      
     }
   }
 
@@ -120,7 +130,6 @@ export class InstanceController {
       return ResponseHandler.success(res, null, 'Instance disconnected successfully', 200, audit);
     } catch (error: any) {
       next(error);
-      
     }
   }
 
@@ -130,18 +139,20 @@ export class InstanceController {
 
       const instance = await this.repository.findById(instanceId);
       if (!instance) {
-        throw new NotFoundError(instanceId)
+        throw new NotFoundError(instanceId);
       }
 
       if (!instance.qrCode) {
         throw new WhatsAppConnectionError('QR Code not available yet');
-        
       }
 
-      return ResponseHandler.success(res, { qrCode: instance.qrCode }, 'QR Code retrieved successfully');
+      return ResponseHandler.success(
+        res,
+        { qrCode: instance.qrCode },
+        'QR Code retrieved successfully'
+      );
     } catch (error: any) {
       next(error);
     }
   }
-
 }

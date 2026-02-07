@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { Logger } from '@infrastructure/Logger/Logger';
 
+import { Logger } from '@infrastructure/Logger/Logger';
 
 export function loggerMiddleware(logger: Logger) {
   return (req: Request, res: Response, next: NextFunction): void => {
