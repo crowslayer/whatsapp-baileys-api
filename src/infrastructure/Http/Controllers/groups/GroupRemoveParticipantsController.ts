@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
-import { WhatsAppConnectionError } from '@shared/infrastructure/Error/WhatsAppConnectionError';
+import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 import { Controller } from '../Controller';

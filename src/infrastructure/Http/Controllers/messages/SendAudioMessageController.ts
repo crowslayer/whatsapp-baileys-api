@@ -8,7 +8,7 @@ import { SendAudioHandler } from '@application/handlers/SendAudioHandler';
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
-import { NotFoundError } from '@shared/infrastructure/Error/NotFoundError';
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 import { Controller } from '../Controller';

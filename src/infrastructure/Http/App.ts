@@ -8,14 +8,14 @@ import helmet from 'helmet';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-import { Logger } from '@infrastructure/Logger/Logger';
+import { Logger } from '@infrastructure/loggers/Logger';
 
-import { errorMiddleware } from './Middlewares/ErrorMiddleware';
-import { loggerMiddleware } from './Middlewares/LoggerMiddleware';
-import { createGroupRouter } from './Routes/group.routes';
-import { createInstanceRouter } from './Routes/instance.routes';
-import { createMessageRouter } from './Routes/message.routes';
-import { createMultimediaRouter } from './Routes/multimedia.routes';
+import { errorMiddleware } from './middlewares/ErrorMiddleware';
+import { loggerMiddleware } from './middlewares/LoggerMiddleware';
+import { createGroupRouter } from './routes/group.routes';
+import { createInstanceRouter } from './routes/instance.routes';
+import { createMessageRouter } from './routes/message.routes';
+import { createMultimediaRouter } from './routes/multimedia.routes';
 
 export const createApp = (
   repository: IWhatsAppInstanceRepository,
@@ -39,12 +39,12 @@ export const createApp = (
   const loggerMiddlewareHandler = loggerMiddleware(logger);
   app.use(loggerMiddlewareHandler);
 
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
+  const filename = fileURLToPath(import.meta.url);
+  const pathViews = dirname(filename);
 
   // views temporal
   app.set('view engine', 'ejs');
-  app.set('views', path.join(__dirname, '../Views'));
+  app.set('views', path.join(pathViews, '../Views'));
 
   // Health check
   app.get('/health', (req, res) => {

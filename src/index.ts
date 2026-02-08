@@ -1,14 +1,14 @@
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-import { createApp } from '@infrastructure/Http/App';
-import { PinoLogger } from '@infrastructure/Logger/PinoLogger/PinoLogger';
-import { connectDatabase } from '@infrastructure/persistence/Mongo/Connection';
-import { MongoWhatsAppInstanceRepository } from '@infrastructure/persistence/Mongo/Repositories/MongoWhatsAppInstanceRepository';
+import { createApp } from '@infrastructure/http/App';
+import { PinoLogger } from '@infrastructure/loggers/pino-logger/PinoLogger';
+import { connectDatabase } from '@infrastructure/persistence/mongo/Connection';
+import { MongoWhatsAppInstanceRepository } from '@infrastructure/persistence/mongo/repositories/MongoWhatsAppInstanceRepository';
 
 import { config } from '@config/env.js';
 
 const logger = new PinoLogger();
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   try {
     // Connect to database
     await connectDatabase(logger);
@@ -33,7 +33,7 @@ async function bootstrap() {
     });
 
     // Graceful shutdown
-    const gracefulShutdown = async () => {
+    const gracefulShutdown = async (): Promise<void> => {
       logger.info('Shutting down gracefully...');
 
       server.close(() => {

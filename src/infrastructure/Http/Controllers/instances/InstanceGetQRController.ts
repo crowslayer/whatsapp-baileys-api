@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
-import { NotFoundError } from '@shared/infrastructure/Error/NotFoundError';
-import { WhatsAppConnectionError } from '@shared/infrastructure/Error/WhatsAppConnectionError';
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
+import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 import { Controller } from '../Controller';

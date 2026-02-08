@@ -1,6 +1,6 @@
-import { DatabaseError } from '@shared/infrastructure/Error/DatabaseError';
-import { ErrorCode } from '@shared/infrastructure/Error/ErrorCodes';
-import { ErrorType } from '@shared/infrastructure/Error/ErrorType';
+import { DatabaseError } from '@shared/infrastructure/errors/DatabaseError';
+import { ErrorCode } from '@shared/infrastructure/errors/ErrorCodes';
+import { ErrorType } from '@shared/infrastructure/errors/ErrorType';
 
 export class DatabasePersistenceError extends DatabaseError {
   readonly type = ErrorType.DATABASE;

@@ -1,4 +1,4 @@
-export interface DomainEvent {
+export interface IDomainEvent {
   occurredOn: Date;
   eventName: string;
   aggregateId: string;

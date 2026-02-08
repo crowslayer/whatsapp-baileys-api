@@ -1,6 +1,6 @@
-import { DomainError } from '@shared/infrastructure/Error/DomainError';
-import { ErrorCode } from '@shared/infrastructure/Error/ErrorCodes';
-import { ErrorType } from '@shared/infrastructure/Error/ErrorType';
+import { DomainError } from '@shared/infrastructure/errors/DomainError';
+import { ErrorCode } from '@shared/infrastructure/errors/ErrorCodes';
+import { ErrorType } from '@shared/infrastructure/errors/ErrorType';
 
 export type ValidationItem = {
   field: string;

@@ -6,8 +6,8 @@ import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInsta
 
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
-import { MultimediaController } from '../Controllers/MultimediaController';
-import { validate } from '../Middlewares/ValidationMiddleware';
+import { MultimediaController } from '../controllers/MultimediaController';
+import { validate } from '../middlewares/ValidationMiddleware';
 
 // Configuración de multer para manejo de archivos
 const storage = multer.memoryStorage();

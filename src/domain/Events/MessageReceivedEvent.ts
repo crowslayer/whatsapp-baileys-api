@@ -1,6 +1,6 @@
-import { DomainEvent } from '@shared/domain/DomainEvent';
+import { IDomainEvent } from '@shared/domain/DomainEvent';
 
-export class MessageReceivedEvent implements DomainEvent {
+export class MessageReceivedEvent implements IDomainEvent {
   public readonly occurredOn: Date;
   public readonly eventName: string = 'message.received';
 

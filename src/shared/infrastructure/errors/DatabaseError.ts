@@ -1,5 +1,5 @@
-import { ApplicationError } from '@shared/infrastructure/Error/ApplicationError';
-import { ErrorType } from '@shared/infrastructure/Error/ErrorType';
+import { ApplicationError } from '@shared/infrastructure/errors/ApplicationError';
+import { ErrorType } from '@shared/infrastructure/errors/ErrorType';
 
 export abstract class DatabaseError extends ApplicationError {
   readonly type = ErrorType.DATABASE;

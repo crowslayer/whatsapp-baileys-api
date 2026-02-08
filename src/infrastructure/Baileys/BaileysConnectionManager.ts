@@ -3,24 +3,24 @@ import axios, { AxiosInstance } from 'axios';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 import { ConnectionStatusEnum } from '@domain/value-objects/ConnectionStatus';
 
-import { Logger } from '@infrastructure/Logger/Logger';
+import { Logger } from '@infrastructure/loggers/Logger';
 
-import { DatabaseConnectionError } from '@shared/infrastructure/Error/DatabaseConnectionError';
-import { NotFoundError } from '@shared/infrastructure/Error/NotFoundError';
+import { DatabaseConnectionError } from '@shared/infrastructure/errors/DatabaseConnectionError';
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 
 import { BaileysAdapter } from './BaileysAdapter';
 
 export class BaileysConnectionManager {
-  private connections: Map<string, BaileysAdapter> = new Map();
+  private _connections: Map<string, BaileysAdapter> = new Map();
   /** Cliente HTTP por instancia para enviar webhooks a la URL configurada de cada una */
-  private webhookClients: Map<string, AxiosInstance> = new Map();
-  private logger: Logger;
+  private _webhookClients: Map<string, AxiosInstance> = new Map();
+  private _logger: Logger;
 
   constructor(
     private repository: IWhatsAppInstanceRepository,
-    logger: Logger
+    _logger: Logger
   ) {
-    this.logger = logger;
+    this._logger = _logger;
   }
 
   async createConnection(
@@ -36,7 +36,7 @@ export class BaileysConnectionManager {
 
       if (instance.webhookUrl) {
         const baseURL = instance.webhookUrl.replace(/\/$/, '');
-        this.webhookClients.set(
+        this._webhookClients.set(
           instanceId,
           axios.create({
             baseURL,
@@ -44,7 +44,7 @@ export class BaileysConnectionManager {
             headers: { 'Content-Type': 'application/json' },
           })
         );
-        this.logger.info(`Webhook configured for instance ${instanceId}: ${baseURL}`);
+        this._logger.info(`Webhook configured for instance ${instanceId}: ${baseURL}`);
       }
 
       const adapter = new BaileysAdapter({
@@ -52,23 +52,23 @@ export class BaileysConnectionManager {
         onQRCode: async (qrBase64, qrText) => {
           instance.generateQRCode(qrBase64, qrText);
           await this.repository.update(instance);
-          this.logger.info(`QR Code generated for instance ${instanceId}`);
+          this._logger.info(`QR Code generated for instance ${instanceId}`);
         },
         onPairingCode: async (code) => {
           instance.generatePairingCode(code);
           await this.repository.update(instance);
-          this.logger.info(`Pairing code generated for instance ${instanceId}: ${code}`);
+          this._logger.info(`Pairing code generated for instance ${instanceId}: ${code}`);
         },
         onConnected: async (phoneNumber) => {
           instance.connect(phoneNumber);
           await this.repository.update(instance);
-          this.logger.info(`Instance ${instanceId} connected with phone ${phoneNumber}`);
+          this._logger.info(`Instance ${instanceId} connected with phone ${phoneNumber}`);
         },
         onDisconnected: async (reason) => {
           instance.disconnect(reason);
           await this.repository.update(instance);
-          this.connections.delete(instanceId);
-          this.logger.info(`Instance ${instanceId} disconnected: ${reason}`);
+          this._connections.delete(instanceId);
+          this._logger.info(`Instance ${instanceId} disconnected: ${reason}`);
         },
         onMessage: async (message) => {
           await this.sendWebhook(instanceId, 'message', { message });
@@ -81,21 +81,21 @@ export class BaileysConnectionManager {
         await adapter.connect();
       }
 
-      this.connections.set(instanceId, adapter);
+      this._connections.set(instanceId, adapter);
       instance.updateStatus(ConnectionStatusEnum.CONNECTING);
       await this.repository.update(instance);
     } catch (error: any) {
-      this.logger.error(`Failed to create connection for instance ${instanceId}:`, error);
+      this._logger.error(`Failed to create connection for instance ${instanceId}:`, error);
       throw error;
     }
   }
 
   async disconnectInstance(instanceId: string): Promise<void> {
-    const adapter = this.connections.get(instanceId);
+    const adapter = this._connections.get(instanceId);
     if (adapter) {
       adapter.disconnect();
-      this.connections.delete(instanceId);
-      this.webhookClients.delete(instanceId);
+      this._connections.delete(instanceId);
+      this._webhookClients.delete(instanceId);
 
       const instance = await this.repository.findById(instanceId);
       if (instance) {
@@ -106,11 +106,11 @@ export class BaileysConnectionManager {
   }
 
   async logoutInstance(instanceId: string): Promise<void> {
-    const adapter = this.connections.get(instanceId);
+    const adapter = this._connections.get(instanceId);
     if (adapter) {
       await adapter.logout();
-      this.connections.delete(instanceId);
-      this.webhookClients.delete(instanceId);
+      this._connections.delete(instanceId);
+      this._webhookClients.delete(instanceId);
 
       const instance = await this.repository.findById(instanceId);
       if (instance) {
@@ -121,24 +121,24 @@ export class BaileysConnectionManager {
   }
 
   getConnection(instanceId: string): BaileysAdapter | undefined {
-    return this.connections.get(instanceId);
+    return this._connections.get(instanceId);
   }
 
   isConnected(instanceId: string): boolean {
-    return this.connections.has(instanceId);
+    return this._connections.has(instanceId);
   }
 
   async restoreConnections(): Promise<void> {
-    this.logger.info('Restoring WhatsApp connections...');
+    this._logger.info('Restoring WhatsApp _connections...');
     const instances = await this.repository.findAll();
 
     for (const instance of instances) {
       if (instance.status.isConnected()) {
         try {
           await this.createConnection(instance.instanceId);
-          this.logger.info(`Restored connection for instance ${instance.instanceId}`);
+          this._logger.info(`Restored connection for instance ${instance.instanceId}`);
         } catch (error) {
-          this.logger.error(
+          this._logger.error(
             `Failed to restore connection for instance ${instance.instanceId}:`,
             error
           );
@@ -149,7 +149,7 @@ export class BaileysConnectionManager {
   }
 
   getAllConnections(): Map<string, BaileysAdapter> {
-    return this.connections;
+    return this._connections;
   }
 
   /**
@@ -157,7 +157,7 @@ export class BaileysConnectionManager {
    * Solo se envía si la instancia tiene webhookUrl; los errores se registran pero no se relanzan.
    */
   async sendWebhook(instanceId: string, type: string, body: unknown): Promise<void> {
-    const client = this.webhookClients.get(instanceId);
+    const client = this._webhookClients.get(instanceId);
     if (!client) return;
 
     try {
@@ -168,7 +168,7 @@ export class BaileysConnectionManager {
         timestamp: new Date().toISOString(),
       });
     } catch (error: unknown) {
-      this.logger.error(`Webhook error for instance ${instanceId} (${type}):`, error);
+      this._logger.error(`Webhook error for instance ${instanceId} (${type}):`, error);
       // No relanzar: el webhook no debe romper el flujo de mensajes
     }
   }

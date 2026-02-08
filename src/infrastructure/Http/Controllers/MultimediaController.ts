@@ -23,10 +23,10 @@ import { SendVideoHandler } from '@application/handlers/SendVideoHandler';
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
-import { NotFoundError } from '@shared/infrastructure/Error/NotFoundError';
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 export class MultimediaController {
-  private logger = pino();
+  private _logger = pino();
 
   constructor(
     private repository: IWhatsAppInstanceRepository,
@@ -52,7 +52,7 @@ export class MultimediaController {
       const command = new SendImageCommand(instanceId, to, req.file.buffer, caption, fileName);
       await handler.execute(command);
 
-      this.logger.info(`Image sent from instance ${instanceId} to ${to}`);
+      this._logger.info(`Image sent from instance ${instanceId} to ${to}`);
 
       return ResponseHandler.success(res, { sent: true }, 'Image sent successfully', 200, audit);
     } catch (error: any) {
@@ -86,7 +86,7 @@ export class MultimediaController {
       );
       await handler.execute(command);
 
-      this.logger.info(`Document sent from instance ${instanceId} to ${to}`);
+      this._logger.info(`Document sent from instance ${instanceId} to ${to}`);
 
       return ResponseHandler.success(res, { sent: true }, 'Document sent successfully', 200, audit);
     } catch (error: any) {
@@ -119,7 +119,7 @@ export class MultimediaController {
       );
       await handler.execute(command);
 
-      this.logger.info(`Audio sent from instance ${instanceId} to ${to}`);
+      this._logger.info(`Audio sent from instance ${instanceId} to ${to}`);
 
       return ResponseHandler.success(res, { sent: true }, 'Audio sent successfully', 200, audit);
     } catch (error: any) {
@@ -153,7 +153,7 @@ export class MultimediaController {
       );
       await handler.execute(command);
 
-      this.logger.info(`Video sent from instance ${instanceId} to ${to}`);
+      this._logger.info(`Video sent from instance ${instanceId} to ${to}`);
 
       return ResponseHandler.success(res, { sent: true }, 'Video sent successfully', 200, audit);
     } catch (error: any) {
@@ -183,7 +183,7 @@ export class MultimediaController {
       );
       await handler.execute(command);
 
-      this.logger.info(`Location sent from instance ${instanceId} to ${to}`);
+      this._logger.info(`Location sent from instance ${instanceId} to ${to}`);
 
       return ResponseHandler.success(res, { sent: true }, 'Location sent successfully', 200, audit);
     } catch (error: any) {
@@ -206,7 +206,7 @@ export class MultimediaController {
       const command = new SendReactionCommand(instanceId, messageId, emoji, chatId);
       await handler.execute(command);
 
-      this.logger.info(`Reaction sent from instance ${instanceId}`);
+      this._logger.info(`Reaction sent from instance ${instanceId}`);
 
       return ResponseHandler.success(res, { sent: true }, 'Reaction sent successfully', 200, audit);
     } catch (error: any) {
@@ -238,7 +238,7 @@ export class MultimediaController {
       const command = new SendContactCommand(instanceId, to, validContacts);
       await handler.execute(command);
 
-      this.logger.info(`Contact(s) sent from instance ${instanceId} to ${to}`);
+      this._logger.info(`Contact(s) sent from instance ${instanceId} to ${to}`);
 
       return ResponseHandler.success(
         res,
@@ -271,7 +271,7 @@ export class MultimediaController {
       const command = new SendStickerCommand(instanceId, to, req.file.buffer);
       await handler.execute(command);
 
-      this.logger.info(`Sticker sent from instance ${instanceId} to ${to}`);
+      this._logger.info(`Sticker sent from instance ${instanceId} to ${to}`);
 
       return ResponseHandler.success(res, { sent: true }, 'Sticker sent successfully', 200, audit);
     } catch (error: any) {

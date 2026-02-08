@@ -1,17 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { Logger } from '@infrastructure/Logger/Logger';
+import { Logger } from '@infrastructure/loggers/Logger';
 
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
-import { ApplicationError } from '@shared/infrastructure/Error/ApplicationError';
-import { DomainError } from '@shared/infrastructure/Error/DomainError';
-import { ErrorCode } from '@shared/infrastructure/Error/ErrorCodes';
-import { ErrorType } from '@shared/infrastructure/Error/ErrorType';
-import { InfrastructureError } from '@shared/infrastructure/Error/InfrastructureError';
-import { UnauthorizedError } from '@shared/infrastructure/Error/UnauthorizedError';
-import { ValidationError } from '@shared/infrastructure/Error/ValidationError';
-import { WhatsAppConnectionError } from '@shared/infrastructure/Error/WhatsAppConnectionError';
 import { ApiError } from '@shared/infrastructure/ErrorHandler';
+import { ApplicationError } from '@shared/infrastructure/errors/ApplicationError';
+import { DomainError } from '@shared/infrastructure/errors/DomainError';
+import { ErrorCode } from '@shared/infrastructure/errors/ErrorCodes';
+import { ErrorType } from '@shared/infrastructure/errors/ErrorType';
+import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
+import { UnauthorizedError } from '@shared/infrastructure/errors/UnauthorizedError';
+import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
+import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 import { StatusCode } from '../StatusCode';

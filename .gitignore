@@ -14,6 +14,9 @@ build/
 .env.local
 .env.*.local
 .qodo
+.prettierignore
+.prettierrc
+eslint.config.js
 
 # WhatsApp Sessions
 sessions/

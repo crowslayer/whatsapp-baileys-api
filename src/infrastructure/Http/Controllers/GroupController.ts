@@ -9,11 +9,11 @@ import { CreateGroupHandler } from '@application/handlers/CreateGroupHandler';
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
-import { WhatsAppConnectionError } from '@shared/infrastructure/Error/WhatsAppConnectionError';
+import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class GroupController {
-  private logger = pino();
+  private _logger = pino();
 
   constructor(
     private repository: IWhatsAppInstanceRepository,
@@ -35,7 +35,7 @@ export class GroupController {
       const command = new CreateGroupCommand(instanceId, name, participants);
       const groupId = await handler.execute(command);
 
-      this.logger.info(`Group created: ${groupId} on instance ${instanceId}`);
+      this._logger.info(`Group created: ${groupId} on instance ${instanceId}`);
 
       return ResponseHandler.created(res, { groupId }, 'Group created successfully', audit);
     } catch (error: any) {
@@ -62,7 +62,7 @@ export class GroupController {
 
       await adapter.addParticipantsToGroup(groupId, participants);
 
-      this.logger.info(`Participants added to group ${groupId}`);
+      this._logger.info(`Participants added to group ${groupId}`);
 
       return ResponseHandler.success(
         res,
@@ -94,7 +94,7 @@ export class GroupController {
 
       await adapter.removeParticipantsFromGroup(groupId, participants);
 
-      this.logger.info(`Participants removed from group ${groupId}`);
+      this._logger.info(`Participants removed from group ${groupId}`);
 
       return ResponseHandler.success(
         res,

@@ -1,6 +1,6 @@
-import { ApplicationError } from '@shared/infrastructure/Error/ApplicationError';
-import { ErrorCode } from '@shared/infrastructure/Error/ErrorCodes';
-import { ErrorType } from '@shared/infrastructure/Error/ErrorType';
+import { ApplicationError } from '@shared/infrastructure/errors/ApplicationError';
+import { ErrorCode } from '@shared/infrastructure/errors/ErrorCodes';
+import { ErrorType } from '@shared/infrastructure/errors/ErrorType';
 
 export class InfrastructureError extends ApplicationError {
   readonly type = ErrorType.INTERNAL;

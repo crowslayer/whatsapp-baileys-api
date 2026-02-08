@@ -5,8 +5,8 @@ import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInsta
 
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
-import { GroupController } from '../Controllers/GroupController';
-import { validate } from '../Middlewares/ValidationMiddleware';
+import { GroupController } from '../controllers/GroupController';
+import { validate } from '../middlewares/ValidationMiddleware';
 
 export const createGroupRouter = (
   repository: IWhatsAppInstanceRepository,

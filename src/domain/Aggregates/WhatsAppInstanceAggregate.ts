@@ -7,9 +7,9 @@ import { InstanceId } from '@domain/value-objects/InstanceId';
 import { PhoneNumber } from '@domain/value-objects/PhoneNumber';
 
 import { AggregateRoot } from '@shared/domain/AggregateRoot';
-import { ValidationError } from '@shared/infrastructure/Error/ValidationError';
+import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 
-export interface WhatsAppInstanceProps {
+export interface IWhatsAppInstanceProps {
   instanceId: InstanceId;
   name: string;
   status: ConnectionStatus;
@@ -35,7 +35,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
   private _sessionData?: any;
   private _lastConnectedAt?: Date;
 
-  private constructor(props: WhatsAppInstanceProps) {
+  private constructor(props: IWhatsAppInstanceProps) {
     super(props.instanceId.value, props.createdAt, props.updatedAt);
     this._name = props.name;
     this._status = props.status;
@@ -61,7 +61,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     });
   }
 
-  static restore(props: WhatsAppInstanceProps): WhatsAppInstanceAggregate {
+  static restore(props: IWhatsAppInstanceProps): WhatsAppInstanceAggregate {
     return new WhatsAppInstanceAggregate(props);
   }
 

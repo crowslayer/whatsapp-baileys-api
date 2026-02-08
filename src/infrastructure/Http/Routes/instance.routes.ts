@@ -5,15 +5,15 @@ import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInsta
 
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
-import { InstanceCreateController } from '../Controllers/Instance/InstanceCreateController';
-import { InstanceDeleteController } from '../Controllers/Instance/InstanceDeleteController';
-import { InstanceDisconnectController } from '../Controllers/Instance/InstanceDisconnectController';
-import { InstanceGetInstanceController } from '../Controllers/Instance/InstanceGetInstanceController';
-import { InstanceGetQRController } from '../Controllers/Instance/InstanceGetQRController';
-import { InstancesGetInstancesController } from '../Controllers/Instance/InstancesGetInstancesController';
-import { InstanceController } from '../Controllers/InstanceController';
-import { QRViewController } from '../Controllers/QRViewController';
-import { validate } from '../Middlewares/ValidationMiddleware';
+import { InstanceController } from '../controllers/InstanceController';
+import { InstanceCreateController } from '../controllers/instances/InstanceCreateController';
+import { InstanceDeleteController } from '../controllers/instances/InstanceDeleteController';
+import { InstanceDisconnectController } from '../controllers/instances/InstanceDisconnectController';
+import { InstanceGetInstanceController } from '../controllers/instances/InstanceGetInstanceController';
+import { InstanceGetQRController } from '../controllers/instances/InstanceGetQRController';
+import { InstancesGetInstancesController } from '../controllers/instances/InstancesGetInstancesController';
+import { QRViewController } from '../controllers/QRViewController';
+import { validate } from '../middlewares/ValidationMiddleware';
 
 export const createInstanceRouter = (
   repository: IWhatsAppInstanceRepository,

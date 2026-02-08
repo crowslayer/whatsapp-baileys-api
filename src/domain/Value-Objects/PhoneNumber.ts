@@ -1,5 +1,5 @@
 import { ValueObject } from '@shared/domain/ValueObject';
-import { ValidationError } from '@shared/infrastructure/Error/ValidationError';
+import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 
 export class PhoneNumber extends ValueObject<string> {
   private constructor(value: string) {

@@ -14,7 +14,6 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "prebuild": "pnpm run clean",
     "validate": "pnpm run type-check && pnpm run lint && pnpm run format:check"
   },
   "keywords": [

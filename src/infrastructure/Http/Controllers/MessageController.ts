@@ -12,7 +12,7 @@ import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class MessageController {
-  private logger = pino();
+  private _logger = pino();
 
   constructor(
     private repository: IWhatsAppInstanceRepository,
@@ -34,7 +34,7 @@ export class MessageController {
       const command = new SendMessageCommand(instanceId, to, message);
       await handler.execute(command);
 
-      this.logger.info(`Message sent from instance ${instanceId} to ${to}`);
+      this._logger.info(`Message sent from instance ${instanceId} to ${to}`);
 
       return ResponseHandler.success(res, { sent: true }, 'Message sent successfully', 200, audit);
     } catch (error: any) {

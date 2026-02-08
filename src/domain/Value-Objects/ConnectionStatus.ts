@@ -1,5 +1,5 @@
 import { ValueObject } from '@shared/domain/ValueObject';
-import { ValidationError } from '@shared/infrastructure/Error/ValidationError';
+import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 
 export enum ConnectionStatusEnum {
   DISCONNECTED = 'disconnected',

@@ -4,9 +4,9 @@ import { ConnectionStatus } from '@domain/value-objects/ConnectionStatus';
 import { InstanceId } from '@domain/value-objects/InstanceId';
 import { PhoneNumber } from '@domain/value-objects/PhoneNumber';
 
-import { WhatsAppInstanceModel } from '@infrastructure/persistence/Mongo/Models/WhatsAppInstanceModel';
+import { WhatsAppInstanceModel } from '@infrastructure/persistence/mongo/models/WhatsAppInstanceModel';
 
-import { InfrastructureError } from '@shared/infrastructure/Error/InfrastructureError';
+import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
 
 export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceRepository {
   async save(instance: WhatsAppInstanceAggregate): Promise<void> {

@@ -1,6 +1,6 @@
-import { DomainEvent } from '@shared/domain/DomainEvent';
+import { IDomainEvent } from '@shared/domain/DomainEvent';
 
-export class QRCodeGeneratedEvent implements DomainEvent {
+export class QRCodeGeneratedEvent implements IDomainEvent {
   public readonly occurredOn: Date;
   public readonly eventName: string = 'qrcode.generated';
 

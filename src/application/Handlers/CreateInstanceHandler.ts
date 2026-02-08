@@ -5,7 +5,7 @@ import { CreateInstanceCommand } from '@application/commands/CreateInstanceComma
 
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
-import { ConflictError } from '@shared/infrastructure/Error/ConflictError';
+import { ConflictError } from '@shared/infrastructure/errors/ConflictError';
 
 export class CreateInstanceHandler {
   constructor(

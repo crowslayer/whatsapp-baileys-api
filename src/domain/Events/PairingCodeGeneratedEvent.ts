@@ -1,6 +1,6 @@
-import { DomainEvent } from '@shared/domain/DomainEvent';
+import { IDomainEvent } from '@shared/domain/DomainEvent';
 
-export class PairingCodeGeneratedEvent implements DomainEvent {
+export class PairingCodeGeneratedEvent implements IDomainEvent {
   public readonly occurredOn: Date;
   public readonly eventName: string = 'pairingcode.generated';
 

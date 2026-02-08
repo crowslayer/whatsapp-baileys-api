@@ -4,8 +4,8 @@ import { SendAudioCommand } from '@application/commands/SendAudioCommand';
 
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
-import { NotFoundError } from '@shared/infrastructure/Error/NotFoundError';
-import { ValidationError } from '@shared/infrastructure/Error/ValidationError';
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
+import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 
 export class SendAudioHandler {
   constructor(

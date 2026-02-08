@@ -1,4 +1,4 @@
-export interface AuditData {
+export interface IAuditData {
   userId?: string;
   userName?: string;
   action: string;
@@ -11,10 +11,10 @@ export interface AuditData {
 }
 
 export class AuditDataBuilder {
-  private audit: AuditData;
+  private _audit: IAuditData;
 
   constructor(action: string, resource: string) {
-    this.audit = {
+    this._audit = {
       action,
       resource,
       timestamp: new Date(),
@@ -22,28 +22,28 @@ export class AuditDataBuilder {
   }
 
   withUser(userId: string, userName?: string): this {
-    this.audit.userId = userId;
-    this.audit.userName = userName;
+    this._audit.userId = userId;
+    this._audit.userName = userName;
     return this;
   }
 
   withResourceId(resourceId: string): this {
-    this.audit.resourceId = resourceId;
+    this._audit.resourceId = resourceId;
     return this;
   }
 
   withRequest(ipAddress?: string, userAgent?: string): this {
-    this.audit.ipAddress = ipAddress;
-    this.audit.userAgent = userAgent;
+    this._audit.ipAddress = ipAddress;
+    this._audit.userAgent = userAgent;
     return this;
   }
 
   withDetails(details: Record<string, any>): this {
-    this.audit.details = details;
+    this._audit.details = details;
     return this;
   }
 
-  build(): AuditData {
-    return this.audit;
+  build(): IAuditData {
+    return this._audit;
   }
 }

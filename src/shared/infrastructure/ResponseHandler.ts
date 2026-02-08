@@ -1,9 +1,9 @@
 import { Response } from 'express';
 
-import { AuditData } from './AuditData';
+import { IAuditData } from './AuditData';
 import { ApiError } from './ErrorHandler';
 
-export interface ApiResponse<T = any> {
+export interface IApiResponse<T = any> {
   success: boolean;
   message: string;
   data?: T;
@@ -11,7 +11,7 @@ export interface ApiResponse<T = any> {
   metadata: {
     timestamp: Date;
     requestId: string;
-    audit?: AuditData;
+    audit?: IAuditData;
   };
 }
 
@@ -21,9 +21,9 @@ export class ResponseHandler {
     data: T,
     message: string = 'Operation successful',
     statusCode: number = 200,
-    audit?: AuditData
+    audit?: IAuditData
   ): void {
-    const response: ApiResponse<T> = {
+    const response: IApiResponse<T> = {
       success: true,
       message,
       data,
@@ -41,9 +41,9 @@ export class ResponseHandler {
     res: Response,
     statusCode: number = 500,
     errors?: ApiError[],
-    audit?: AuditData
+    audit?: IAuditData
   ): void {
-    const response: ApiResponse = {
+    const response: IApiResponse = {
       success: false,
       message: 'Operation failed',
       errors,
@@ -61,12 +61,12 @@ export class ResponseHandler {
     res: Response,
     data: T,
     message: string = 'Resource created successfully',
-    audit?: AuditData
+    audit?: IAuditData
   ): void {
     this.success(res, data, message, 201, audit);
   }
 
-  static noContent(res: Response, audit?: AuditData): void {
+  static noContent(res: Response, audit?: IAuditData): void {
     res.status(204).send();
   }
 
@@ -74,12 +74,12 @@ export class ResponseHandler {
     res: Response,
     message: string = 'Bad request',
     errors?: ApiError[],
-    audit?: AuditData
+    audit?: IAuditData
   ): void {
     this.error(res, 400, errors, audit);
   }
 
-  static unauthorized(res: Response, message: string = 'Unauthorized', audit?: AuditData): void {
+  static unauthorized(res: Response, message: string = 'Unauthorized', audit?: IAuditData): void {
     this.error(res, 401, undefined, audit);
   }
 
@@ -94,7 +94,7 @@ export class ResponseHandler {
         description: 'Forbidden',
       },
     ],
-    audit?: AuditData
+    audit?: IAuditData
   ): void {
     this.error(res, statusCode, errors, audit);
   }
@@ -110,7 +110,7 @@ export class ResponseHandler {
         description: 'Resource not found',
       },
     ],
-    audit?: AuditData
+    audit?: IAuditData
   ): void {
     this.error(res, 404, errors, audit);
   }
@@ -126,7 +126,7 @@ export class ResponseHandler {
         description: 'Resource conflict',
       },
     ],
-    audit?: AuditData
+    audit?: IAuditData
   ): void {
     this.error(res, statusCode, errors, audit);
   }
@@ -142,7 +142,7 @@ export class ResponseHandler {
         description: 'Internal server error',
       },
     ],
-    audit?: AuditData
+    audit?: IAuditData
   ): void {
     this.error(res, statusCode, errors, audit);
   }

@@ -1,14 +1,14 @@
-import { DomainEvent } from '@shared/domain/DomainEvent';
+import { IDomainEvent } from '@shared/domain/DomainEvent';
 import { Entity } from '@shared/domain/Entity';
 
 export abstract class AggregateRoot<T> extends Entity<T> {
-  private _domainEvents: DomainEvent[] = [];
+  private _domainEvents: IDomainEvent[] = [];
 
-  get domainEvents(): DomainEvent[] {
+  get domainEvents(): IDomainEvent[] {
     return this._domainEvents;
   }
 
-  protected addDomainEvent(event: DomainEvent): void {
+  protected addDomainEvent(event: IDomainEvent): void {
     this._domainEvents.push(event);
   }
 

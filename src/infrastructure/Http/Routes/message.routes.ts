@@ -3,8 +3,8 @@ import { body, param } from 'express-validator';
 
 import { IWhatsAppInstanceRepository } from '../../../domain/repositories/IWhatsAppInstanceRepository.js';
 import { BaileysConnectionManager } from '../../baileys/BaileysConnectionManager.js';
-import { MessageController } from '../Controllers/MessageController';
-import { validate } from '../Middlewares/ValidationMiddleware';
+import { MessageController } from '../controllers/MessageController';
+import { validate } from '../middlewares/ValidationMiddleware';
 export const createMessageRouter = (
   repository: IWhatsAppInstanceRepository,
   connectionManager: BaileysConnectionManager

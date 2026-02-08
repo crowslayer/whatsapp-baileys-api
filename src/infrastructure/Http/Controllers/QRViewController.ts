@@ -3,10 +3,10 @@ import pino from 'pino';
 
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
-import { NotFoundError } from '@shared/infrastructure/Error/NotFoundError';
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 
 export class QRViewController {
-  private logger = pino();
+  private _logger = pino();
 
   constructor(private repository: IWhatsAppInstanceRepository) {}
 

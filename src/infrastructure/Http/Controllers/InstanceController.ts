@@ -13,12 +13,12 @@ import { ListInstancesQuery } from '@application/queries/ListInstancesQuery';
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
-import { NotFoundError } from '@shared/infrastructure/Error/NotFoundError';
-import { WhatsAppConnectionError } from '@shared/infrastructure/Error/WhatsAppConnectionError';
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
+import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class InstanceController {
-  private logger = pino();
+  private _logger = pino();
 
   constructor(
     private repository: IWhatsAppInstanceRepository,
@@ -38,7 +38,7 @@ export class InstanceController {
       const command = new CreateInstanceCommand(name, webhookUrl, usePairingCode, phoneNumber);
       const instance = await handler.execute(command);
 
-      this.logger.info(`Instance created: ${instance.instanceId}`);
+      this._logger.info(`Instance created: ${instance.instanceId}`);
 
       return ResponseHandler.created(
         res,
@@ -106,7 +106,7 @@ export class InstanceController {
       await this.connectionManager.logoutInstance(instanceId);
       await this.repository.delete(instanceId);
 
-      this.logger.info(`Instance deleted: ${instanceId}`);
+      this._logger.info(`Instance deleted: ${instanceId}`);
 
       return ResponseHandler.success(res, null, 'Instance deleted successfully', 200, audit);
     } catch (error: any) {
@@ -125,7 +125,7 @@ export class InstanceController {
 
       await this.connectionManager.disconnectInstance(instanceId);
 
-      this.logger.info(`Instance disconnected: ${instanceId}`);
+      this._logger.info(`Instance disconnected: ${instanceId}`);
 
       return ResponseHandler.success(res, null, 'Instance disconnected successfully', 200, audit);
     } catch (error: any) {
