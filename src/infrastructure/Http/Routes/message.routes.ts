@@ -3,15 +3,14 @@ import { body, param } from 'express-validator';
 
 import { IWhatsAppInstanceRepository } from '../../../domain/repositories/IWhatsAppInstanceRepository.js';
 import { BaileysConnectionManager } from '../../baileys/BaileysConnectionManager.js';
-import { MessageController } from '../controllers/MessageController';
+import { SendTextController } from '../controllers/messages/SendTextController.js';
 import { validate } from '../middlewares/ValidationMiddleware';
 export const createMessageRouter = (
   repository: IWhatsAppInstanceRepository,
   connectionManager: BaileysConnectionManager
 ): Router => {
   const router = Router();
-  const controller = new MessageController(repository, connectionManager);
-
+  const textController = new SendTextController(repository, connectionManager);
   router.post(
     '/:instanceId/send',
     validate([
@@ -19,7 +18,7 @@ export const createMessageRouter = (
       body('to').isString().notEmpty().withMessage('Recipient is required'),
       body('message').isString().notEmpty().withMessage('Message is required'),
     ]),
-    (req: Request, res: Response, next: NextFunction) => controller.send(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => textController.handle(req, res, next)
   );
 
   return router;
