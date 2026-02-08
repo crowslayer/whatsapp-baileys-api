@@ -6,7 +6,14 @@ import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInsta
 
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
-import { MultimediaController } from '../controllers/MultimediaController';
+import { SendAudioController } from '../controllers/messages/SendAudioController';
+import { SendContactController } from '../controllers/messages/SendContactController';
+import { SendDocumentController } from '../controllers/messages/SendDocumentController';
+import { SendImageController } from '../controllers/messages/SendImageController';
+import { SendLocationController } from '../controllers/messages/SendLocationController';
+import { SendReactionController } from '../controllers/messages/SendReactionController';
+import { SendStickerController } from '../controllers/messages/SendStickerController';
+import { SendVideoController } from '../controllers/messages/SendVideoController';
 import { validate } from '../middlewares/ValidationMiddleware';
 
 // Configuración de multer para manejo de archivos
@@ -62,7 +69,14 @@ export const createMultimediaRouter = (
   connectionManager: BaileysConnectionManager
 ): Router => {
   const router = Router();
-  const controller = new MultimediaController(repository, connectionManager);
+  const imageController = new SendImageController(repository, connectionManager);
+  const documentController = new SendDocumentController(repository, connectionManager);
+  const audioController = new SendAudioController(repository, connectionManager);
+  const videoController = new SendVideoController(repository, connectionManager);
+  const locationController = new SendLocationController(repository, connectionManager);
+  const reactionController = new SendReactionController(repository, connectionManager);
+  const conctactController = new SendContactController(repository, connectionManager);
+  const stickerController = new SendStickerController(repository, connectionManager);
 
   // Enviar imagen
   router.post(
@@ -74,7 +88,7 @@ export const createMultimediaRouter = (
       body('caption').optional().isString(),
       body('fileName').optional().isString(),
     ]),
-    (req: Request, res: Response, next: NextFunction) => controller.sendImage(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => imageController.handle(req, res, next)
   );
 
   // Enviar documento
@@ -86,7 +100,7 @@ export const createMultimediaRouter = (
       body('to').isString().notEmpty().withMessage('Recipient is required'),
       body('caption').optional().isString(),
     ]),
-    (req: Request, res: Response, next: NextFunction) => controller.sendDocument(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => documentController.handle(req, res, next)
   );
 
   // Enviar audio
@@ -98,7 +112,7 @@ export const createMultimediaRouter = (
       body('to').isString().notEmpty().withMessage('Recipient is required'),
       body('ptt').optional().isString(), // 'true' o 'false'
     ]),
-    (req: Request, res: Response, next: NextFunction) => controller.sendAudio(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => audioController.handle(req, res, next)
   );
 
   // Enviar video
@@ -112,7 +126,7 @@ export const createMultimediaRouter = (
       body('gifPlayback').optional().isString(),
       body('fileName').optional().isString(),
     ]),
-    (req: Request, res: Response, next: NextFunction) => controller.sendVideo(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => videoController.handle(req, res, next)
   );
 
   // Enviar ubicación
@@ -126,7 +140,7 @@ export const createMultimediaRouter = (
       body('name').optional().isString(),
       body('address').optional().isString(),
     ]),
-    (req: Request, res: Response, next: NextFunction) => controller.sendLocation(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => locationController.handle(req, res, next)
   );
 
   // Enviar reacción (emoji)
@@ -138,7 +152,7 @@ export const createMultimediaRouter = (
       body('chatId').isString().notEmpty().withMessage('Chat ID is required'),
       body('emoji').isString().notEmpty().withMessage('Emoji is required'),
     ]),
-    (req: Request, res: Response, next: NextFunction) => controller.sendReaction(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => reactionController.handle(req, res, next)
   );
 
   // Enviar contacto(s)
@@ -154,7 +168,7 @@ export const createMultimediaRouter = (
         .notEmpty()
         .withMessage('vcard is required for each contact'),
     ]),
-    (req: Request, res: Response, next: NextFunction) => controller.sendContact(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => conctactController.handle(req, res, next)
   );
 
   // Enviar sticker (imagen WebP)
@@ -165,7 +179,7 @@ export const createMultimediaRouter = (
       param('instanceId').isString().notEmpty(),
       body('to').isString().notEmpty().withMessage('Recipient is required'),
     ]),
-    (req: Request, res: Response, next: NextFunction) => controller.sendSticker(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => stickerController.handle(req, res, next)
   );
 
   return router;
