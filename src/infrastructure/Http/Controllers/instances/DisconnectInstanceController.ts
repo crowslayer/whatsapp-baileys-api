@@ -5,9 +5,7 @@ import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnect
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-import { Controller } from '../Controller';
-
-export class InstanceDisconnectController implements Controller {
+export class DisconnectInstanceController {
   constructor(private readonly connectionManager: BaileysConnectionManager) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -22,7 +20,7 @@ export class InstanceDisconnectController implements Controller {
       await this.connectionManager.disconnectInstance(instanceId);
 
       ResponseHandler.success(res, null, 'Instance disconnected successfully', 200, audit);
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   }

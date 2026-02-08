@@ -5,9 +5,7 @@ import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnect
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-import { Controller } from '../Controller';
-
-export class GroupAddParticipantsController implements Controller {
+export class AddParticipantsController {
   constructor(private readonly connectionManager: BaileysConnectionManager) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -36,7 +34,7 @@ export class GroupAddParticipantsController implements Controller {
         200,
         audit
       );
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   }

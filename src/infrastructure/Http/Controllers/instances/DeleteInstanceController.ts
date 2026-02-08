@@ -7,9 +7,7 @@ import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnect
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-import { Controller } from '../Controller';
-
-export class InstanceDeleteController implements Controller {
+export class DeleteInstanceController {
   constructor(
     private repository: IWhatsAppInstanceRepository,
     private connectionManager: BaileysConnectionManager
@@ -28,7 +26,7 @@ export class InstanceDeleteController implements Controller {
       await this.repository.delete(instanceId);
 
       ResponseHandler.success(res, null, 'Instance deleted successfully', 200, audit);
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   }

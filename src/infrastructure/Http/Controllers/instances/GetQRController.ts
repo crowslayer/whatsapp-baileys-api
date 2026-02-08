@@ -6,9 +6,7 @@ import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-import { Controller } from '../Controller';
-
-export class InstanceGetQRController implements Controller {
+export class GetQRController {
   constructor(private readonly repository: IWhatsAppInstanceRepository) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -25,7 +23,7 @@ export class InstanceGetQRController implements Controller {
       }
 
       ResponseHandler.success(res, { qrCode: instance.qrCode }, 'QR Code retrieved successfully');
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   }

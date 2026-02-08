@@ -11,9 +11,7 @@ import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-import { Controller } from '../Controller';
-
-export class SendContactMessageController implements Controller {
+export class SendContactController {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
     private readonly connectionManager: BaileysConnectionManager

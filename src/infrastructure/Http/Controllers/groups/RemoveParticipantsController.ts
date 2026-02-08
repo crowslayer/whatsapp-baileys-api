@@ -6,9 +6,7 @@ import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-import { Controller } from '../Controller';
-
-export class GroupRemoveParticipantsController implements Controller {
+export class RemoveParticipantsController {
   constructor(private readonly connectionManager: BaileysConnectionManager) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -36,7 +34,7 @@ export class GroupRemoveParticipantsController implements Controller {
         200,
         audit
       );
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   }

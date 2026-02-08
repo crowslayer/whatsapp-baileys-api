@@ -2,17 +2,16 @@ import { NextFunction, Request, Response } from 'express';
 
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
-import { SendMessageCommand } from '@application/commands/SendMessageCommand';
-import { SendMessageHandler } from '@application/handlers/SendMessageHandler';
+import { SendImageCommand } from '@application/commands/SendImageCommand';
+import { SendImageHandler } from '@application/handlers/SendImageHandler';
 
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-import { Controller } from '../Controller';
-
-export class SendTextMessageController implements Controller {
+export class SendImageController {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
     private readonly connectionManager: BaileysConnectionManager
@@ -21,19 +20,23 @@ export class SendTextMessageController implements Controller {
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { instanceId } = req.params;
-      const { to, message } = req.body;
+      const { to, caption, fileName } = req.body;
 
-      const audit = new AuditDataBuilder('SEND', 'MESSAGE')
+      if (!req.file) {
+        throw new NotFoundError('Image file is required');
+      }
+
+      const audit = new AuditDataBuilder('SEND', 'IMAGE')
         .withResourceId(instanceId)
         .withRequest(req.ip, req.get('user-agent'))
-        .withDetails({ to, messageLength: message.length })
+        .withDetails({ to, fileSize: req.file.size })
         .build();
 
-      const handler = new SendMessageHandler(this.repository, this.connectionManager);
-      const command = new SendMessageCommand(instanceId, to, message);
+      const handler = new SendImageHandler(this.repository, this.connectionManager);
+      const command = new SendImageCommand(instanceId, to, req.file.buffer, caption, fileName);
       await handler.execute(command);
 
-      ResponseHandler.success(res, { sent: true }, 'Message sent successfully', 200, audit);
+      ResponseHandler.success(res, { sent: true }, 'Image sent successfully', 200, audit);
     } catch (error) {
       next(error);
     }

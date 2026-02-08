@@ -8,9 +8,7 @@ import { GetInstanceQuery } from '@application/queries/GetInstanceQuery';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-import { Controller } from '../Controller';
-
-export class InstanceGetInstanceController implements Controller {
+export class GetInstanceController {
   constructor(private readonly repository: IWhatsAppInstanceRepository) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -33,7 +31,7 @@ export class InstanceGetInstanceController implements Controller {
         200,
         audit
       );
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   }

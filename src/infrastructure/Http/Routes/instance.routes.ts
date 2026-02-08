@@ -6,12 +6,12 @@ import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInsta
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
 import { InstanceController } from '../controllers/InstanceController';
-import { InstanceCreateController } from '../controllers/instances/InstanceCreateController';
-import { InstanceDeleteController } from '../controllers/instances/InstanceDeleteController';
-import { InstanceDisconnectController } from '../controllers/instances/InstanceDisconnectController';
-import { InstanceGetInstanceController } from '../controllers/instances/InstanceGetInstanceController';
-import { InstanceGetQRController } from '../controllers/instances/InstanceGetQRController';
-import { InstancesGetInstancesController } from '../controllers/instances/InstancesGetInstancesController';
+import { CreateInstanceController } from '../controllers/instances/CreateInstanceController';
+import { DeleteInstanceController } from '../controllers/instances/DeleteInstanceController';
+import { DisconnectInstanceController } from '../controllers/instances/DisconnectInstanceController';
+import { GetInstanceController } from '../controllers/instances/GetInstanceController';
+import { GetInstancesController } from '../controllers/instances/GetInstancesController';
+import { GetQRController } from '../controllers/instances/GetQRController';
 import { QRViewController } from '../controllers/QRViewController';
 import { validate } from '../middlewares/ValidationMiddleware';
 
@@ -20,14 +20,14 @@ export const createInstanceRouter = (
   connectionManager: BaileysConnectionManager
 ): Router => {
   const router = Router();
-  const controller = new InstanceController(repository, connectionManager);
+  // const controller = new InstanceController(repository, connectionManager);
   const qrViewController = new QRViewController(repository);
-  const createController = new InstanceCreateController(repository, connectionManager);
-  const listController = new InstancesGetInstancesController(repository);
-  const getInstanceController = new InstanceGetInstanceController(repository);
-  const getQrController = new InstanceGetQRController(repository);
-  const deleteInstanceController = new InstanceDeleteController(repository, connectionManager);
-  const disconnectController = new InstanceDisconnectController(connectionManager);
+  const createController = new CreateInstanceController(repository, connectionManager);
+  const listController = new GetInstancesController(repository);
+  const getInstanceController = new GetInstanceController(repository);
+  const getQrController = new GetQRController(repository);
+  const deleteInstanceController = new DeleteInstanceController(repository, connectionManager);
+  const disconnectController = new DisconnectInstanceController(connectionManager);
 
   router.post(
     '/',

@@ -8,9 +8,7 @@ import { ListInstancesQuery } from '@application/queries/ListInstancesQuery';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-import { Controller } from '../Controller';
-
-export class InstancesGetInstancesController implements Controller {
+export class GetInstancesController {
   constructor(private readonly repository: IWhatsAppInstanceRepository) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -26,7 +24,7 @@ export class InstancesGetInstancesController implements Controller {
       const data = instances.map((i) => i.toJSON());
 
       ResponseHandler.success(res, data, 'Instances retrieved successfully', 200, audit);
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   }

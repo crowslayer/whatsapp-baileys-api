@@ -10,9 +10,7 @@ import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnect
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-import { Controller } from '../Controller';
-
-export class GroupCreateController implements Controller {
+export class CreateGroupController {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
     private readonly connectionManager: BaileysConnectionManager

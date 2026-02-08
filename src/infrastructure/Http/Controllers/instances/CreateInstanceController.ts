@@ -10,9 +10,7 @@ import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnect
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-import { Controller } from '../Controller';
-
-export class InstanceCreateController implements Controller {
+export class CreateInstanceController {
   constructor(
     private repository: IWhatsAppInstanceRepository,
     private connectionManager: BaileysConnectionManager
@@ -32,7 +30,7 @@ export class InstanceCreateController implements Controller {
       const instance = await handler.execute(command);
 
       ResponseHandler.created(res, instance.toJSON(), 'Instance created successfully', audit);
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   }
