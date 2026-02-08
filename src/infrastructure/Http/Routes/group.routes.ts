@@ -5,7 +5,9 @@ import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInsta
 
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 
-import { GroupController } from '../controllers/GroupController';
+import { AddParticipantsController } from '../controllers/groups/AddParticipantsController';
+import { CreateGroupController } from '../controllers/groups/CreateGroupController';
+import { RemoveParticipantsController } from '../controllers/groups/RemoveParticipantsController';
 import { validate } from '../middlewares/ValidationMiddleware';
 
 export const createGroupRouter = (
@@ -13,7 +15,9 @@ export const createGroupRouter = (
   connectionManager: BaileysConnectionManager
 ): Router => {
   const router = Router();
-  const controller = new GroupController(repository, connectionManager);
+  const createController = new CreateGroupController(repository, connectionManager);
+  const addParticipants = new AddParticipantsController(connectionManager);
+  const removeParticipants = new RemoveParticipantsController(connectionManager);
 
   router.post(
     '/:instanceId/groups',
@@ -25,7 +29,7 @@ export const createGroupRouter = (
         .isString()
         .matches(/^\d{10,15}@s\.whatsapp\.net$/),
     ]),
-    (req: Request, res: Response, next: NextFunction) => controller.create(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => createController.handle(req, res, next)
   );
 
   router.post(
@@ -38,7 +42,7 @@ export const createGroupRouter = (
         .isString()
         .matches(/^\d{10,15}@s\.whatsapp\.net$/),
     ]),
-    (req: Request, res: Response, next: NextFunction) => controller.addParticipants(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => addParticipants.handle(req, res, next)
   );
 
   router.post(
@@ -51,8 +55,7 @@ export const createGroupRouter = (
         .isString()
         .matches(/^\d{10,15}@s\.whatsapp\.net$/),
     ]),
-    (req: Request, res: Response, next: NextFunction) =>
-      controller.removeParticipants(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => removeParticipants.handle(req, res, next)
   );
 
   return router;
