@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { body, param } from 'express-validator';
 import multer from 'multer';
 
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
@@ -15,6 +14,16 @@ import { SendReactionController } from '../controllers/messages/SendReactionCont
 import { SendStickerController } from '../controllers/messages/SendStickerController';
 import { SendVideoController } from '../controllers/messages/SendVideoController';
 import { validate } from '../middlewares/ValidationMiddleware';
+import {
+  audioSchema,
+  contactSchema,
+  documentSchema,
+  imageSchema,
+  locationSchema,
+  reactionSchema,
+  stickerSchema,
+  videoSchema,
+} from '../validators/express/schemas/messageSchema';
 
 // Configuración de multer para manejo de archivos
 const storage = multer.memoryStorage();
@@ -82,12 +91,7 @@ export const createMultimediaRouter = (
   router.post(
     '/:instanceId/send/image',
     upload.single('image'),
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-      body('caption').optional().isString(),
-      body('fileName').optional().isString(),
-    ]),
+    validate(imageSchema),
     (req: Request, res: Response, next: NextFunction) => imageController.handle(req, res, next)
   );
 
@@ -95,11 +99,7 @@ export const createMultimediaRouter = (
   router.post(
     '/:instanceId/send/document',
     upload.single('document'),
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-      body('caption').optional().isString(),
-    ]),
+    validate(documentSchema),
     (req: Request, res: Response, next: NextFunction) => documentController.handle(req, res, next)
   );
 
@@ -107,11 +107,7 @@ export const createMultimediaRouter = (
   router.post(
     '/:instanceId/send/audio',
     upload.single('audio'),
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-      body('ptt').optional().isString(), // 'true' o 'false'
-    ]),
+    validate(audioSchema),
     (req: Request, res: Response, next: NextFunction) => audioController.handle(req, res, next)
   );
 
@@ -119,55 +115,28 @@ export const createMultimediaRouter = (
   router.post(
     '/:instanceId/send/video',
     upload.single('video'),
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-      body('caption').optional().isString(),
-      body('gifPlayback').optional().isString(),
-      body('fileName').optional().isString(),
-    ]),
+    validate(videoSchema),
     (req: Request, res: Response, next: NextFunction) => videoController.handle(req, res, next)
   );
 
   // Enviar ubicación
   router.post(
     '/:instanceId/send/location',
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-      body('latitude').isFloat().withMessage('Valid latitude is required'),
-      body('longitude').isFloat().withMessage('Valid longitude is required'),
-      body('name').optional().isString(),
-      body('address').optional().isString(),
-    ]),
+    validate(locationSchema),
     (req: Request, res: Response, next: NextFunction) => locationController.handle(req, res, next)
   );
 
   // Enviar reacción (emoji)
   router.post(
     '/:instanceId/send/reaction',
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('messageId').isString().notEmpty().withMessage('Message ID is required'),
-      body('chatId').isString().notEmpty().withMessage('Chat ID is required'),
-      body('emoji').isString().notEmpty().withMessage('Emoji is required'),
-    ]),
+    validate(reactionSchema),
     (req: Request, res: Response, next: NextFunction) => reactionController.handle(req, res, next)
   );
 
   // Enviar contacto(s)
   router.post(
     '/:instanceId/send/contact',
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-      body('contacts').isArray().withMessage('Contacts array is required'),
-      body('contacts.*.displayName').optional().isString(),
-      body('contacts.*.vcard')
-        .isString()
-        .notEmpty()
-        .withMessage('vcard is required for each contact'),
-    ]),
+    validate(contactSchema),
     (req: Request, res: Response, next: NextFunction) => conctactController.handle(req, res, next)
   );
 
@@ -175,10 +144,7 @@ export const createMultimediaRouter = (
   router.post(
     '/:instanceId/send/sticker',
     upload.single('sticker'),
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-    ]),
+    validate(stickerSchema),
     (req: Request, res: Response, next: NextFunction) => stickerController.handle(req, res, next)
   );
 

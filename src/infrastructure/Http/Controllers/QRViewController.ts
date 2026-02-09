@@ -32,7 +32,7 @@ export class QRViewController {
         phoneNumber: instance.phoneNumber?.value,
       });
       return;
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   }
@@ -55,7 +55,7 @@ export class QRViewController {
         connected: instance.status.isConnected(),
       });
       return;
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   }
