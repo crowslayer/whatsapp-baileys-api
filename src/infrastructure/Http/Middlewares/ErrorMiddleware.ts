@@ -18,13 +18,24 @@ import { StatusCode } from '../StatusCode';
 
 type ErrorHandler = {
   supports: (error: unknown) => boolean;
-  handle: (error: any, req: Request, res: Response, logger?: Logger) => void;
+  handle: (error: Error, req: Request, res: Response, logger?: Logger) => void;
+};
+
+type ErrorPayload = {
+  code: number;
+  type: string;
+  name: string;
+  message: string;
+  description: string;
+  cause?: unknown;
+  stack: unknown;
 };
 
 const ERROR_HANDLERS: ErrorHandler[] = [
   {
     supports: (e): e is UnauthorizedError => e instanceof UnauthorizedError,
-    handle: (error: UnauthorizedError, req: Request, res: Response, logger?: Logger) => {
+    handle: (error, req: Request, res: Response, _logger?: Logger) => {
+      if (!(error instanceof UnauthorizedError)) return;
       sendErrorResponse(
         res,
         req,
@@ -35,7 +46,8 @@ const ERROR_HANDLERS: ErrorHandler[] = [
   },
   {
     supports: (e): e is InfrastructureError => e instanceof InfrastructureError,
-    handle: (error: InfrastructureError, req: Request, res: Response, logger?: Logger) => {
+    handle: (error, req: Request, res: Response, _logger?: Logger) => {
+      if (!(error instanceof InfrastructureError)) return;
       sendErrorResponse(
         res,
         req,
@@ -46,7 +58,8 @@ const ERROR_HANDLERS: ErrorHandler[] = [
   },
   {
     supports: (e): e is WhatsAppConnectionError => e instanceof WhatsAppConnectionError,
-    handle: (error: WhatsAppConnectionError, req: Request, res: Response, logger?: Logger) => {
+    handle: (error, req: Request, res: Response, _logger?: Logger) => {
+      if (!(error instanceof WhatsAppConnectionError)) return;
       sendErrorResponse(
         res,
         req,
@@ -57,7 +70,8 @@ const ERROR_HANDLERS: ErrorHandler[] = [
   },
   {
     supports: (e): e is ValidationError => e instanceof ValidationError,
-    handle: (error: ValidationError, req: Request, res: Response, logger?: Logger) => {
+    handle: (error, req: Request, res: Response, _logger?: Logger) => {
+      if (!(error instanceof ValidationError)) return;
       sendErrorResponse(
         res,
         req,
@@ -68,7 +82,8 @@ const ERROR_HANDLERS: ErrorHandler[] = [
   },
   {
     supports: (e): e is DomainError => e instanceof DomainError,
-    handle: (error: DomainError, req: Request, res: Response, logger?: Logger) => {
+    handle: (error, req: Request, res: Response, _logger?: Logger) => {
+      if (!(error instanceof DomainError)) return;
       sendErrorResponse(
         res,
         req,
@@ -79,7 +94,8 @@ const ERROR_HANDLERS: ErrorHandler[] = [
   },
   {
     supports: (e): e is ApplicationError => e instanceof ApplicationError,
-    handle: (error: ApplicationError, req: Request, res: Response, logger?: Logger) => {
+    handle: (error, req: Request, res: Response, _logger?: Logger) => {
+      if (!(error instanceof ApplicationError)) return;
       sendErrorResponse(
         res,
         req,
@@ -91,7 +107,7 @@ const ERROR_HANDLERS: ErrorHandler[] = [
 ];
 
 export function errorMiddleware(logger: Logger) {
-  return (error: Error, req: Request, res: Response, next: NextFunction): void => {
+  return (error: unknown, req: Request, res: Response, _next: NextFunction): void => {
     logError(logger, req, error);
 
     const handler = ERROR_HANDLERS.find((h) => h.supports(error));
@@ -104,7 +120,7 @@ export function errorMiddleware(logger: Logger) {
       );
     }
 
-    return handler.handle(error, req, res, logger);
+    return handler.handle(error as Error, req, res, logger);
   };
 }
 
@@ -125,20 +141,52 @@ function sendErrorResponse(
   return ResponseHandler.error(res, statusCode, payload, audit);
 }
 
-function logError(logger: Logger, req: Request, error: any): void {
-  // const context = contextStore.getStore();
+function normalizeError(error: unknown): ErrorPayload {
+  if (error instanceof ApplicationError) {
+    return {
+      code: error.code,
+      type: error.type,
+      name: error.name,
+      message: error.message,
+      description: error.message,
+      cause: error.cause,
+      stack: error.stack,
+    };
+  }
+  if (error instanceof Error) {
+    return {
+      code: ErrorCode.INTERNAL_ERROR,
+      type: ErrorType.INTERNAL,
+      name: error.name,
+      message: error.message,
+      description: error.message,
+      stack: error.stack,
+    };
+  }
+  return {
+    code: ErrorCode.INTERNAL_ERROR,
+    type: ErrorType.INTERNAL,
+    name: 'UnknownError',
+    message: 'Unknown error',
+    description: 'Non-error thrown',
+    stack: undefined,
+  };
+}
+
+function logError(logger: Logger, req: Request, error: unknown): void {
+  const normalized = normalizeError(error);
   const errorContext = {
     path: req.path,
     method: req.method,
     // requestId: context?.requestId,
     // correlationId: context?.correlationId,
     timestamp: new Date().toISOString(),
-    code: error.code ?? ErrorCode.INTERNAL_ERROR,
-    type: error.type,
-    name: error.name,
-    description: error.message,
-    cuase: error.cause ?? undefined,
-    stack: error.stack ?? undefined,
+    code: normalized.code ?? ErrorCode.INTERNAL_ERROR,
+    type: normalized.type,
+    name: normalized.name,
+    description: normalized.message,
+    cuase: normalized.cause ?? undefined,
+    stack: normalized.stack ?? undefined,
   };
 
   logger.error('[Middleware] Captured Error', errorContext);
