@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { Logger } from '@infrastructure/loggers/Logger';
+import { ILogger } from '@infrastructure/loggers/Logger';
 
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ApiError } from '@shared/infrastructure/ErrorHandler';
@@ -18,7 +18,7 @@ import { StatusCode } from '../StatusCode';
 
 type ErrorHandler = {
   supports: (error: unknown) => boolean;
-  handle: (error: Error, req: Request, res: Response, logger?: Logger) => void;
+  handle: (error: Error, req: Request, res: Response, logger?: ILogger) => void;
 };
 
 type ErrorPayload = {
@@ -34,7 +34,7 @@ type ErrorPayload = {
 const ERROR_HANDLERS: ErrorHandler[] = [
   {
     supports: (e): e is UnauthorizedError => e instanceof UnauthorizedError,
-    handle: (error, req: Request, res: Response, _logger?: Logger) => {
+    handle: (error, req: Request, res: Response, _logger?: ILogger) => {
       if (!(error instanceof UnauthorizedError)) return;
       sendErrorResponse(
         res,
@@ -46,7 +46,7 @@ const ERROR_HANDLERS: ErrorHandler[] = [
   },
   {
     supports: (e): e is InfrastructureError => e instanceof InfrastructureError,
-    handle: (error, req: Request, res: Response, _logger?: Logger) => {
+    handle: (error, req: Request, res: Response, _logger?: ILogger) => {
       if (!(error instanceof InfrastructureError)) return;
       sendErrorResponse(
         res,
@@ -58,7 +58,7 @@ const ERROR_HANDLERS: ErrorHandler[] = [
   },
   {
     supports: (e): e is WhatsAppConnectionError => e instanceof WhatsAppConnectionError,
-    handle: (error, req: Request, res: Response, _logger?: Logger) => {
+    handle: (error, req: Request, res: Response, _logger?: ILogger) => {
       if (!(error instanceof WhatsAppConnectionError)) return;
       sendErrorResponse(
         res,
@@ -70,7 +70,7 @@ const ERROR_HANDLERS: ErrorHandler[] = [
   },
   {
     supports: (e): e is ValidationError => e instanceof ValidationError,
-    handle: (error, req: Request, res: Response, _logger?: Logger) => {
+    handle: (error, req: Request, res: Response, _logger?: ILogger) => {
       if (!(error instanceof ValidationError)) return;
       sendErrorResponse(
         res,
@@ -82,7 +82,7 @@ const ERROR_HANDLERS: ErrorHandler[] = [
   },
   {
     supports: (e): e is DomainError => e instanceof DomainError,
-    handle: (error, req: Request, res: Response, _logger?: Logger) => {
+    handle: (error, req: Request, res: Response, _logger?: ILogger) => {
       if (!(error instanceof DomainError)) return;
       sendErrorResponse(
         res,
@@ -94,7 +94,7 @@ const ERROR_HANDLERS: ErrorHandler[] = [
   },
   {
     supports: (e): e is ApplicationError => e instanceof ApplicationError,
-    handle: (error, req: Request, res: Response, _logger?: Logger) => {
+    handle: (error, req: Request, res: Response, _logger?: ILogger) => {
       if (!(error instanceof ApplicationError)) return;
       sendErrorResponse(
         res,
@@ -106,7 +106,7 @@ const ERROR_HANDLERS: ErrorHandler[] = [
   },
 ];
 
-export function errorMiddleware(logger: Logger) {
+export function errorMiddleware(logger: ILogger) {
   return (error: unknown, req: Request, res: Response, _next: NextFunction): void => {
     logError(logger, req, error);
 
@@ -173,7 +173,7 @@ function normalizeError(error: unknown): ErrorPayload {
   };
 }
 
-function logError(logger: Logger, req: Request, error: unknown): void {
+function logError(logger: ILogger, req: Request, error: unknown): void {
   const normalized = normalizeError(error);
   const errorContext = {
     path: req.path,

@@ -8,7 +8,7 @@ import helmet from 'helmet';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-import { Logger } from '@infrastructure/loggers/Logger';
+import { ILogger } from '@infrastructure/loggers/Logger';
 
 import { errorMiddleware } from './middlewares/ErrorMiddleware';
 import { loggerMiddleware } from './middlewares/LoggerMiddleware';
@@ -20,7 +20,7 @@ import { createMultimediaRouter } from './routes/multimedia.routes';
 export const createApp = (
   repository: IWhatsAppInstanceRepository,
   connectionManager: BaileysConnectionManager,
-  logger: Logger
+  logger: ILogger
 ): Application => {
   const app = express();
 

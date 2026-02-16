@@ -1,14 +1,19 @@
 import mongoose from 'mongoose';
 
-import { Logger } from '@infrastructure/loggers/Logger';
+import { ILogger } from '@infrastructure/loggers/Logger';
 
 import { DatabaseConfigurationError } from '@shared/infrastructure/errors/DatabaseConfigurationError';
 
 import { config } from '@config/env';
 
-export const connectDatabase = async (logger: Logger): Promise<void> => {
+export const connectDatabase = async (logger: ILogger): Promise<void> => {
   try {
-    await mongoose.connect(config.mongodb.uri);
+    let uri = '';
+
+    if (config.database?.type === 'mongoose') {
+      uri = config.database.uri;
+    }
+    await mongoose.connect(uri);
     logger.info(' MongoDB connected successfully');
 
     mongoose.connection.on('error', (error) => {

@@ -3,7 +3,7 @@ import axios, { AxiosInstance } from 'axios';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 import { ConnectionStatusEnum } from '@domain/value-objects/ConnectionStatus';
 
-import { Logger } from '@infrastructure/loggers/Logger';
+import { ILogger } from '@infrastructure/loggers/Logger';
 
 import { DatabaseConnectionError } from '@shared/infrastructure/errors/DatabaseConnectionError';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
@@ -14,14 +14,11 @@ export class BaileysConnectionManager {
   private _connections: Map<string, BaileysAdapter> = new Map();
   /** Cliente HTTP por instancia para enviar webhooks a la URL configurada de cada una */
   private _webhookClients: Map<string, AxiosInstance> = new Map();
-  private _logger: Logger;
 
   constructor(
     private repository: IWhatsAppInstanceRepository,
-    _logger: Logger
-  ) {
-    this._logger = _logger;
-  }
+    private readonly _logger: ILogger
+  ) {}
 
   async createConnection(
     instanceId: string,

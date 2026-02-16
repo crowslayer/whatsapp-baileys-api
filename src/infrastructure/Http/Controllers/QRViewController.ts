@@ -3,12 +3,15 @@ import pino from 'pino';
 
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { ILogger } from '@infrastructure/loggers/Logger';
+
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 
 export class QRViewController {
-  private _logger = pino();
-
-  constructor(private repository: IWhatsAppInstanceRepository) {}
+  constructor(
+    private repository: IWhatsAppInstanceRepository,
+    private readonly _logger?: ILogger
+  ) {}
 
   async renderQRPage(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {

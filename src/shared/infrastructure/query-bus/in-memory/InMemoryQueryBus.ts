@@ -1,5 +1,5 @@
-import { Query } from '@shared/domain/queries/Query';
-import { IQueryBus } from '@shared/domain/queries/QueryBus';
+import { Query } from '@shared/domain/query/Query';
+import { IQueryBus } from '@shared/domain/query/QueryBus';
 import { IResponse } from '@shared/domain/Response';
 
 import { QueryHandlers } from '../QueryHandlers';

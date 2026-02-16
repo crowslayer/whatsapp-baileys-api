@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Logger } from '@infrastructure/loggers/Logger';
+import { ILogger } from '@infrastructure/loggers/Logger';
 
-export function loggerMiddleware(logger: Logger) {
+export function loggerMiddleware(logger: ILogger) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const requestId = uuidv4();
     res.locals.requestId = requestId;

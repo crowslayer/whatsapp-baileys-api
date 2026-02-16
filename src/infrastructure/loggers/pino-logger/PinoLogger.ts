@@ -1,5 +1,7 @@
 import pino, { LoggerOptions, Logger as PinoLoggerType } from 'pino';
 
+import { ILogger } from '../Logger';
+
 enum Levels {
   FATAL = 'fatal',
   ERROR = 'error',
@@ -10,7 +12,7 @@ enum Levels {
   SILENT = 'silent',
 }
 
-export class PinoLogger {
+export class PinoLogger implements ILogger {
   private _logger: PinoLoggerType;
 
   constructor(options: LoggerOptions = {}) {
@@ -23,7 +25,7 @@ export class PinoLogger {
             level: Levels.DEBUG,
             options: {
               colorize: true,
-              translateTime: true,
+              translateTime: 'yyyy-mm-dd HH:MM:ss',
               ignore: 'pid,hostname',
             },
           },
@@ -38,12 +40,13 @@ export class PinoLogger {
         ],
       },
     };
-    const initOptions = Object.assign(optionsDefault, options);
-    // const initOptions = deepMerge(optionsDefault, options)
+    // const initOptions = Object.assign(optionsDefault, options);
+    // console.log(initOptions)
+    const initOptions = deepMerge(optionsDefault, options);
     this._logger = pino(initOptions);
   }
 
-  trace(message: string | Error | object, ...args: any[]): void {
+  trace(message: string | Error | object, ...args: unknown[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.trace(args[0], message);
       return;
@@ -96,4 +99,17 @@ export class PinoLogger {
   getLogger() {
     return this._logger;
   }
+
+  child(childName: string) {
+    return this._logger.child({ service: childName });
+  }
+}
+
+function deepMerge(target: any, source: any) {
+  for (const key of Object.keys(source)) {
+    if (source[key] instanceof Object && key in target) {
+      Object.assign(source[key], deepMerge(target[key], source[key]));
+    }
+  }
+  return { ...target, ...source };
 }

@@ -1,0 +1,32 @@
+# config/services/infrastructure.yaml
+# Servicios de Infrastructure Layer
+
+services:
+  # =============================================
+  # Persistence - MongoDB
+  # =============================================
+  infrastructure.database.connection:
+    factory:
+      class: '../../infrastructure/persistence/DatabaseConnectionFactory'
+      method: 'create'
+    arguments:
+      - '@api.config'
+      - '@shared.logger'
+    # calls:
+    #   - [connect, []]
+    public: true
+
+  infrastructure.repository.whatsapp_instance:
+    class: '../../infrastructure/persistence/mongo/repositories/MongoWhatsAppInstanceRepository'
+    public: true
+
+  # =============================================
+  # Baileys - WhatsApp
+  # =============================================
+
+  infrastructure.baileys.connection_manager:
+    class: '../../infrastructure/baileys/BaileysConnectionManager'
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@shared.logger'
+    public: true

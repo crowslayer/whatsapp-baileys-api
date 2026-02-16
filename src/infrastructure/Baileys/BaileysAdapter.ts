@@ -6,7 +6,6 @@ import makeWASocket, {
   WASocket,
   fetchLatestBaileysVersion,
   makeCacheableSignalKeyStore,
-  proto,
   useMultiFileAuthState,
 } from '@whiskeysockets/baileys';
 import pino from 'pino';
@@ -391,7 +390,7 @@ export class BaileysAdapter {
     }
   }
 
-  get_Socket(): WASocket | undefined {
+  getSocket(): WASocket | undefined {
     return this._socket;
   }
 }

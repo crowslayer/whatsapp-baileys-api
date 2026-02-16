@@ -1,4 +1,4 @@
-export interface Logger {
+export interface ILogger {
   info(message: string | Error | object, ...args: any[]): void;
   warn(message: string | Error | object, ...args: any[]): void;
   error(message: string | Error | object, ...args: any[]): void;

@@ -1,6 +1,6 @@
-import { Query } from '@shared/domain/queries/Query';
-import { IQueryHandler } from '@shared/domain/queries/QueryHandler';
-import { QueryNotRegisteredError } from '@shared/domain/queries/QueryNotRegisteredError';
+import { Query } from '@shared/domain/query/Query';
+import { IQueryHandler } from '@shared/domain/query/QueryHandler';
+import { QueryNotRegisteredError } from '@shared/domain/query/QueryNotRegisteredError';
 import { IResponse } from '@shared/domain/Response';
 
 type QueryConstructor<TResponse extends IResponse> = new (...args: never[]) => Query<TResponse>;
@@ -23,7 +23,7 @@ export class QueryHandlers {
     const handler = this._handlers.get(query.constructor as QueryConstructor<IResponse>);
 
     if (!handler) {
-      throw new QueryNotRegisteredError(query);
+      throw new QueryNotRegisteredError(`Query ${query.constructor.name} not register`);
     }
 
     return handler as IQueryHandler<Query<TResponse>, TResponse>;

@@ -1,0 +1,37 @@
+# config/services/shared.yaml
+# Servicios compartidos (Shared Layer)
+parameters:
+  api.logger.config:
+    level: 'info'
+    transport:
+      targets:
+        - target: 'pino-pretty'
+          options:
+            colorize: 'true'
+            translateTime: 'SYS:standard'
+            ignore: 'pid,hostname'
+        - target: 'pino/file'
+          level: 'debug'
+          options:
+            # destination: "./logs/log.debug.file.log"
+            mkdir: 'true'
+
+services:
+  #Logger
+  shared.logger:
+    class: '../../infrastructure/loggers/pino-logger/PinoLogger'
+    arguments:
+      - '%api.logger.config%'
+    public: true
+
+  # Response Handler (Singleton)
+  shared.response_handler:
+    class: '../../shared/infrastructure/ResponseHandler'
+    public: true
+
+  # Error Handler
+  shared.error_handler:
+    class: '../../shared/infrastructure/ErrorHandler'
+    arguments:
+      - '@shared.logger'
+    public: true
