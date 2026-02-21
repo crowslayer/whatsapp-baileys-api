@@ -8,8 +8,12 @@ export class InstanceId extends ValueObject<string> {
     super(value);
   }
 
-  static create(value?: string): InstanceId {
-    return new InstanceId(value || uuidv4());
+  static create(): InstanceId {
+    return new InstanceId(uuidv4());
+  }
+
+  static fromString(value: string): InstanceId {
+    return new InstanceId(value);
   }
 
   protected validate(): void {

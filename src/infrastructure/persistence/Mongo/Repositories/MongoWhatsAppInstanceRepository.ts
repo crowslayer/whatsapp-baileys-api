@@ -113,7 +113,7 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
 
   private toDomain(document: any): WhatsAppInstanceAggregate {
     return WhatsAppInstanceAggregate.restore({
-      instanceId: InstanceId.create(document.instanceId),
+      instanceId: InstanceId.fromString(document.instanceId),
       name: document.name,
       status: ConnectionStatus.create(document.status),
       phoneNumber: document.phoneNumber ? PhoneNumber.create(document.phoneNumber) : undefined,

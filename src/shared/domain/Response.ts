@@ -1,3 +1,3 @@
 export interface IResponse {
-  content?: unknown[];
+  content?: unknown;
 }
