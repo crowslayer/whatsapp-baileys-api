@@ -3,6 +3,7 @@ services:
     class: '../../application/instances/list/InstancesSearcher'
     arguments:
       - '@infrastructure.repository.mongo.instance_read_repository'
+    public: true
 
   application.instances.list.list_instances_query_handler:
     class: '../../application/instances/list/ListInstancesQueryHandler'
@@ -16,6 +17,7 @@ services:
     class: '../../application/instances/get/FindInstance'
     arguments:
       - '@infrastructure.repository.mongo.instance_read_repository'
+    public: true
 
   application.intances.get.get_instance_query_handler:
     class: ../../application/instances/get/GetInstanceQueryHandler
@@ -23,16 +25,19 @@ services:
       - '@application.instances.get.find_instance'
     tags:
       - { name: 'queryHandler' }
+    public: true
 
   application.instances.qr_code.status:
     class: '../../application/instances/qr-code/status/QRCodeStatus'
     arguments:
       - '@infrastructure.repository.mongo.instance_read_repository'
+    public: true
 
   application.instances.qr_code.searcher:
     class: '../../application/instances/qr-code/get/QRCodeSearcher'
     arguments:
       - '@infrastructure.repository.mongo.instance_read_repository'
+    public: true
 
   application.instances.qr_code.status.query_handler:
     class: ../../application/instances/qr-code/status/GetQRCodeStatusQueryHandler
@@ -40,6 +45,7 @@ services:
       - '@application.instances.qr_code.status'
     tags:
       - { name: 'queryHandler' }
+    public: true
 
   application.instances.qr_code.query_handler:
     class: ../../application/instances/qr-code/get/GetQRCodeQueryHandler
@@ -47,3 +53,34 @@ services:
       - '@application.instances.qr_code.searcher'
     tags:
       - { name: 'queryHandler' }
+    public: true
+
+  application.instances.create.instances_creator:
+    class: ../../application/instances/create/InstancesCreator
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@infrastructure.baileys.connection_manager'
+    public: true
+
+  application.instances.delete.instances_eraser:
+    class: ../../application/instances/delete/InstancesEraser
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@infrastructure.baileys.connection_manager'
+    public: true
+
+  application.instances.create.command_handler:
+    class: ../../application/instances/create/CreateInstanceCommandHandler
+    arguments:
+      - '@application.instances.create.instances_creator'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.instances.delete.command_handler:
+    class: ../../application/instances/delete/DeleteInstanceCommandHandler
+    arguments:
+      - '@application.instances.delete.instances_eraser'
+    tags:
+      - { name: 'commandHandler' }
+    public: true

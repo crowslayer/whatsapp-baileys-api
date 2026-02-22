@@ -47,3 +47,15 @@ services:
     arguments:
       - '@shared.query_handler'
     public: true
+
+  shared.command_handler:
+    class: ../../shared/infrastructure/command-bus/CommandHandlers
+    arguments:
+      - '!tagged commandHandler'
+    public: true
+
+  shared.command_bus:
+    class: ../../shared/infrastructure/command-bus/in-memory/InMemoryCommandBus
+    arguments:
+      - '@shared.command_handler'
+    public: true

@@ -15,11 +15,9 @@ export class GetInstancesController {
         .withRequest(req.ip, req.get('user-agent'))
         .build();
 
-      // const handler = new ListInstancesHandler(this.repository);
       const query = new ListInstancesQuery();
       const instances = await this.queryBus.ask(query);
       const data = instances.content;
-      // const data = instances.map((i) => i.toJSON());
 
       ResponseHandler.success(res, data, 'Instances retrieved successfully', 200, audit);
     } catch (error) {

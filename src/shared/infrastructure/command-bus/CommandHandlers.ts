@@ -2,27 +2,27 @@ import { Command } from '@shared/domain/commands/Command';
 import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 import { CommandNotRegisteredError } from '@shared/domain/commands/CommandNotRegisteredError';
 
-import { InfrastructureError } from '../errors/InfrastructureError';
+type CommandConstructor<TCommand extends Command<unknown>> = new (...args: never[]) => TCommand;
 
-export class CommandHandlers extends Map<Command, ICommandHandler<Command>> {
-  constructor(commandHandlers: Array<ICommandHandler<Command>>) {
-    super();
-    commandHandlers.forEach((commandHandler) => {
-      this.set(commandHandler.suscribedTo(), commandHandler);
+export class CommandHandlers {
+  private readonly _handlers = new Map<
+    CommandConstructor<Command<unknown>>,
+    ICommandHandler<Command<unknown>>
+  >();
+
+  constructor(handlers: ReadonlyArray<ICommandHandler<Command<unknown>>>) {
+    handlers.forEach((handler) => {
+      this._handlers.set(handler.subscribedTo(), handler);
     });
   }
 
-  get(command: Command): ICommandHandler<Command> {
-    try {
-      const commandHandler = super.get(command.constructor);
+  get<TCommand extends Command<unknown>>(command: TCommand): ICommandHandler<TCommand> {
+    const handler = this._handlers.get(command.constructor as CommandConstructor<TCommand>);
 
-      if (!commandHandler) {
-        throw new CommandNotRegisteredError(command);
-      }
-      return commandHandler;
-    } catch (error: unknown) {
-      const errorParse = error as Error;
-      throw new InfrastructureError(errorParse.message, error);
+    if (!handler) {
+      throw new CommandNotRegisteredError(`Command ${command.constructor.name} not registered`);
     }
+
+    return handler as ICommandHandler<TCommand>;
   }
 }

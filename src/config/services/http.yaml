@@ -6,13 +6,13 @@ services:
   # Controllers
   # =============================================
 
-  http.controller.instance:
-    class: '../../infrastructure/http/controllers/InstanceController'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-      - '@shared.logger'
-    public: true
+  # http.controller.instance:
+  #   class: '../../infrastructure/http/controllers/InstanceController'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #     - '@shared.logger'
+  #   public: true
 
   http.controller.instances.get.instances:
     class: ../../infrastructure/http/controllers/instances/GetInstancesController
@@ -24,29 +24,29 @@ services:
     arguments:
       - '@shared.query_bus'
 
-  http.controller.message:
-    class: '../../infrastructure/http/controllers/MessageController'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-      - '@shared.logger'
-    public: true
+  # http.controller.message:
+  #   class: '../../infrastructure/http/controllers/MessageController'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #     - '@shared.logger'
+  #   public: true
 
-  http.controller.group:
-    class: '../../infrastructure/http/controllers/GroupController'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-      - '@shared.logger'
-    public: true
+  # http.controller.group:
+  #   class: '../../infrastructure/http/controllers/GroupController'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #     - '@shared.logger'
+  #   public: true
 
-  http.controller.multimedia:
-    class: '../../infrastructure/http/controllers/MultimediaController'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-      - '@shared.logger'
-    public: true
+  # http.controller.multimedia:
+  #   class: '../../infrastructure/http/controllers/MultimediaController'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #     - '@shared.logger'
+  #   public: true
 
   http.controller.get_qr:
     class: '../../infrastructure/http/controllers/instances/GetQRController'
@@ -58,6 +58,18 @@ services:
     class: '../../infrastructure/http/controllers/instances/GetQRStatusController'
     arguments:
       - '@shared.query_bus'
+    public: true
+
+  http.controller.instance.creator:
+    class: '../../infrastructure/http/controllers/instances/CreateInstanceController'
+    arguments:
+      - '@shared.command_bus'
+    public: true
+
+  http.controller.instance.eraser:
+    class: '../../infrastructure/http/controllers/instances/DeleteInstanceController'
+    arguments:
+      - '@shared.command_bus'
     public: true
 
   # =============================================

@@ -1,0 +1,17 @@
+import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+
+import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+
+import { DeleteInstanceCommand } from './DeleteInstanceCommand';
+
+export class InstancesEraser {
+  constructor(
+    private readonly repository: IWhatsAppInstanceRepository,
+    private readonly connectionManager: IConnectionManager
+  ) {}
+
+  async execute(command: DeleteInstanceCommand): Promise<void> {
+    await this.connectionManager.logoutInstance(command.instanceId);
+    await this.repository.delete(command.instanceId);
+  }
+}

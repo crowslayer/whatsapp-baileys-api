@@ -2,6 +2,7 @@ import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAg
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 import { ConnectionStatus } from '@domain/value-objects/ConnectionStatus';
 import { InstanceId } from '@domain/value-objects/InstanceId';
+import { Name } from '@domain/value-objects/Name';
 import { PhoneNumber } from '@domain/value-objects/PhoneNumber';
 
 import { WhatsAppInstanceModel } from '@infrastructure/persistence/mongo/models/WhatsAppInstanceModel';
@@ -13,7 +14,7 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
     try {
       const document = new WhatsAppInstanceModel({
         instanceId: instance.instanceId,
-        name: instance.name,
+        name: instance.name.value,
         status: instance.status.value,
         phoneNumber: instance.phoneNumber?.value,
         qrCode: instance.qrCode,
@@ -73,7 +74,7 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
         { instanceId: instance.instanceId },
         {
           $set: {
-            name: instance.name,
+            name: instance.name.value,
             status: instance.status.value,
             phoneNumber: instance.phoneNumber?.value,
             qrCode: instance.qrCode,
@@ -114,7 +115,7 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
   private toDomain(document: any): WhatsAppInstanceAggregate {
     return WhatsAppInstanceAggregate.restore({
       instanceId: InstanceId.fromString(document.instanceId),
-      name: document.name,
+      name: Name.create(document.name),
       status: ConnectionStatus.create(document.status),
       phoneNumber: document.phoneNumber ? PhoneNumber.create(document.phoneNumber) : undefined,
       qrCode: document.qrCode,

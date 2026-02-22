@@ -2,34 +2,33 @@ import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAg
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 import { Name } from '@domain/value-objects/Name';
 
-import { CreateInstanceCommand } from '@application/commands/CreateInstanceCommand';
-
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
+import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 import { ConflictError } from '@shared/infrastructure/errors/ConflictError';
 
-export class CreateInstanceHandler {
+import { CreateInstanceCommand } from './CreateInstanceCommand';
+
+export class InstancesCreator {
   constructor(
-    private repository: IWhatsAppInstanceRepository,
-    private connectionManager: BaileysConnectionManager
+    private readonly repository: IWhatsAppInstanceRepository,
+    private readonly connectionManager: IConnectionManager
   ) {}
 
   async execute(command: CreateInstanceCommand): Promise<WhatsAppInstanceAggregate> {
-    const existingInstance = await this.repository.findByName(command.name);
+    const name = Name.create(command.name);
+
+    const existingInstance = await this.repository.findByName(name.value);
     if (existingInstance) {
       throw new ConflictError(`Instance with name '${command.name}' already exists`);
     }
 
-    const instance = WhatsAppInstanceAggregate.create(
-      Name.create(command.name),
-      command.webhookUrl
-    );
+    const instance = WhatsAppInstanceAggregate.create(name, command.webhookUrl);
     await this.repository.save(instance);
 
     if (command.usePairingCode && command.phoneNumber) {
       await this.connectionManager.createConnection(instance.instanceId, true, command.phoneNumber);
     } else {
-      await this.connectionManager.createConnection(instance.instanceId);
+      await this.connectionManager.createConnection(instance.instanceId, false);
     }
 
     return instance;

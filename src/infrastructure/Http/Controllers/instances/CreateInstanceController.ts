@@ -1,20 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { AggregateResponse } from '@application/instances/create/AggregateResponse';
+import { CreateInstanceCommand } from '@application/instances/create/CreateInstanceCommand';
 
-import { CreateInstanceCommand } from '@application/commands/CreateInstanceCommand';
-import { CreateInstanceHandler } from '@application/handlers/CreateInstanceHandler';
-
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class CreateInstanceController {
-  constructor(
-    private repository: IWhatsAppInstanceRepository,
-    private connectionManager: BaileysConnectionManager
-  ) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -25,11 +19,12 @@ export class CreateInstanceController {
         .withDetails({ name })
         .build();
 
-      const handler = new CreateInstanceHandler(this.repository, this.connectionManager);
       const command = new CreateInstanceCommand(name, webhookUrl, usePairingCode, phoneNumber);
-      const instance = await handler.execute(command);
 
-      ResponseHandler.created(res, instance.toJSON(), 'Instance created successfully', audit);
+      const instance = await this.commandBus.dispatch<AggregateResponse>(command);
+
+      const content = instance.content;
+      ResponseHandler.created(res, content, 'Instance created successfully', audit);
     } catch (error) {
       next(error);
     }

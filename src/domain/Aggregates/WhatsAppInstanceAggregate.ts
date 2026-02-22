@@ -4,6 +4,7 @@ import { PairingCodeGeneratedEvent } from '@domain/events/PairingCodeGeneratedEv
 import { QRCodeGeneratedEvent } from '@domain/events/QRCodeGeneratedEvent';
 import { ConnectionStatus, ConnectionStatusEnum } from '@domain/value-objects/ConnectionStatus';
 import { InstanceId } from '@domain/value-objects/InstanceId';
+import { Name } from '@domain/value-objects/Name';
 import { PhoneNumber } from '@domain/value-objects/PhoneNumber';
 
 import { AggregateRoot } from '@shared/domain/AggregateRoot';
@@ -11,7 +12,7 @@ import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 
 export interface IWhatsAppInstanceProps {
   instanceId: InstanceId;
-  name: string;
+  name: Name;
   status: ConnectionStatus;
   phoneNumber?: PhoneNumber;
   qrCode?: string;
@@ -25,7 +26,7 @@ export interface IWhatsAppInstanceProps {
 }
 
 export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
-  private _name: string;
+  private _name: Name;
   private _status: ConnectionStatus;
   private _phoneNumber?: PhoneNumber;
   private _qrCode?: string;
@@ -49,7 +50,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     this.validate();
   }
 
-  static create(name: string, webhookUrl?: string): WhatsAppInstanceAggregate {
+  static create(name: Name, webhookUrl?: string): WhatsAppInstanceAggregate {
     const instanceId = InstanceId.create();
     const status = ConnectionStatus.disconnected();
 
@@ -70,7 +71,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     return this._id;
   }
 
-  get name(): string {
+  get name(): Name {
     return this._name;
   }
 
@@ -114,7 +115,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
 
     this.addDomainEvent(
       new InstanceConnectedEvent(this.instanceId, {
-        instanceName: this._name,
+        instanceName: this._name.value,
         phoneNumber,
       })
     );
@@ -125,7 +126,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
 
     this.addDomainEvent(
       new InstanceDisconnectedEvent(this.instanceId, {
-        instanceName: this._name,
+        instanceName: this._name.value,
         reason,
       })
     );
@@ -167,11 +168,11 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
   }
 
   protected validate(): void {
-    if (!this._name || this._name.trim().length === 0) {
+    if (!this._name.value || this._name.value.trim().length === 0) {
       throw new ValidationError([{ field: 'name', message: 'Instance name is required' }]);
     }
 
-    if (this._name.length > 100) {
+    if (this._name.value.length > 100) {
       throw new ValidationError([
         { field: 'name', message: 'Instance name must be less than 100 characters' },
       ]);
@@ -181,7 +182,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
   toJSON() {
     return {
       instanceId: this.instanceId,
-      name: this._name,
+      name: this._name.value,
       status: this._status.value,
       phoneNumber: this._phoneNumber?.value,
       qrCode: this._qrCode,

@@ -1,1 +1,1 @@
-export abstract class Command {}
+export abstract class Command<TResponse = void> {}

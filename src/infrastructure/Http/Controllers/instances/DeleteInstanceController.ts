@@ -1,17 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { DeleteInstanceCommand } from '@application/instances/delete/DeleteInstanceCommand';
 
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class DeleteInstanceController {
-  constructor(
-    private repository: IWhatsAppInstanceRepository,
-    private connectionManager: BaileysConnectionManager
-  ) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -21,9 +17,8 @@ export class DeleteInstanceController {
         .withResourceId(instanceId)
         .withRequest(req.ip, req.get('user-agent'))
         .build();
-
-      await this.connectionManager.logoutInstance(instanceId);
-      await this.repository.delete(instanceId);
+      const command = new DeleteInstanceCommand(instanceId);
+      await this.commandBus.dispatch(command);
 
       ResponseHandler.success(res, null, 'Instance deleted successfully', 200, audit);
     } catch (error) {
