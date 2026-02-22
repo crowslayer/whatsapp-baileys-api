@@ -1,15 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { GetInstanceQuery } from '@application/instances/get/GetInstanceQuery';
 
-import { GetInstanceHandler } from '@application/handlers/GetInstanceHandler';
-import { GetInstanceQuery } from '@application/queries/GetInstanceQuery';
-
+import { IQueryBus } from '@shared/domain/query/QueryBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class GetInstanceController {
-  constructor(private readonly repository: IWhatsAppInstanceRepository) {}
+  constructor(private readonly queryBus: IQueryBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -20,17 +18,10 @@ export class GetInstanceController {
         .withRequest(req.ip, req.get('user-agent'))
         .build();
 
-      const handler = new GetInstanceHandler(this.repository);
       const query = new GetInstanceQuery(instanceId);
-      const instance = await handler.execute(query);
+      const instance = await this.queryBus.ask(query);
 
-      ResponseHandler.success(
-        res,
-        instance.toJSON(),
-        'Instance retrieved successfully',
-        200,
-        audit
-      );
+      ResponseHandler.success(res, instance.content, 'Instance retrieved successfully', 200, audit);
     } catch (error) {
       next(error);
     }

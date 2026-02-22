@@ -20,6 +20,10 @@ services:
     class: '../../infrastructure/persistence/mongo/repositories/MongoWhatsAppInstanceRepository'
     public: true
 
+  infrastructure.repository.mongo.instance_read_repository:
+    class: '../../infrastructure/persistence/mongo/repositories/MongoWhatsAppInstanceReadRepository'
+    public: true
+
   # =============================================
   # Baileys - WhatsApp
   # =============================================

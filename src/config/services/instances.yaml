@@ -1,0 +1,49 @@
+services:
+  application.instance.list.instances_searcher:
+    class: '../../application/instances/list/InstancesSearcher'
+    arguments:
+      - '@infrastructure.repository.mongo.instance_read_repository'
+
+  application.instances.list.list_instances_query_handler:
+    class: '../../application/instances/list/ListInstancesQueryHandler'
+    arguments:
+      - '@application.instance.list.instances_searcher'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  application.instances.get.find_instance:
+    class: '../../application/instances/get/FindInstance'
+    arguments:
+      - '@infrastructure.repository.mongo.instance_read_repository'
+
+  application.intances.get.get_instance_query_handler:
+    class: ../../application/instances/get/GetInstanceQueryHandler
+    arguments:
+      - '@application.instances.get.find_instance'
+    tags:
+      - { name: 'queryHandler' }
+
+  application.instances.qr_code.status:
+    class: '../../application/instances/qr-code/status/QRCodeStatus'
+    arguments:
+      - '@infrastructure.repository.mongo.instance_read_repository'
+
+  application.instances.qr_code.searcher:
+    class: '../../application/instances/qr-code/get/QRCodeSearcher'
+    arguments:
+      - '@infrastructure.repository.mongo.instance_read_repository'
+
+  application.instances.qr_code.status.query_handler:
+    class: ../../application/instances/qr-code/status/GetQRCodeStatusQueryHandler
+    arguments:
+      - '@application.instances.qr_code.status'
+    tags:
+      - { name: 'queryHandler' }
+
+  application.instances.qr_code.query_handler:
+    class: ../../application/instances/qr-code/get/GetQRCodeQueryHandler
+    arguments:
+      - '@application.instances.qr_code.searcher'
+    tags:
+      - { name: 'queryHandler' }

@@ -1,15 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { ListInstancesQuery } from '@application/instances/list/ListInstancesQuery';
 
-import { ListInstancesHandler } from '@application/handlers/ListInstancesHandler';
-import { ListInstancesQuery } from '@application/queries/ListInstancesQuery';
-
+import { IQueryBus } from '@shared/domain/query/QueryBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class GetInstancesController {
-  constructor(private readonly repository: IWhatsAppInstanceRepository) {}
+  constructor(private readonly queryBus: IQueryBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -17,11 +15,11 @@ export class GetInstancesController {
         .withRequest(req.ip, req.get('user-agent'))
         .build();
 
-      const handler = new ListInstancesHandler(this.repository);
+      // const handler = new ListInstancesHandler(this.repository);
       const query = new ListInstancesQuery();
-      const instances = await handler.execute(query);
-
-      const data = instances.map((i) => i.toJSON());
+      const instances = await this.queryBus.ask(query);
+      const data = instances.content;
+      // const data = instances.map((i) => i.toJSON());
 
       ResponseHandler.success(res, data, 'Instances retrieved successfully', 200, audit);
     } catch (error) {

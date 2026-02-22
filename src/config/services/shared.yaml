@@ -35,3 +35,15 @@ services:
     arguments:
       - '@shared.logger'
     public: true
+
+  shared.query_handler:
+    class: ../../shared/infrastructure/query-bus/QueryHandlers
+    arguments:
+      - '!tagged queryHandler'
+    public: true
+
+  shared.query_bus:
+    class: ../../shared/infrastructure/query-bus/in-memory/InMemoryQueryBus
+    arguments:
+      - '@shared.query_handler'
+    public: true

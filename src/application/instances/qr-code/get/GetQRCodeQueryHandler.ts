@@ -1,8 +1,6 @@
 import { IQueryHandler } from '@shared/domain/query/QueryHandler';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 
-import { FindInstance } from '../get/FindInstance';
-
 import { GetQRCodeQuery } from './GetQRCodeQuery';
 import { QRCodeResponse } from './QRCodeResponse';
 import { QRCodeSearcher } from './QRCodeSearcher';

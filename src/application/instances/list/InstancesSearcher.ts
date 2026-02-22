@@ -1,5 +1,5 @@
 import {
-  IWhatsAppInstanceReadModel,
+  IWhatsAppInstanceReadProjection,
   IWhatsAppInstanceReadRepository,
   WhatsAppInstance,
 } from '@domain/queries/IWhatsAppInstanceReadRepository';
@@ -12,7 +12,7 @@ export class InstancesSearcher {
     return instances.map((instance) => this.toReadModel(instance));
   }
 
-  private toReadModel(instance: IWhatsAppInstanceReadModel): WhatsAppInstance {
+  private toReadModel(instance: IWhatsAppInstanceReadProjection): WhatsAppInstance {
     return {
       instanceId: instance.instanceId,
       name: instance.name,

@@ -20,8 +20,7 @@ export class QueryHandlers {
   get<TResponse extends IResponse>(
     query: Query<TResponse>
   ): IQueryHandler<Query<TResponse>, TResponse> {
-    const handler = this._handlers.get(query.constructor as QueryConstructor<IResponse>);
-
+    const handler = this._handlers.get(query.constructor as QueryConstructor<TResponse>);
     if (!handler) {
       throw new QueryNotRegisteredError(`Query ${query.constructor.name} not register`);
     }

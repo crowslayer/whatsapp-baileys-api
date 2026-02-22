@@ -2,12 +2,12 @@ import { IQueryHandler } from '@shared/domain/query/QueryHandler';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 
 import { GetQRCodeStatusQuery } from './GetQRCodeStatusQuery';
-import { QRCodeResponse } from './QRCodeResponse';
 import { QRCodeStatus } from './QRCodeStatus';
+import { QRCodeStatusResponse } from './QRCodeStatusResponse';
 
 export class GetQRCodeStatusQueryHandler implements IQueryHandler<
   GetQRCodeStatusQuery,
-  QRCodeResponse
+  QRCodeStatusResponse
 > {
   constructor(private readonly searcher: QRCodeStatus) {}
 
@@ -15,10 +15,10 @@ export class GetQRCodeStatusQueryHandler implements IQueryHandler<
     return GetQRCodeStatusQuery;
   }
 
-  async handle(query: GetQRCodeStatusQuery): Promise<QRCodeResponse> {
+  async handle(query: GetQRCodeStatusQuery): Promise<QRCodeStatusResponse> {
     try {
       const instance = await this.searcher.execute(query.instanceId);
-      return QRCodeResponse.create(instance);
+      return QRCodeStatusResponse.create(instance);
     } catch (error) {
       if (error instanceof Error) {
         throw new NotFoundError('instance not found');

@@ -112,7 +112,7 @@ export class ResponseHandler {
     ],
     audit?: IAuditData
   ): void {
-    this.error(res, 404, errors, audit);
+    this.error(res, statusCode, errors, audit);
   }
 
   static conflict(

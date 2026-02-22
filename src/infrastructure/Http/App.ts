@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import express, { Application } from 'express';
 import helmet from 'helmet';
+import { ContainerBuilder } from 'node-dependency-injection';
 
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
@@ -20,7 +21,8 @@ import { createMultimediaRouter } from './routes/multimedia.routes';
 export const createApp = (
   repository: IWhatsAppInstanceRepository,
   connectionManager: BaileysConnectionManager,
-  logger: ILogger
+  logger: ILogger,
+  container: ContainerBuilder
 ): Application => {
   const app = express();
 
@@ -56,7 +58,7 @@ export const createApp = (
   });
 
   // Routes
-  app.use('/api/v1/instances', createInstanceRouter(repository, connectionManager));
+  app.use('/api/v1/instances', createInstanceRouter(repository, connectionManager, container));
   app.use('/api/v1/messages', createMessageRouter(repository, connectionManager));
   app.use('/api/v1/multimedia', createMultimediaRouter(repository, connectionManager));
   app.use('/api/v1/groups', createGroupRouter(repository, connectionManager));

@@ -14,6 +14,16 @@ services:
       - '@shared.logger'
     public: true
 
+  http.controller.instances.get.instances:
+    class: ../../infrastructure/http/controllers/instances/GetInstancesController
+    arguments:
+      - '@shared.query_bus'
+
+  http.controller.instances.get.instance:
+    class: ../../infrastructure/http/controllers/instances/GetInstanceController
+    arguments:
+      - '@shared.query_bus'
+
   http.controller.message:
     class: '../../infrastructure/http/controllers/MessageController'
     arguments:
@@ -38,11 +48,16 @@ services:
       - '@shared.logger'
     public: true
 
-  http.controller.qr_view:
-    class: '../../infrastructure/http/controllers/QRViewController'
+  http.controller.get_qr:
+    class: '../../infrastructure/http/controllers/instances/GetQRController'
     arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@shared.logger'
+      - '@shared.query_bus'
+    public: true
+
+  http.controller.qr_status:
+    class: '../../infrastructure/http/controllers/instances/GetQRStatusController'
+    arguments:
+      - '@shared.query_bus'
     public: true
 
   # =============================================

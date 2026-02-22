@@ -1,9 +1,10 @@
+import { ListInstancesQuery } from '@application/instances/list/ListInstancesQuery';
+
 import { IQueryHandler } from '@shared/domain/query/QueryHandler';
 
 import { InstancesResponse } from '../InstancesResponse';
 
 import { InstancesSearcher } from './InstancesSearcher';
-import { ListInstancesQuery } from './ListIntancesQuery';
 
 export class ListInstancesQueryHandler implements IQueryHandler<
   ListInstancesQuery,

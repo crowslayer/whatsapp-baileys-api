@@ -1,6 +1,7 @@
 # config/services/application.yaml
 # Handlers y servicios del Application Layer
-
+imports:
+  - { resource: ./instances.yaml }
 services:
   # =============================================
   # Command Handlers
