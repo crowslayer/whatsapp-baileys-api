@@ -69,6 +69,18 @@ services:
       - '@infrastructure.baileys.connection_manager'
     public: true
 
+  application.instances.connect.instances_connect:
+    class: ../../application/instances/connect/InstancesConnect
+    arguments:
+      - '@infrastructure.baileys.connection_manager'
+    public: true
+
+  application.instances.disconnect.instances_disconnect:
+    class: ../../application/instances/disconnect/InstancesDisconnect
+    arguments:
+      - '@infrastructure.baileys.connection_manager'
+    public: true
+
   application.instances.create.command_handler:
     class: ../../application/instances/create/CreateInstanceCommandHandler
     arguments:
@@ -81,6 +93,22 @@ services:
     class: ../../application/instances/delete/DeleteInstanceCommandHandler
     arguments:
       - '@application.instances.delete.instances_eraser'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.instances.connect.command_handler:
+    class: ../../application/instances/connect/ConnectInstanceCommandHandler
+    arguments:
+      - '@application.instances.connect.instances_connect'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.instances.disconnect.command_handler:
+    class: ../../application/instances/disconnect/DisconnectInstanceCommandHandler
+    arguments:
+      - '@application.instances.disconnect.instances_disconnect'
     tags:
       - { name: 'commandHandler' }
     public: true

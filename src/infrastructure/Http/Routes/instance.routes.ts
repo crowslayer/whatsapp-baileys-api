@@ -21,12 +21,12 @@ export const createInstanceRouter = (
 ): Router => {
   const router = Router();
   const qetQRController = container.get('http.controller.get_qr');
-  const createController = container.get('http.controller.instance.creator'); // new CreateInstanceController(repository, connectionManager);
+  const createController = container.get('http.controller.instance.creator');
   const listController = container.get('http.controller.instances.get.instances');
   const getInstanceController = container.get('http.controller.instances.get.instance');
   const qrStatusController = container.get('http.controller.qr_status');
   const deleteInstanceController = container.get('http.controller.instance.eraser');
-  const disconnectController = new DisconnectInstanceController(connectionManager);
+  const disconnectController = container.get('http.controller.instance.disconect');
 
   router.post(
     '/',

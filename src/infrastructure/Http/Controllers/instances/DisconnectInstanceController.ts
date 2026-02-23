@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
+import { DisconnectInstanceCommand } from '@application/instances/disconnect/DisconnectInstanceCommand';
 
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class DisconnectInstanceController {
-  constructor(private readonly connectionManager: BaileysConnectionManager) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -17,7 +18,8 @@ export class DisconnectInstanceController {
         .withRequest(req.ip, req.get('user-agent'))
         .build();
 
-      await this.connectionManager.disconnectInstance(instanceId);
+      const command = new DisconnectInstanceCommand(instanceId);
+      await this.commandBus.dispatch(command);
 
       ResponseHandler.success(res, null, 'Instance disconnected successfully', 200, audit);
     } catch (error) {

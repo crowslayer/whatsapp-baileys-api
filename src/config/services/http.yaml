@@ -72,6 +72,12 @@ services:
       - '@shared.command_bus'
     public: true
 
+  http.controller.instance.disconect:
+    class: '../../infrastructure/http/controllers/instances/DisconnectInstanceController'
+    arguments:
+      - '@shared.command_bus'
+    public: true
+
   # =============================================
   # Middlewares
   # =============================================
