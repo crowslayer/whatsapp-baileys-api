@@ -1,5 +1,7 @@
 # config/services/http.yaml
 # Controllers y servicios HTTP
+imports:
+  - { resource: ./instances/http.yaml }
 
 services:
   # =============================================
@@ -14,15 +16,15 @@ services:
   #     - '@shared.logger'
   #   public: true
 
-  http.controller.instances.get.instances:
-    class: ../../infrastructure/http/controllers/instances/GetInstancesController
-    arguments:
-      - '@shared.query_bus'
+  # http.controller.instances.get.instances:
+  #   class: ../../infrastructure/http/controllers/instances/GetInstancesController
+  #   arguments:
+  #     - '@shared.query_bus'
 
-  http.controller.instances.get.instance:
-    class: ../../infrastructure/http/controllers/instances/GetInstanceController
-    arguments:
-      - '@shared.query_bus'
+  # http.controller.instances.get.instance:
+  #   class: ../../infrastructure/http/controllers/instances/GetInstanceController
+  #   arguments:
+  #     - '@shared.query_bus'
 
   # http.controller.message:
   #   class: '../../infrastructure/http/controllers/MessageController'
@@ -48,35 +50,35 @@ services:
   #     - '@shared.logger'
   #   public: true
 
-  http.controller.get_qr:
-    class: '../../infrastructure/http/controllers/instances/GetQRController'
-    arguments:
-      - '@shared.query_bus'
-    public: true
+  # http.controller.get_qr:
+  #   class: '../../infrastructure/http/controllers/instances/GetQRController'
+  #   arguments:
+  #     - '@shared.query_bus'
+  #   public: true
 
-  http.controller.qr_status:
-    class: '../../infrastructure/http/controllers/instances/GetQRStatusController'
-    arguments:
-      - '@shared.query_bus'
-    public: true
+  # http.controller.qr_status:
+  #   class: '../../infrastructure/http/controllers/instances/GetQRStatusController'
+  #   arguments:
+  #     - '@shared.query_bus'
+  #   public: true
 
-  http.controller.instance.creator:
-    class: '../../infrastructure/http/controllers/instances/CreateInstanceController'
-    arguments:
-      - '@shared.command_bus'
-    public: true
+  # http.controller.instance.creator:
+  #   class: '../../infrastructure/http/controllers/instances/CreateInstanceController'
+  #   arguments:
+  #     - '@shared.command_bus'
+  #   public: true
 
-  http.controller.instance.eraser:
-    class: '../../infrastructure/http/controllers/instances/DeleteInstanceController'
-    arguments:
-      - '@shared.command_bus'
-    public: true
+  # http.controller.instance.eraser:
+  #   class: '../../infrastructure/http/controllers/instances/DeleteInstanceController'
+  #   arguments:
+  #     - '@shared.command_bus'
+  #   public: true
 
-  http.controller.instance.disconect:
-    class: '../../infrastructure/http/controllers/instances/DisconnectInstanceController'
-    arguments:
-      - '@shared.command_bus'
-    public: true
+  # http.controller.instance.disconect:
+  #   class: '../../infrastructure/http/controllers/instances/DisconnectInstanceController'
+  #   arguments:
+  #     - '@shared.command_bus'
+  #   public: true
 
   # =============================================
   # Middlewares

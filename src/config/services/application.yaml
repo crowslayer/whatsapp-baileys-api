@@ -1,18 +1,18 @@
 # config/services/application.yaml
 # Handlers y servicios del Application Layer
 imports:
-  - { resource: ./instances.yaml }
+  - { resource: ./instances/instances.yaml }
 services:
   # =============================================
   # Command Handlers
   # =============================================
 
-  application.handler.create_instance:
-    class: '../../application/handlers/CreateInstanceHandler'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-    public: true
+  # application.handler.create_instance:
+  #   class: '../../application/handlers/CreateInstanceHandler'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #   public: true
 
   application.handler.send_message:
     class: '../../application/handlers/SendMessageHandler'
@@ -74,14 +74,14 @@ services:
   # Query Handlers
   # =============================================
 
-  application.handler.get_instance:
-    class: '../../application/handlers/GetInstanceHandler'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-    public: true
+  # application.handler.get_instance:
+  #   class: '../../application/handlers/GetInstanceHandler'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #   public: true
 
-  application.handler.list_instances:
-    class: '../../application/handlers/ListInstancesHandler'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-    public: true
+  # application.handler.list_instances:
+  #   class: '../../application/handlers/ListInstancesHandler'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #   public: true
