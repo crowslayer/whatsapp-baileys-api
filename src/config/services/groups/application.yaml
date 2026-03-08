@@ -1,0 +1,51 @@
+services:
+  # =============================================
+  # UsesCase
+  # =============================================
+  application.groups.create.group_creator:
+    class: '../../../application/groups/create/GroupCreator'
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@infrastructure.baileys.connection_manager'
+    public: true
+
+  application.groups.participants.participants_aggregator:
+    class: '../../../application/groups/participants/add/ParticipantsAggregator'
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@infrastructure.baileys.connection_manager'
+    public: true
+
+  application.groups.participants.participants_remover:
+    class: '../../../application/groups/participants/remove/ParticipantsRemover'
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@infrastructure.baileys.connection_manager'
+    public: true
+
+  # =============================================
+  # CommandHandlers
+  # =============================================
+  application.group.create.create_group_command_handler:
+    class: '../../../application/groups/create/CreateGroupCommandHandler'
+    arguments:
+      - '@application.groups.create.group_creator'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.group.participants.add.add_participants_group_command_handler:
+    class: '../../../application/groups/participants/add/AddParticipantGroupCommandHandler'
+    arguments:
+      - '@application.groups.participants.participants_aggregator'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.group.participants.remove.remove_participants_group_command_handler:
+    class: '../../../application/groups/participants/remove/RemoveParticipantsGroupCommandHandler'
+    arguments:
+      - '@application.groups.participants.participants_remover'
+    tags:
+      - { name: 'commandHandler' }
+    public: true

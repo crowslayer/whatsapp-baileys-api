@@ -3,6 +3,7 @@
 imports:
   - { resource: ./instances/instances.yaml }
   - { resource: ./messages/application.yaml }
+  - { resource: ./groups/application.yaml }
 services:
   # =============================================
   # Command Handlers

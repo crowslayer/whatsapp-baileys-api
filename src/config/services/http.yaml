@@ -3,6 +3,7 @@
 imports:
   - { resource: ./instances/http.yaml }
   - { resource: ./messages/http.yaml }
+  - { resource: ./groups/http.yaml }
 #services:
 # =============================================
 # Controllers
