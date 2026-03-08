@@ -2,6 +2,7 @@
 # Handlers y servicios del Application Layer
 imports:
   - { resource: ./instances/instances.yaml }
+  - { resource: ./messages/application.yaml }
 services:
   # =============================================
   # Command Handlers
@@ -14,61 +15,61 @@ services:
   #     - '@infrastructure.baileys.connection_manager'
   #   public: true
 
-  application.handler.send_message:
-    class: '../../application/handlers/SendMessageHandler'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-    public: true
+  # application.handler.send_message:
+  #   class: '../../application/handlers/SendMessageHandler'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #   public: true
 
-  application.handler.create_group:
-    class: '../../application/handlers/CreateGroupHandler'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-    public: true
+  # application.handler.create_group:
+  #   class: '../../application/handlers/CreateGroupHandler'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #   public: true
 
-  application.handler.send_image:
-    class: '../../application/handlers/SendImageHandler'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-    public: true
+  # application.handler.send_image:
+  #   class: '../../application/handlers/SendImageHandler'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #   public: true
 
-  application.handler.send_document:
-    class: '../../application/handlers/SendDocumentHandler'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-    public: true
+  # application.handler.send_document:
+  #   class: '../../application/handlers/SendDocumentHandler'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #   public: true
 
-  application.handler.send_audio:
-    class: '../../application/handlers/SendAudioHandler'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-    public: true
+  # application.handler.send_audio:
+  #   class: '../../application/handlers/SendAudioHandler'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #   public: true
 
-  application.handler.send_video:
-    class: '../../application/handlers/SendVideoHandler'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-    public: true
+  # application.handler.send_video:
+  #   class: '../../application/handlers/SendVideoHandler'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #   public: true
 
-  application.handler.send_location:
-    class: '../../application/handlers/SendLocationHandler'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-    public: true
+  # application.handler.send_location:
+  #   class: '../../application/handlers/SendLocationHandler'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #   public: true
 
-  application.handler.send_reaction:
-    class: '../../application/handlers/SendReactionHandler'
-    arguments:
-      - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
-    public: true
+  # application.handler.send_reaction:
+  #   class: '../../application/handlers/SendReactionHandler'
+  #   arguments:
+  #     - '@infrastructure.repository.whatsapp_instance'
+  #     - '@infrastructure.baileys.connection_manager'
+  #   public: true
 
   # =============================================
   # Query Handlers

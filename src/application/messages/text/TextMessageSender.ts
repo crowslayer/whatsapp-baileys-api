@@ -7,7 +7,7 @@ import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 
 import { SendMessageCommand } from './SendMessageCommand';
 
-export class TextMessangeSender {
+export class TextMessageSender {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
     private readonly connectionManager: IConnectionManager
