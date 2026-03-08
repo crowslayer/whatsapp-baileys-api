@@ -1,10 +1,10 @@
 import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 import { SendMessageCommand } from './SendMessageCommand';
-import { TextMessangeSender } from './TextMessageSender';
+import { TextMessageSender } from './TextMessageSender';
 
 export class SendMessageCommandHandler implements ICommandHandler<SendMessageCommand> {
-  constructor(private readonly sender: TextMessangeSender) {}
+  constructor(private readonly sender: TextMessageSender) {}
 
   subscribedTo(): typeof SendMessageCommand {
     return SendMessageCommand;

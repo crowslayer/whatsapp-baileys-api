@@ -1,20 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { SendMessageCommand } from '@application/messages/text/SendMessageCommand';
 
-import { SendMessageCommand } from '@application/commands/SendMessageCommand';
-import { SendMessageHandler } from '@application/handlers/SendMessageHandler';
+import { StatusCode } from '@infrastructure/http/StatusCode';
 
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class SendTextController {
-  constructor(
-    private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: BaileysConnectionManager
-  ) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -27,11 +22,16 @@ export class SendTextController {
         .withDetails({ to, messageLength: message.length })
         .build();
 
-      const handler = new SendMessageHandler(this.repository, this.connectionManager);
       const command = new SendMessageCommand(instanceId, to, message);
-      await handler.execute(command);
+      await this.commandBus.dispatch(command);
 
-      ResponseHandler.success(res, { sent: true }, 'Message sent successfully', 200, audit);
+      ResponseHandler.success(
+        res,
+        { sent: true },
+        'Message sent successfully',
+        StatusCode.SuccessOK,
+        audit
+      );
     } catch (error) {
       next(error);
     }

@@ -1,20 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { SendReactionCommand } from '@application/messages/reaction/SendReactionCommand';
 
-import { SendReactionCommand } from '@application/commands/SendReactionCommand';
-import { SendReactionHandler } from '@application/handlers/SendReactionHandler';
+import { StatusCode } from '@infrastructure/http/StatusCode';
 
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class SendReactionController {
-  constructor(
-    private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: BaileysConnectionManager
-  ) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -27,11 +22,16 @@ export class SendReactionController {
         .withDetails({ messageId, emoji, chatId })
         .build();
 
-      const handler = new SendReactionHandler(this.repository, this.connectionManager);
       const command = new SendReactionCommand(instanceId, messageId, emoji, chatId);
-      await handler.execute(command);
+      await this.commandBus.dispatch(command);
 
-      ResponseHandler.success(res, { sent: true }, 'Reaction sent successfully', 200, audit);
+      ResponseHandler.success(
+        res,
+        { sent: true },
+        'Reaction sent successfully',
+        StatusCode.SuccessOK,
+        audit
+      );
     } catch (error) {
       next(error);
     }

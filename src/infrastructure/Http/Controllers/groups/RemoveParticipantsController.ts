@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 
 import { RemoveParticipantsGroupCommand } from '@application/groups/participants/remove/RemoveParticipantsGroupCommand';
 
+import { StatusCode } from '@infrastructure/http/StatusCode';
+
 import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
@@ -28,7 +30,7 @@ export class RemoveParticipantsController {
         res,
         { removed: true },
         'Participants removed successfully',
-        200,
+        StatusCode.SuccessOK,
         audit
       );
     } catch (error) {

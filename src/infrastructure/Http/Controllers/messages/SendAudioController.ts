@@ -1,21 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { SendAudioCommand } from '@application/messages/audio/SendAudioCommand';
 
-import { SendAudioCommand } from '@application/commands/SendAudioCommand';
-import { SendAudioHandler } from '@application/handlers/SendAudioHandler';
+import { StatusCode } from '@infrastructure/http/StatusCode';
 
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class SendAudioController {
-  constructor(
-    private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: BaileysConnectionManager
-  ) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -32,7 +27,6 @@ export class SendAudioController {
         .withDetails({ to, ptt: ptt === 'true', fileSize: req.file.size })
         .build();
 
-      const handler = new SendAudioHandler(this.repository, this.connectionManager);
       const command = new SendAudioCommand(
         instanceId,
         to,
@@ -40,9 +34,15 @@ export class SendAudioController {
         ptt === 'true',
         req.file.mimetype
       );
-      await handler.execute(command);
+      await this.commandBus.dispatch(command);
 
-      ResponseHandler.success(res, { sent: true }, 'Audio sent successfully', 200, audit);
+      ResponseHandler.success(
+        res,
+        { sent: true },
+        'Audio sent successfully',
+        StatusCode.SuccessOK,
+        audit
+      );
     } catch (error) {
       next(error);
     }

@@ -32,7 +32,7 @@ async function bootstrap(): Promise<void> {
     await connectionManager.restoreConnections();
 
     // Create Express app
-    const app = createApp(repository, connectionManager, logger, container);
+    const app = createApp(logger, container);
 
     // Start server
     const server = app.listen(config.api.port, () => {

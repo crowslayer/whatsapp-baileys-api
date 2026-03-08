@@ -1,18 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import multer from 'multer';
+import { ContainerBuilder } from 'node-dependency-injection';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
-
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
-import { SendAudioController } from '../controllers/messages/SendAudioController';
-import { SendContactController } from '../controllers/messages/SendContactController';
-import { SendDocumentController } from '../controllers/messages/SendDocumentController';
-import { SendImageController } from '../controllers/messages/SendImageController';
-import { SendLocationController } from '../controllers/messages/SendLocationController';
-import { SendReactionController } from '../controllers/messages/SendReactionController';
-import { SendStickerController } from '../controllers/messages/SendStickerController';
-import { SendVideoController } from '../controllers/messages/SendVideoController';
 import { validate } from '../middlewares/ValidationMiddleware';
 import {
   audioSchema,
@@ -73,19 +62,16 @@ const upload = multer({
   },
 });
 
-export const createMultimediaRouter = (
-  repository: IWhatsAppInstanceRepository,
-  connectionManager: BaileysConnectionManager
-): Router => {
+export const createMultimediaRouter = (container: ContainerBuilder): Router => {
   const router = Router();
-  const imageController = new SendImageController(repository, connectionManager);
-  const documentController = new SendDocumentController(repository, connectionManager);
-  const audioController = new SendAudioController(repository, connectionManager);
-  const videoController = new SendVideoController(repository, connectionManager);
-  const locationController = new SendLocationController(repository, connectionManager);
-  const reactionController = new SendReactionController(repository, connectionManager);
-  const conctactController = new SendContactController(repository, connectionManager);
-  const stickerController = new SendStickerController(repository, connectionManager);
+  const imageController = container.get('http.controller.messages.send_image');
+  const documentController = container.get('http.controller.messages.send_document');
+  const audioController = container.get('http.controller.messages.send_audio');
+  const videoController = container.get('http.controller.messages.send_video_message');
+  const locationController = container.get('http.controller.messages.send_location');
+  const reactionController = container.get('http.controller.messages.send_reaction');
+  const conctactController = container.get('http.controller.messages.send_contact');
+  const stickerController = container.get('http.controller.messages.send_sticker');
 
   // Enviar imagen
   router.post(

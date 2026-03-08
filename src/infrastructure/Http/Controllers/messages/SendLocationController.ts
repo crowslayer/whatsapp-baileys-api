@@ -1,20 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { SendLocationCommand } from '@application/messages/location/SendLocationCommand';
 
-import { SendLocationCommand } from '@application/commands/SendLocationCommand';
-import { SendLocationHandler } from '@application/handlers/SendLocationHandler';
+import { StatusCode } from '@infrastructure/http/StatusCode';
 
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class SendLocationController {
-  constructor(
-    private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: BaileysConnectionManager
-  ) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -27,7 +22,6 @@ export class SendLocationController {
         .withDetails({ to, latitude, longitude })
         .build();
 
-      const handler = new SendLocationHandler(this.repository, this.connectionManager);
       const command = new SendLocationCommand(
         instanceId,
         to,
@@ -36,9 +30,15 @@ export class SendLocationController {
         name,
         address
       );
-      await handler.execute(command);
+      await this.commandBus.dispatch(command);
 
-      ResponseHandler.success(res, { sent: true }, 'Location sent successfully', 200, audit);
+      ResponseHandler.success(
+        res,
+        { sent: true },
+        'Location sent successfully',
+        StatusCode.SuccessOK,
+        audit
+      );
     } catch (error) {
       next(error);
     }

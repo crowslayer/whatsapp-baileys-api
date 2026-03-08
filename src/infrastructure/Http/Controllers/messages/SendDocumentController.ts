@@ -1,21 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { SendDocumentCommand } from '@application/messages/document/SendDocumentCommand';
 
-import { SendDocumentCommand } from '@application/commands/SendDocumentCommand';
-import { SendDocumentHandler } from '@application/handlers/SendDocumentHandler';
+import { StatusCode } from '@infrastructure/http/StatusCode';
 
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class SendDocumentController {
-  constructor(
-    private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: BaileysConnectionManager
-  ) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -32,7 +27,6 @@ export class SendDocumentController {
         .withDetails({ to, fileName: req.file.originalname, fileSize: req.file.size })
         .build();
 
-      const handler = new SendDocumentHandler(this.repository, this.connectionManager);
       const command = new SendDocumentCommand(
         instanceId,
         to,
@@ -41,9 +35,15 @@ export class SendDocumentController {
         req.file.mimetype,
         caption
       );
-      await handler.execute(command);
+      await this.commandBus.dispatch(command);
 
-      ResponseHandler.success(res, { sent: true }, 'Document sent successfully', 200, audit);
+      ResponseHandler.success(
+        res,
+        { sent: true },
+        'Document sent successfully',
+        StatusCode.SuccessOK,
+        audit
+      );
     } catch (error) {
       next(error);
     }

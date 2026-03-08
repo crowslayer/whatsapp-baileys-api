@@ -1,21 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { SendContactCommand } from '@application/messages/contact/SendContactCommand';
 
-import { SendContactCommand } from '@application/commands/SendContactCommand';
-import { SendContactHandler } from '@application/handlers/SendContactHandler';
+import { StatusCode } from '@infrastructure/http/StatusCode';
 
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class SendContactController {
-  constructor(
-    private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: BaileysConnectionManager
-  ) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -37,11 +32,16 @@ export class SendContactController {
         .withDetails({ to, contactCount: validContacts.length })
         .build();
 
-      const handler = new SendContactHandler(this.repository, this.connectionManager);
       const command = new SendContactCommand(instanceId, to, validContacts);
-      await handler.execute(command);
+      await this.commandBus.dispatch(command);
 
-      ResponseHandler.success(res, { sent: true }, 'Contact(s) sent successfully', 200, audit);
+      ResponseHandler.success(
+        res,
+        { sent: true },
+        'Contact(s) sent successfully',
+        StatusCode.SuccessOK,
+        audit
+      );
     } catch (error) {
       next(error);
     }

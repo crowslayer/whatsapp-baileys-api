@@ -6,9 +6,6 @@ import express, { Application } from 'express';
 import helmet from 'helmet';
 import { ContainerBuilder } from 'node-dependency-injection';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
-
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 import { ILogger } from '@infrastructure/loggers/Logger';
 
 import { errorMiddleware } from './middlewares/ErrorMiddleware';
@@ -18,12 +15,7 @@ import { createInstanceRouter } from './routes/instance.routes';
 import { createMessageRouter } from './routes/message.routes';
 import { createMultimediaRouter } from './routes/multimedia.routes';
 
-export const createApp = (
-  repository: IWhatsAppInstanceRepository,
-  connectionManager: BaileysConnectionManager,
-  logger: ILogger,
-  container: ContainerBuilder
-): Application => {
+export const createApp = (logger: ILogger, container: ContainerBuilder): Application => {
   const app = express();
 
   // Middleware global
@@ -59,8 +51,8 @@ export const createApp = (
 
   // Routes
   app.use('/api/v1/instances', createInstanceRouter(container));
-  app.use('/api/v1/messages', createMessageRouter(repository, connectionManager));
-  app.use('/api/v1/multimedia', createMultimediaRouter(repository, connectionManager));
+  app.use('/api/v1/messages', createMessageRouter(container));
+  app.use('/api/v1/multimedia', createMultimediaRouter(container));
   app.use('/api/v1/groups', createGroupRouter(container));
 
   // Error handling

@@ -1,21 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { SendImageCommand } from '@application/messages/image/SendImageCommand';
 
-import { SendImageCommand } from '@application/commands/SendImageCommand';
-import { SendImageHandler } from '@application/handlers/SendImageHandler';
+import { StatusCode } from '@infrastructure/http/StatusCode';
 
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class SendImageController {
-  constructor(
-    private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: BaileysConnectionManager
-  ) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -32,11 +27,16 @@ export class SendImageController {
         .withDetails({ to, fileSize: req.file.size })
         .build();
 
-      const handler = new SendImageHandler(this.repository, this.connectionManager);
       const command = new SendImageCommand(instanceId, to, req.file.buffer, caption, fileName);
-      await handler.execute(command);
+      await this.commandBus.dispatch(command);
 
-      ResponseHandler.success(res, { sent: true }, 'Image sent successfully', 200, audit);
+      ResponseHandler.success(
+        res,
+        { sent: true },
+        'Image sent successfully',
+        StatusCode.SuccessOK,
+        audit
+      );
     } catch (error) {
       next(error);
     }

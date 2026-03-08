@@ -1,21 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { SendVideoCommand } from '@application/messages/video/SendVideoCommand';
 
-import { SendVideoCommand } from '@application/commands/SendVideoCommand';
-import { SendVideoHandler } from '@application/handlers/SendVideoHandler';
-
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class SendVideoController {
-  constructor(
-    private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: BaileysConnectionManager
-  ) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -32,7 +25,6 @@ export class SendVideoController {
         .withDetails({ to, gifPlayback: gifPlayback === 'true', fileSize: req.file.size })
         .build();
 
-      const handler = new SendVideoHandler(this.repository, this.connectionManager);
       const command = new SendVideoCommand(
         instanceId,
         to,
@@ -41,7 +33,7 @@ export class SendVideoController {
         gifPlayback === 'true',
         fileName
       );
-      await handler.execute(command);
+      await this.commandBus.dispatch(command);
 
       ResponseHandler.success(res, { sent: true }, 'Video sent successfully', 200, audit);
     } catch (error) {
