@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
+import { RemoveParticipantsGroupCommand } from '@application/groups/participants/remove/RemoveParticipantsGroupCommand';
 
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
-import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class RemoveParticipantsController {
-  constructor(private readonly connectionManager: BaileysConnectionManager) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -20,12 +20,9 @@ export class RemoveParticipantsController {
         .withDetails({ instanceId, participantsCount: participants.length })
         .build();
 
-      const adapter = this.connectionManager.getConnection(instanceId);
-      if (!adapter) {
-        throw new WhatsAppConnectionError('Instance not connected');
-      }
+      const command = new RemoveParticipantsGroupCommand(instanceId, groupId, participants);
 
-      await adapter.removeParticipantsFromGroup(groupId, participants);
+      await this.commandBus.dispatch(command);
 
       return ResponseHandler.success(
         res,

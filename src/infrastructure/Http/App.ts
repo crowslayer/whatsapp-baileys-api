@@ -58,10 +58,10 @@ export const createApp = (
   });
 
   // Routes
-  app.use('/api/v1/instances', createInstanceRouter(repository, connectionManager, container));
+  app.use('/api/v1/instances', createInstanceRouter(container));
   app.use('/api/v1/messages', createMessageRouter(repository, connectionManager));
   app.use('/api/v1/multimedia', createMultimediaRouter(repository, connectionManager));
-  app.use('/api/v1/groups', createGroupRouter(repository, connectionManager));
+  app.use('/api/v1/groups', createGroupRouter(container));
 
   // Error handling
   const errorHandler = errorMiddleware(logger);

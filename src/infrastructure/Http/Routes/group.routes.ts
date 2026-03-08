@@ -1,12 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express';
+import { ContainerBuilder } from 'node-dependency-injection';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
-
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
-import { AddParticipantsController } from '../controllers/groups/AddParticipantsController';
-import { CreateGroupController } from '../controllers/groups/CreateGroupController';
-import { RemoveParticipantsController } from '../controllers/groups/RemoveParticipantsController';
 import { validate } from '../middlewares/ValidationMiddleware';
 import {
   addParticipantsSchema,
@@ -14,14 +8,11 @@ import {
   removeParticipantsSchema,
 } from '../validators/express/schemas/groupsSchema';
 
-export const createGroupRouter = (
-  repository: IWhatsAppInstanceRepository,
-  connectionManager: BaileysConnectionManager
-): Router => {
+export const createGroupRouter = (container: ContainerBuilder): Router => {
   const router = Router();
-  const createController = new CreateGroupController(repository, connectionManager);
-  const addParticipants = new AddParticipantsController(connectionManager);
-  const removeParticipants = new RemoveParticipantsController(connectionManager);
+  const createController = container.get('http.controller.groups.create_group');
+  const addParticipants = container.get('http.controller.groups.add_participants');
+  const removeParticipants = container.get('http.controller.groups.remove_participants');
 
   router.post(
     '/:instanceId/groups',

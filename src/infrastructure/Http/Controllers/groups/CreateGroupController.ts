@@ -1,20 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+import { CreateGroupCommand } from '@application/groups/create/CreateGroupCommand';
 
-import { CreateGroupCommand } from '@application/commands/CreateGroupCommand';
-import { CreateGroupHandler } from '@application/handlers/CreateGroupHandler';
-
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class CreateGroupController {
-  constructor(
-    private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: BaileysConnectionManager
-  ) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -27,9 +20,8 @@ export class CreateGroupController {
         .withDetails({ groupName: name, participantsCount: participants.length })
         .build();
 
-      const handler = new CreateGroupHandler(this.repository, this.connectionManager);
       const command = new CreateGroupCommand(instanceId, name, participants);
-      const groupId = await handler.execute(command);
+      const groupId = await this.commandBus.dispatch(command);
 
       return ResponseHandler.created(res, { groupId }, 'Group created successfully', audit);
     } catch (error) {

@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
+import { AddParticipantGroupCommand } from '@application/groups/participants/add/AddParticipantGroupCommand';
 
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class AddParticipantsController {
-  constructor(private readonly connectionManager: BaileysConnectionManager) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -19,13 +20,8 @@ export class AddParticipantsController {
         .withDetails({ instanceId, participantsCount: participants.length })
         .build();
 
-      const adapter = this.connectionManager.getConnection(instanceId);
-      if (!adapter) {
-        ResponseHandler.badRequest(res, 'Instance not connected');
-        return;
-      }
-
-      await adapter.addParticipantsToGroup(groupId, participants);
+      const command = new AddParticipantGroupCommand(instanceId, groupId, participants);
+      await this.commandBus.dispatch(command);
 
       return ResponseHandler.success(
         res,

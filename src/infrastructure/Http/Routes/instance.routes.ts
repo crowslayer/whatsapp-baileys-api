@@ -1,24 +1,13 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { ContainerBuilder } from 'node-dependency-injection';
 
-import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
-
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-
-import { CreateInstanceController } from '../controllers/instances/CreateInstanceController';
-import { DeleteInstanceController } from '../controllers/instances/DeleteInstanceController';
-import { DisconnectInstanceController } from '../controllers/instances/DisconnectInstanceController';
 import { validate } from '../middlewares/ValidationMiddleware';
 import {
   createInstanceSchema,
   instanceIdSchema,
 } from '../validators/express/schemas/instanceSchema';
 
-export const createInstanceRouter = (
-  repository: IWhatsAppInstanceRepository,
-  connectionManager: BaileysConnectionManager,
-  container: ContainerBuilder
-): Router => {
+export const createInstanceRouter = (container: ContainerBuilder): Router => {
   const router = Router();
   const qetQRController = container.get('http.controller.get_qr');
   const createController = container.get('http.controller.instance.creator');
