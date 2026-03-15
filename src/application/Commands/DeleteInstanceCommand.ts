@@ -1,3 +1,3 @@
 export class DeleteInstanceCommand {
-    constructor(public readonly instanceId: string) {}
-  }
+  constructor(public readonly instanceId: string) {}
+}

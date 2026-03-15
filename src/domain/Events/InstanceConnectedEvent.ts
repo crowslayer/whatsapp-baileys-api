@@ -1,6 +1,6 @@
-import { DomainEvent } from '@shared/domain/DomainEvent';
+import { IDomainEvent } from '@shared/domain/DomainEvent';
 
-export class InstanceConnectedEvent implements DomainEvent {
+export class InstanceConnectedEvent implements IDomainEvent {
   public readonly occurredOn: Date;
   public readonly eventName: string = 'instance.connected';
 

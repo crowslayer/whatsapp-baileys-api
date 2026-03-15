@@ -1,0 +1,61 @@
+# config/services/shared.yaml
+# Servicios compartidos (Shared Layer)
+parameters:
+  api.logger.config:
+    level: 'info'
+    transport:
+      targets:
+        - target: 'pino-pretty'
+          options:
+            colorize: 'true'
+            translateTime: 'SYS:standard'
+            ignore: 'pid,hostname'
+        - target: 'pino/file'
+          level: 'debug'
+          options:
+            # destination: "./logs/log.debug.file.log"
+            mkdir: 'true'
+
+services:
+  #Logger
+  shared.logger:
+    class: '../../infrastructure/loggers/pino-logger/PinoLogger'
+    arguments:
+      - '%api.logger.config%'
+    public: true
+
+  # Response Handler (Singleton)
+  shared.response_handler:
+    class: '../../shared/infrastructure/ResponseHandler'
+    public: true
+
+  # Error Handler
+  shared.error_handler:
+    class: '../../shared/infrastructure/ErrorHandler'
+    arguments:
+      - '@shared.logger'
+    public: true
+
+  shared.query_handler:
+    class: ../../shared/infrastructure/query-bus/QueryHandlers
+    arguments:
+      - '!tagged queryHandler'
+    public: true
+
+  shared.query_bus:
+    class: ../../shared/infrastructure/query-bus/in-memory/InMemoryQueryBus
+    arguments:
+      - '@shared.query_handler'
+    public: true
+
+  shared.command_handler:
+    class: ../../shared/infrastructure/command-bus/CommandHandlers
+    arguments:
+      - '!tagged commandHandler'
+    public: true
+
+  shared.command_bus:
+    class: ../../shared/infrastructure/command-bus/in-memory/InMemoryCommandBus
+    arguments:
+      - '@shared.command_handler'
+    public: true

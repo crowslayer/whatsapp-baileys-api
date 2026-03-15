@@ -1,26 +1,29 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import { Schema, checkSchema, validationResult } from 'express-validator';
+
+import { ApiError } from '@shared/infrastructure/ErrorHandler';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
-import { validationResult, ValidationChain } from 'express-validator';
-
-export const validate = (validations: ValidationChain[]) => {
+export const validate = (validations: Schema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    await Promise.all(validations.map(validation => validation.run(req)));
-
+    await checkSchema(validations).run(req);
+    // Promise.all(validations.map((validation) => validation.run(req)));
     const errors = validationResult(req);
     if (errors.isEmpty()) {
       return next();
     }
 
-    const errorMessages: Record<string, string[]> = {};
-    errors.array().forEach(error => {
+    const errorMessages: ApiError[] = [];
+    errors.array().forEach((error) => {
       if (error.type === 'field') {
-        if (!errorMessages[error.path]) {
-          errorMessages[error.path] = [];
-        }
-        errorMessages[error.path].push(error.msg);
+        const errorParse = {
+          type: 'field',
+          code: 2001,
+          name: error.path,
+          description: error.msg,
+        };
+        errorMessages.push(errorParse);
       }
     });
-
     return ResponseHandler.badRequest(res, 'Validation failed', errorMessages);
   };
 };

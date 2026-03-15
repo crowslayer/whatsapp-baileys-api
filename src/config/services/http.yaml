@@ -1,0 +1,149 @@
+# config/services/http.yaml
+# Controllers y servicios HTTP
+imports:
+  - { resource: ./instances/http.yaml }
+  - { resource: ./messages/http.yaml }
+  - { resource: ./groups/http.yaml }
+#services:
+# =============================================
+# Controllers
+# =============================================
+
+# http.controller.instance:
+#   class: '../../infrastructure/http/controllers/InstanceController'
+#   arguments:
+#     - '@infrastructure.repository.whatsapp_instance'
+#     - '@infrastructure.baileys.connection_manager'
+#     - '@shared.logger'
+#   public: true
+
+# http.controller.instances.get.instances:
+#   class: ../../infrastructure/http/controllers/instances/GetInstancesController
+#   arguments:
+#     - '@shared.query_bus'
+
+# http.controller.instances.get.instance:
+#   class: ../../infrastructure/http/controllers/instances/GetInstanceController
+#   arguments:
+#     - '@shared.query_bus'
+
+# http.controller.message:
+#   class: '../../infrastructure/http/controllers/MessageController'
+#   arguments:
+#     - '@infrastructure.repository.whatsapp_instance'
+#     - '@infrastructure.baileys.connection_manager'
+#     - '@shared.logger'
+#   public: true
+
+# http.controller.group:
+#   class: '../../infrastructure/http/controllers/GroupController'
+#   arguments:
+#     - '@infrastructure.repository.whatsapp_instance'
+#     - '@infrastructure.baileys.connection_manager'
+#     - '@shared.logger'
+#   public: true
+
+# http.controller.multimedia:
+#   class: '../../infrastructure/http/controllers/MultimediaController'
+#   arguments:
+#     - '@infrastructure.repository.whatsapp_instance'
+#     - '@infrastructure.baileys.connection_manager'
+#     - '@shared.logger'
+#   public: true
+
+# http.controller.get_qr:
+#   class: '../../infrastructure/http/controllers/instances/GetQRController'
+#   arguments:
+#     - '@shared.query_bus'
+#   public: true
+
+# http.controller.qr_status:
+#   class: '../../infrastructure/http/controllers/instances/GetQRStatusController'
+#   arguments:
+#     - '@shared.query_bus'
+#   public: true
+
+# http.controller.instance.creator:
+#   class: '../../infrastructure/http/controllers/instances/CreateInstanceController'
+#   arguments:
+#     - '@shared.command_bus'
+#   public: true
+
+# http.controller.instance.eraser:
+#   class: '../../infrastructure/http/controllers/instances/DeleteInstanceController'
+#   arguments:
+#     - '@shared.command_bus'
+#   public: true
+
+# http.controller.instance.disconect:
+#   class: '../../infrastructure/http/controllers/instances/DisconnectInstanceController'
+#   arguments:
+#     - '@shared.command_bus'
+#   public: true
+
+# =============================================
+# Middlewares
+# =============================================
+
+# http.middleware.logger:
+#   class: '../../infrastructure/http/middlewares/LoggerMiddleware'
+#   factory: ['@infrastructure/http/middlewares/LoggerMiddleware', 'create']
+#   arguments:
+#     - '@shared.logger'
+#   public: true
+
+# http.middleware.error:
+#   class: '../../infrastructure/http/middlewares/ErrorMiddleware'
+#   factory: ['@infrastructure/http/middlewares/ErrorMiddleware', 'create']
+#   arguments:
+#     - '@shared.logger'
+#   public: true
+
+# =============================================
+# Routes
+# =============================================
+
+# http.router.instance:
+#   class: '@infrastructure/http/routes/InstanceRouter'
+#   factory: ['@infrastructure/http/routes/InstanceRouter', 'create']
+#   arguments:
+#     - '@http.controller.instance'
+#     - '@http.controller.qr_view'
+#   public: true
+
+# http.router.message:
+#   class: '@infrastructure/http/routes/MessageRouter'
+#   factory: ['@infrastructure/http/routes/MessageRouter', 'create']
+#   arguments:
+#     - '@http.controller.message'
+#   public: true
+
+# http.router.group:
+#   class: '@infrastructure/http/routes/GroupRouter'
+#   factory: ['@infrastructure/http/routes/GroupRouter', 'create']
+#   arguments:
+#     - '@http.controller.group'
+#   public: true
+
+# http.router.multimedia:
+#   class: '@infrastructure/http/routes/MultimediaRouter'
+#   factory: ['@infrastructure/http/routes/MultimediaRouter', 'create']
+#   arguments:
+#     - '@http.controller.multimedia'
+#   public: true
+
+# =============================================
+# Express App
+# =============================================
+
+# http.app:
+#   class: '@infrastructure/http/ExpressApp'
+#   factory: ['@infrastructure/http/ExpressApp', 'create']
+#   arguments:
+#     - '@http.router.instance'
+#     - '@http.router.message'
+#     - '@http.router.group'
+#     - '@http.router.multimedia'
+#     - '@http.middleware.logger'
+#     - '@http.middleware.error'
+#   public: true

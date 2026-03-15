@@ -1,23 +1,28 @@
-
-import { IWhatsAppInstanceRepository } from '@domain/Repositories/IWhatsAppInstanceRepository';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import pino from 'pino';
 
+import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+
+import { ILogger } from '@infrastructure/loggers/Logger';
+
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
+
 export class QRViewController {
-  private logger = pino();
+  constructor(
+    private repository: IWhatsAppInstanceRepository,
+    private readonly _logger?: ILogger
+  ) {}
 
-  constructor(private repository: IWhatsAppInstanceRepository) {}
-
-  async renderQRPage(req: Request, res: Response): Promise<void> {
+  async renderQRPage(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { instanceId } = req.params;
 
       const instance = await this.repository.findById(instanceId);
-      
+
       if (!instance) {
         return res.status(404).render('error', {
           message: 'Instancia no encontrada',
-          instanceId
+          instanceId,
         });
       }
 
@@ -27,37 +32,34 @@ export class QRViewController {
         qrCode: instance.qrCode,
         qrText: instance.qrText,
         status: instance.status.value,
-        phoneNumber: instance.phoneNumber?.value
+        phoneNumber: instance.phoneNumber?.value,
       });
-    } catch (error: any) {
-      this.logger.error('Error rendering QR page:', error);
-      res.status(500).render('error', {
-        message: 'Error al cargar la página',
-        error: error.message
-      });
+      return;
+    } catch (error) {
+      next(error);
     }
   }
 
-  async getQRStatus(req: Request, res: Response): Promise<Response> {
+  async getQRStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { instanceId } = req.params;
 
       const instance = await this.repository.findById(instanceId);
-      
+
       if (!instance) {
-        return res.status(404).json({ error: 'Instance not found' });
+        throw new NotFoundError('Instance not found');
       }
 
-      return res.json({
+      res.json({
         status: instance.status.value,
         qrCode: instance.qrCode,
         qrText: instance.qrText,
         phoneNumber: instance.phoneNumber?.value,
-        connected: instance.status.isConnected()
+        connected: instance.status.isConnected(),
       });
-    } catch (error: any) {
-      this.logger.error('Error getting QR status:', error);
-      return res.status(500).json({ error: error.message });
+      return;
+    } catch (error) {
+      next(error);
     }
   }
 }

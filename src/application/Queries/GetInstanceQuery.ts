@@ -1,3 +1,3 @@
 export class GetInstanceQuery {
-    constructor(public readonly instanceId: string) {}
-  }
+  constructor(public readonly instanceId: string) {}
+}

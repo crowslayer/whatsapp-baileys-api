@@ -1,43 +1,49 @@
-// src/index.ts
-import { connectDatabase } from '@infrastructure/persistence/Mongo/Connection';
-import { config } from './config/env';
-import { BaileysConnectionManager } from '@infrastructure/Baileys/BaileysConnectionManager';
-import { createApp } from '@infrastructure/Http/App';
-import { MongoWhatsAppInstanceRepository } from '@infrastructure/persistence/Mongo/Repositories/MongoWhatsAppInstanceRepository';
-import { PinoLogger } from '@infrastructure/Logger/PinoLogger/PinoLogger';
+import 'dotenv/config';
+import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
+import { getContainer } from '@infrastructure/container/Container';
+import { createApp } from '@infrastructure/http/App';
+import { ILogger } from '@infrastructure/loggers/Logger';
+import { IDatabaseConnection } from '@infrastructure/persistence';
 
-const logger = new PinoLogger();
+import { IConfig } from './config';
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   try {
     // Connect to database
-    await connectDatabase(logger);
+    const container = await getContainer();
+    const config = container.get<IConfig>('api.config');
+    const logger = container.get<ILogger>('shared.logger');
 
-    // Initialize repository and connection manager
-    const repository = new MongoWhatsAppInstanceRepository();
-    const connectionManager = new BaileysConnectionManager(repository, logger);
+    const mongoConnection = container.get<IDatabaseConnection>(
+      'infrastructure.database.connection'
+    );
+    const connectionManager = container.get<BaileysConnectionManager>(
+      'infrastructure.baileys.connection_manager'
+    );
+
+    await mongoConnection.connect();
 
     // Restore existing connections
     await connectionManager.restoreConnections();
 
     // Create Express app
-    const app = createApp(repository, connectionManager, logger);
+    const app = createApp(logger, container);
 
     // Start server
-    const server = app.listen(config.port, () => {
-      logger.info(`${config.app.name}`);
-      logger.info(`Version: ${config.app.version}`);
-      logger.info(`Environment: ${config.nodeEnv}`);
-      logger.info(`Port: ${config.port}`);
-      logger.info(`API: http://localhost:${config.port}/api/v1`);
-                          
-                
+    const server = app.listen(config.api.port, () => {
+      // logger.info(`${config.app.name}`);
+      // logger.info(`Version: ${config.app.version}`);
+      logger.info(`Environment: ${config.environment}`);
+      logger.info(`Port: ${config.api.port}`);
+      logger.info(
+        `API: http://localhost:${config.api.port}/${config.api.path}/${config.api.version}`
+      );
     });
 
     // Graceful shutdown
-    const gracefulShutdown = async () => {
+    const gracefulShutdown = async (): Promise<void> => {
       logger.info('Shutting down gracefully...');
-      
+
       server.close(() => {
         logger.info('HTTP server closed');
       });
@@ -58,9 +64,8 @@ async function bootstrap() {
 
     process.on('SIGTERM', gracefulShutdown);
     process.on('SIGINT', gracefulShutdown);
-
   } catch (error) {
-    logger.error('Failed to start application:', error);
+    console.error('Failed to start application:', error);
     process.exit(1);
   }
 }

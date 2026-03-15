@@ -1,10 +1,18 @@
-import { Router } from 'express';
-import { body, param } from 'express-validator';
-import { validate } from "../Middlewares/ValidationMiddleware";
-import { IWhatsAppInstanceRepository } from '@domain/Repositories/IWhatsAppInstanceRepository';
-import { BaileysConnectionManager } from '@infrastructure/Baileys/BaileysConnectionManager';
-import { MultimediaController } from '../Controllers/MultimediaController';
+import { NextFunction, Request, Response, Router } from 'express';
 import multer from 'multer';
+import { ContainerBuilder } from 'node-dependency-injection';
+
+import { validate } from '../middlewares/ValidationMiddleware';
+import {
+  audioSchema,
+  contactSchema,
+  documentSchema,
+  imageSchema,
+  locationSchema,
+  reactionSchema,
+  stickerSchema,
+  videoSchema,
+} from '../validators/express/schemas/messageSchema';
 
 // Configuración de multer para manejo de archivos
 const storage = multer.memoryStorage();
@@ -54,112 +62,76 @@ const upload = multer({
   },
 });
 
-export const createMultimediaRouter = (
-  repository: IWhatsAppInstanceRepository,
-  connectionManager: BaileysConnectionManager
-): Router => {
+export const createMultimediaRouter = (container: ContainerBuilder): Router => {
   const router = Router();
-  const controller = new MultimediaController(repository, connectionManager);
+  const imageController = container.get('http.controller.messages.send_image');
+  const documentController = container.get('http.controller.messages.send_document');
+  const audioController = container.get('http.controller.messages.send_audio');
+  const videoController = container.get('http.controller.messages.send_video_message');
+  const locationController = container.get('http.controller.messages.send_location');
+  const reactionController = container.get('http.controller.messages.send_reaction');
+  const conctactController = container.get('http.controller.messages.send_contact');
+  const stickerController = container.get('http.controller.messages.send_sticker');
 
   // Enviar imagen
   router.post(
     '/:instanceId/send/image',
     upload.single('image'),
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-      body('caption').optional().isString(),
-      body('fileName').optional().isString(),
-    ]),
-    (req, res) => controller.sendImage(req, res)
+    validate(imageSchema),
+    (req: Request, res: Response, next: NextFunction) => imageController.handle(req, res, next)
   );
 
   // Enviar documento
   router.post(
     '/:instanceId/send/document',
     upload.single('document'),
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-      body('caption').optional().isString(),
-    ]),
-    (req, res) => controller.sendDocument(req, res)
+    validate(documentSchema),
+    (req: Request, res: Response, next: NextFunction) => documentController.handle(req, res, next)
   );
 
   // Enviar audio
   router.post(
     '/:instanceId/send/audio',
     upload.single('audio'),
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-      body('ptt').optional().isString(), // 'true' o 'false'
-    ]),
-    (req, res) => controller.sendAudio(req, res)
+    validate(audioSchema),
+    (req: Request, res: Response, next: NextFunction) => audioController.handle(req, res, next)
   );
 
   // Enviar video
   router.post(
     '/:instanceId/send/video',
     upload.single('video'),
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-      body('caption').optional().isString(),
-      body('gifPlayback').optional().isString(),
-      body('fileName').optional().isString(),
-    ]),
-    (req, res) => controller.sendVideo(req, res)
+    validate(videoSchema),
+    (req: Request, res: Response, next: NextFunction) => videoController.handle(req, res, next)
   );
 
   // Enviar ubicación
   router.post(
     '/:instanceId/send/location',
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-      body('latitude').isFloat().withMessage('Valid latitude is required'),
-      body('longitude').isFloat().withMessage('Valid longitude is required'),
-      body('name').optional().isString(),
-      body('address').optional().isString(),
-    ]),
-    (req, res) => controller.sendLocation(req, res)
+    validate(locationSchema),
+    (req: Request, res: Response, next: NextFunction) => locationController.handle(req, res, next)
   );
 
   // Enviar reacción (emoji)
   router.post(
     '/:instanceId/send/reaction',
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('messageId').isString().notEmpty().withMessage('Message ID is required'),
-      body('chatId').isString().notEmpty().withMessage('Chat ID is required'),
-      body('emoji').isString().notEmpty().withMessage('Emoji is required'),
-    ]),
-    (req, res) => controller.sendReaction(req, res)
+    validate(reactionSchema),
+    (req: Request, res: Response, next: NextFunction) => reactionController.handle(req, res, next)
   );
 
   // Enviar contacto(s)
   router.post(
     '/:instanceId/send/contact',
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-      body('contacts').isArray().withMessage('Contacts array is required'),
-      body('contacts.*.displayName').optional().isString(),
-      body('contacts.*.vcard').isString().notEmpty().withMessage('vcard is required for each contact'),
-    ]),
-    (req, res) => controller.sendContact(req, res)
+    validate(contactSchema),
+    (req: Request, res: Response, next: NextFunction) => conctactController.handle(req, res, next)
   );
 
   // Enviar sticker (imagen WebP)
   router.post(
     '/:instanceId/send/sticker',
     upload.single('sticker'),
-    validate([
-      param('instanceId').isString().notEmpty(),
-      body('to').isString().notEmpty().withMessage('Recipient is required'),
-    ]),
-    (req, res) => controller.sendSticker(req, res)
+    validate(stickerSchema),
+    (req: Request, res: Response, next: NextFunction) => stickerController.handle(req, res, next)
   );
 
   return router;

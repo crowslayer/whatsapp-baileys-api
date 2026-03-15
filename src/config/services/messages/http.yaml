@@ -1,0 +1,48 @@
+services:
+  # =============================================
+  # Controllers
+  # =============================================
+  http.controller.messages.send_audio:
+    class: ../../../infrastructure/http/controllers/messages/SendAudioController
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_contact:
+    class: ../../../infrastructure/http/controllers/messages/SendContactController
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_document:
+    class: ../../../infrastructure/http/controllers/messages/SendDocumentController
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_image:
+    class: ../../../infrastructure/http/controllers/messages/SendImageController
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_location:
+    class: ../../../infrastructure/http/controllers/messages/SendLocationController
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_reaction:
+    class: ../../../infrastructure/http/controllers/messages/SendReactionController
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_sticker:
+    class: ../../../infrastructure/http/controllers/messages/SendStickerController
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_text_message:
+    class: ../../../infrastructure/http/controllers/messages/SendTextController
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_video_message:
+    class: ../../../infrastructure/http/controllers/messages/SendVideoController
+    arguments:
+      - '@shared.command_bus'

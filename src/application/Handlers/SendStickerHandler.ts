@@ -1,7 +1,11 @@
-import { SendStickerCommand } from "@application/Commands/SendStickerCommand";
-import { IWhatsAppInstanceRepository } from "@domain/Repositories/IWhatsAppInstanceRepository";
-import { BaileysConnectionManager } from "@infrastructure/Baileys/BaileysConnectionManager";
-import { NotFoundError, ValidationError } from "@shared/infrastructure/ErrorHandler";
+import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
+
+import { SendStickerCommand } from '@application/commands/SendStickerCommand';
+
+import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
+
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
+import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 
 export class SendStickerHandler {
   constructor(
@@ -16,12 +20,16 @@ export class SendStickerHandler {
     }
 
     if (!instance.canSendMessages()) {
-      throw new ValidationError(`Instance ${command.instanceId} is not connected`);
+      throw new ValidationError([
+        { field: 'instance', message: `Instance ${command.instanceId} is not connected` },
+      ]);
     }
 
     const adapter = this.connectionManager.getConnection(command.instanceId);
     if (!adapter) {
-      throw new ValidationError(`Instance ${command.instanceId} adapter not found`);
+      throw new ValidationError([
+        { field: 'instance', message: `Instance ${command.instanceId} adapter not found` },
+      ]);
     }
 
     await adapter.sendSticker(command.to, command.sticker);

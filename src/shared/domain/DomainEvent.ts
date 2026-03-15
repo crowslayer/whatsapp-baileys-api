@@ -1,6 +1,6 @@
-export interface DomainEvent {
-    occurredOn: Date;
-    eventName: string;
-    aggregateId: string;
-    payload: any;
-  }
+export interface IDomainEvent {
+  occurredOn: Date;
+  eventName: string;
+  aggregateId: string;
+  payload: Record<string, unknown>;
+}
