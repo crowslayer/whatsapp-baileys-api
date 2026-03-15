@@ -20,13 +20,8 @@ async function bootstrap(): Promise<void> {
     const connectionManager = container.get<BaileysConnectionManager>(
       'infrastructure.baileys.connection_manager'
     );
-    const repository = container.get('infrastructure.repository.whatsapp_instance');
 
     await mongoConnection.connect();
-    // await connectDatabase(logger);
-    // Initialize repository and connection manager
-    // const repository = new MongoWhatsAppInstanceRepository();
-    // const connectionManager = new BaileysConnectionManager(repository, logger);
 
     // Restore existing connections
     await connectionManager.restoreConnections();

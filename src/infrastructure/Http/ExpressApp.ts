@@ -45,7 +45,7 @@ export class ExpressApp {
     app.use('/api/v1/instances', instanceRouter);
     app.use('/api/v1/messages', messageRouter);
     app.use('/api/v1/multimedia', multimediaRouter);
-    app.use('/api/v1', groupRouter);
+    app.use('/api/v1/groups', groupRouter);
 
     // Error handling middleware (debe ser el último)
     app.use(errorMiddleware);
