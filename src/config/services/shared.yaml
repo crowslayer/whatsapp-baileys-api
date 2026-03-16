@@ -1,5 +1,8 @@
 # config/services/shared.yaml
+# =============================================
 # Servicios compartidos (Shared Layer)
+# =============================================
+
 parameters:
   api.logger.config:
     level: 'info'

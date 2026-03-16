@@ -1,6 +1,8 @@
 # config/services/infrastructure.yaml
 # Servicios de Infrastructure Layer
-
+# =============================================
+# Infrastructure Services
+# =============================================
 services:
   # =============================================
   # Persistence - MongoDB
