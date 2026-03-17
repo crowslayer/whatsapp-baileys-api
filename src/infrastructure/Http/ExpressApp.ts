@@ -27,6 +27,7 @@ export class ExpressApp {
   private _app: express.Application;
   private _config: IConfig;
   logger: ILogger;
+
   constructor(
     config: IConfig,
     logger: ILogger,
@@ -42,12 +43,14 @@ export class ExpressApp {
   initialize(): void {
     const isProd = this._config.environment === 'production';
     this.initMiddlewares();
+
     if (!isProd) {
       const filename = fileURLToPath(import.meta.url);
       const pathViews = dirname(filename);
       this._app.set('view engine', 'ejs');
       this._app.set('views', path.join(pathViews, '../Views'));
     }
+
     this.initRoutes();
     this.errorMiddleware();
   }

@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     ".enveslint": "link:.enveslint",
+    "@express-rate-limit/tsconfig": "^1.0.2",
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.25",
     "@types/multer": "^2.0.0",
