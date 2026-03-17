@@ -17,6 +17,7 @@ build/
 .prettierignore
 .prettierrc
 eslint.config.js
+pnpm-lock.yaml
 
 # WhatsApp Sessions
 sessions/
