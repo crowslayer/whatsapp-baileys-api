@@ -6,8 +6,8 @@ export class FactoryConfig {
   static loadConfig(): IConfig {
     const PORT = toPort('PORT', process.env.PORT ?? '3333');
     const ENVIRONMENT = FactoryConfig.parseEnvironment(process.env.NODE_ENV);
-    const API_PATH = process.env.API_PATH || 'api';
-    const API_VERSION = process.env.API_VERSION || 'v1';
+    const API_PATH = (process.env.API_PATH || 'api').replace(/^\/+|\/+$/g, '');
+    const API_VERSION = (process.env.API_VERSION || 'v1').replace(/^\/+|\/+$/g, '');
     const APP_URL =
       process.env.APP_URL ??
       (ENVIRONMENT === 'production'

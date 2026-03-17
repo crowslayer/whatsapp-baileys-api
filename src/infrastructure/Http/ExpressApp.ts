@@ -1,55 +1,142 @@
 // src/infrastructure/http/ExpressApp.ts
-import { dirname, join } from 'path';
+import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-import express, { Application, RequestHandler, Router } from 'express';
+import express, { Application } from 'express';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import { ContainerBuilder } from 'node-dependency-injection';
+
+import { ILogger } from '@infrastructure/loggers/Logger';
+
+import { IConfig } from '@config/index';
+
+import { createCorsMiddleware } from './middlewares/CorsMiddleware';
+import { errorMiddleware } from './middlewares/ErrorMiddleware';
+import { loggerMiddleware } from './middlewares/LoggerMiddleware';
+import { requestIdMiddleware } from './middlewares/RequestIdMiddleware';
+import { createGroupRouter } from './routes/group.routes';
+import { createInstanceRouter } from './routes/instance.routes';
+import { createMessageRouter } from './routes/message.routes';
+import { createMultimediaRouter } from './routes/multimedia.routes';
 
 const _filename = fileURLToPath(import.meta.url);
 const _dirname = dirname(_filename);
 
 export class ExpressApp {
-  static create(
-    instanceRouter: Router,
-    messageRouter: Router,
-    groupRouter: Router,
-    multimediaRouter: Router,
-    loggerMiddleware: RequestHandler,
-    errorMiddleware: RequestHandler
-  ): Application {
-    const app = express();
+  private _app: express.Application;
+  private _config: IConfig;
+  logger: ILogger;
+  constructor(
+    config: IConfig,
+    logger: ILogger,
+    readonly container: ContainerBuilder
+  ) {
+    this._config = config;
+    this.logger = logger;
 
-    // Middleware global
-    app.use(express.json({ limit: '50mb' }));
-    app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-    app.use(loggerMiddleware);
+    this._app = express();
+    this.initialize();
+  }
 
-    // Configurar vistas EJS
-    try {
-      app.set('view engine', 'ejs');
-      app.set('views', join(__dirname, 'views'));
-    } catch (error) {
-      console.error('Error setting up views:', error);
+  initialize(): void {
+    const isProd = this._config.environment === 'production';
+    this.initMiddlewares();
+    if (!isProd) {
+      const filename = fileURLToPath(import.meta.url);
+      const pathViews = dirname(filename);
+      this._app.set('view engine', 'ejs');
+      this._app.set('views', path.join(pathViews, '../Views'));
     }
+    this.initRoutes();
+    this.errorMiddleware();
+  }
 
-    // Health check
-    app.get('/health', (req, res) => {
+  private initMiddlewares(): void {
+    this._app.use(requestIdMiddleware());
+    this.initHelmet();
+    this.initCors();
+    this._app.use(express.json({ limit: '1mb' }));
+    this._app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+    this.initRateLimit(this._config.security?.enabledRateLimit ?? false);
+    this.initLogger();
+  }
+
+  private errorMiddleware(): void {
+    this._app.use(errorMiddleware(this.logger));
+  }
+  private initHelmet(): void {
+    this._app.use(
+      helmet({
+        contentSecurityPolicy: {
+          directives: {
+            defaultSrc: ["'none'"],
+            scriptSrc: ["'none'"],
+            objectSrc: ["'none'"],
+            frameAncestors: ["'none'"],
+          },
+        },
+        hsts: {
+          maxAge: 31536000, // 1 año
+          includeSubDomains: true,
+          preload: true,
+        },
+        referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+        crossOriginEmbedderPolicy: true,
+        crossOriginOpenerPolicy: { policy: 'same-origin' },
+        crossOriginResourcePolicy: { policy: 'cross-origin' }, // API pública
+      })
+    );
+  }
+  private initCors(): void {
+    this._app.use(createCorsMiddleware(this._config, this.logger));
+  }
+
+  private initRateLimit(enabledRateLimit: boolean): void {
+    if (enabledRateLimit) {
+      const globalLimiter = rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 100,
+        standardHeaders: true,
+        legacyHeaders: false,
+        message: { error: 'Too many requests, please try again later' },
+      });
+      this._app.use('/api/', globalLimiter);
+    }
+  }
+
+  private initLogger(): void {
+    this._app.use(loggerMiddleware(this.logger));
+  }
+
+  private initRoutes(): void {
+    this._app.get('/health', (req, res) => {
       res.json({
         status: 'OK',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        di: 'enabled',
       });
     });
+    const config = this._config;
+    const base = `/${config.api.path}/${config.api.version}`;
 
-    // API Routes
-    app.use('/api/v1/instances', instanceRouter);
-    app.use('/api/v1/messages', messageRouter);
-    app.use('/api/v1/multimedia', multimediaRouter);
-    app.use('/api/v1/groups', groupRouter);
+    // Routes
+    this._app.use(`${base}/instances`, createInstanceRouter(this.container));
+    this._app.use(`${base}/messages`, createMessageRouter(this.container));
+    this._app.use(
+      `${base}/multimedia`,
+      express.json({ limit: '50mb' }), // límite alto solo donde se necesita
+      createMultimediaRouter(this.container)
+    );
+    this._app.use(`${base}/groups`, createGroupRouter(this.container));
+  }
 
-    // Error handling middleware (debe ser el último)
-    app.use(errorMiddleware);
+  static create(config: IConfig, logger: ILogger, container: ContainerBuilder): Application {
+    const server = new ExpressApp(config, logger, container);
+    return server.application;
+  }
 
-    return app;
+  get application(): Application {
+    return this._app;
   }
 }
