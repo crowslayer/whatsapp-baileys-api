@@ -45,17 +45,40 @@ npm install
 
 ### 3. Configurar variables de entorno
 
-```bash
-cp .env.example .env
-```
-
-Editar `.env` con tus configuraciones:
+Este proyecto carga variables desde un archivo `.env` (vía `dotenv`). Actualmente el repo **no incluye** `.env.example`, así que crea un `.env` en la raíz con una configuración mínima como esta:
 
 ```env
+# Runtime
 NODE_ENV=development
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/whatsapp-api
+PORT=3333
+API_PATH=api
+API_VERSION=v1
+APP_URL=http://localhost:3333
+
+# Database (MongoDB vía mongoose)
+DB_TYPE=mongoose
+DB_ENABLED=true
+DB_URI=mongodb://localhost:27017/whatsapp-api
+
+# Security
+SECURITY_TYPE=jwt
+JWT_SECRET=replace-with-a-long-random-secret-at-least-32-chars
+JWT_EXPIRES=1d
+JWT_REFRESH_EXPIRES=7d
+
+# CORS (coma-separado). En production es obligatorio.
+ACCEPTED_ORIGINS=http://localhost:3000,http://localhost:4200
+
+# Opcionales (booleanos como string)
+PROTECT_ROUTES=false
+ENABLED_RATE_LIMITS=false
 ```
+
+Notas:
+
+- **`NODE_ENV` es obligatorio** y solo admite: `development | production | test | staging`.
+- En **production** se requieren **`APP_URL`** y **`ACCEPTED_ORIGINS`**; y si usas JWT, **`JWT_SECRET`** debe tener **mínimo 32 caracteres**.
+- Para base de datos, `DB_TYPE` soporta `mongoose | typeorm | sequelize` (en este repo se usa típicamente `mongoose`).
 
 ### 4. Compilar TypeScript
 
@@ -66,37 +89,15 @@ npm run build
 ### 5. Iniciar la aplicación
 
 **Desarrollo:**
+
 ```bash
 npm run dev
 ```
 
 **Producción:**
+
 ```bash
 npm start
-```
-
-## 📚 Estructura del Proyecto
-
-```
-src/
-├── domain/              # Capa de dominio (lógica de negocio)
-│   ├── aggregates/      # Aggregate Roots
-│   ├── entities/        # Entidades del dominio
-│   ├── value-objects/   # Value Objects
-│   ├── events/          # Domain Events
-│   └── repositories/    # Interfaces de repositorios
-├── application/         # Capa de aplicación (casos de uso)
-│   ├── commands/        # Comandos (CQRS)
-│   ├── queries/         # Consultas (CQRS)
-│   └── handlers/        # Manejadores de comandos y queries
-├── infrastructure/      # Capa de infraestructura (adaptadores)
-│   ├── baileys/         # Adaptador de Baileys
-│   ├── http/            # Controladores y rutas HTTP
-│   ├── persistence/     # Persistencia MongoDB
-│   └── logging/         # Sistema de logging
-└── shared/              # Código compartido
-    ├── domain/          # Clases base de dominio
-    └── infrastructure/  # Utilidades de infraestructura
 ```
 
 ## 🔌 API Endpoints
@@ -167,6 +168,12 @@ GET /api/v1/instances/:instanceId
 
 ```http
 GET /api/v1/instances/:instanceId/qr
+```
+
+#### Obtener status del QR / conexión
+
+```http
+GET /api/v1/instances/:instanceId/qr/status
 ```
 
 #### Desconectar instancia
@@ -275,12 +282,37 @@ Content-Type: application/json
 }
 ```
 
+#### Enviar contacto(s)
+
+```http
+POST /api/v1/multimedia/:instanceId/send/contact
+Content-Type: application/json
+
+{
+  "to": "5215512345678@s.whatsapp.net",
+  "contacts": [
+    {
+      "displayName": "Juan Pérez",
+      "vcard": "BEGIN:VCARD\nVERSION:3.0\nFN:Juan Pérez\nTEL;type=CELL:+5215512345678\nEND:VCARD"
+    }
+  ]
+}
+```
+
+#### Enviar sticker (WebP)
+
+```bash
+curl -X POST http://localhost:3000/api/v1/multimedia/:instanceId/send/sticker \
+  -F "sticker=@sticker.webp" \
+  -F "to=5215512345678@s.whatsapp.net"
+```
+
 ### Grupos
 
 #### Crear grupo
 
 ```http
-POST /api/v1/:instanceId/groups
+POST /api/v1/groups/:instanceId/groups
 Content-Type: application/json
 
 {
@@ -295,7 +327,7 @@ Content-Type: application/json
 #### Agregar participantes
 
 ```http
-POST /api/v1/:instanceId/groups/:groupId/participants/add
+POST /api/v1/groups/:instanceId/groups/:groupId/participants/add
 Content-Type: application/json
 
 {
@@ -308,7 +340,7 @@ Content-Type: application/json
 #### Eliminar participantes
 
 ```http
-POST /api/v1/:instanceId/groups/:groupId/participants/remove
+POST /api/v1/groups/:instanceId/groups/:groupId/participants/remove
 Content-Type: application/json
 
 {
@@ -339,6 +371,7 @@ El proyecto sigue arquitectura hexagonal con tres capas principales:
 ### CQRS Pattern
 
 Separación clara entre:
+
 - **Commands**: Operaciones que modifican el estado (CreateInstance, SendMessage)
 - **Queries**: Operaciones de solo lectura (GetInstance, ListInstances)
 - **Handlers**: Procesadores específicos para cada comando/query
@@ -485,7 +518,7 @@ POST /api/v1/messages/{instanceId}/send
 }
 
 // 5. Crear grupo
-POST /api/v1/{instanceId}/groups
+POST /api/v1/groups/{instanceId}/groups
 {
   "name": "Equipo Ventas",
   "participants": ["5215512345678@s.whatsapp.net"]

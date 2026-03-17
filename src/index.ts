@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
 
 dotenv.config();
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
+
+import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 import { getContainer } from '@infrastructure/container/Container';
 import { ExpressApp } from '@infrastructure/http/ExpressApp';
 import { ILogger } from '@infrastructure/loggers/Logger';
@@ -19,7 +20,7 @@ async function bootstrap(): Promise<void> {
     const mongoConnection = container.get<IDatabaseConnection>(
       'infrastructure.database.connection'
     );
-    const connectionManager = container.get<BaileysConnectionManager>(
+    const connectionManager = container.get<IConnectionManager>(
       'infrastructure.baileys.connection_manager'
     );
 
