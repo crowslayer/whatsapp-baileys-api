@@ -1,13 +1,20 @@
-import { IConfig } from '.';
+import { URL } from 'url';
 
+import { IConfig } from '.';
 type Environment = 'development' | 'production' | 'test' | 'staging';
 export class FactoryConfig {
   static loadConfig(): IConfig {
-    const PORT = Number(process.env.PORT) || 3333;
+    const PORT = toPort('PORT', process.env.PORT ?? '3333');
     const ENVIRONMENT = FactoryConfig.parseEnvironment(process.env.NODE_ENV);
     const API_PATH = process.env.API_PATH || 'api';
     const API_VERSION = process.env.API_VERSION || 'v1';
-    const APP_URL = process.env.APP_URL ?? null;
+    const APP_URL =
+      process.env.APP_URL ??
+      (ENVIRONMENT === 'production'
+        ? (() => {
+            throw new Error('APP_URL is required in production');
+          })()
+        : `http://localhost:${PORT}`);
 
     return Object.freeze({
       environment: ENVIRONMENT,
@@ -18,7 +25,7 @@ export class FactoryConfig {
         url: APP_URL,
       },
       database: FactoryConfig.buildDatabase(),
-      security: FactoryConfig.buildSecurity(),
+      security: FactoryConfig.buildSecurity(ENVIRONMENT),
     });
   }
 
@@ -74,45 +81,74 @@ export class FactoryConfig {
         throw new Error(`Unsupported DB_TYPE: ${DB_TYPE}`);
     }
   }
-  private static buildSecurity(): IConfig['security'] {
+  private static buildSecurity(environment: string): IConfig['security'] {
     const SECURITY_TYPE = required('SECURITY_TYPE', process.env.SECURITY_TYPE);
+    const corsOrigins = FactoryConfig.buildCorsOrigins(environment);
+
+    const base = {
+      cors: { origins: corsOrigins },
+      protectRoutes: toBoolean(process.env.PROTECT_ROUTES),
+      enabledRateLimit: toBoolean(process.env.ENABLED_RATE_LIMITS),
+    };
 
     switch (SECURITY_TYPE) {
       case 'jwt':
         return {
+          ...base,
           type: 'jwt',
           enabled: true,
-          cors: {
-            origins: (process.env.ACCEPTED_ORIGINS || '').split(',').filter(Boolean),
-          },
-          protectRoutes: toBoolean(process.env.PROTECT_ROUTES),
-          enabledRateLimit: toBoolean(process.env.ENABLED_RATE_LIMITS),
           jwt: {
-            secret: required('JWT_SECRET', process.env.JWT_SECRET),
-            expires: process.env.JWT_EXPIRES || '1d',
-            refreshExpires: process.env.JWT_REFRESH_EXPIRES || '7d',
+            secret: FactoryConfig.validateJwtSecret(
+              environment,
+              required('JWT_SECRET', process.env.JWT_SECRET)
+            ),
+            expires: parseJwtExpiry('JWT_EXPIRES', process.env.JWT_EXPIRES || '1d'),
+            refreshExpires: parseJwtExpiry(
+              'JWT_REFRESH_EXPIRES',
+              process.env.JWT_REFRESH_EXPIRES || '7d'
+            ),
           },
         };
 
       case 'oauth2':
         return {
+          ...base,
           type: 'oauth2',
           enabled: true,
-          cors: {
-            origins: (process.env.ACCEPTED_ORIGINS || '').split(',').filter(Boolean),
-          },
-          protectRoutes: toBoolean(process.env.PROTECT_ROUTES),
-          enabledRateLimit: toBoolean(process.env.ENABLED_RATE_LIMITS),
           clientId: required('OAUTH_CLIENT_ID', process.env.OAUTH_CLIENT_ID),
           clientSecret: required('OAUTH_CLIENT_SECRET', process.env.OAUTH_CLIENT_SECRET),
           authorizationServer: required('OAUTH_AUTH_SERVER', process.env.OAUTH_AUTH_SERVER),
         };
 
       default:
-        throw new Error(`Unsupported SECURITY_TYPE: ${SECURITY_TYPE}`);
+        throw new Error(`Unsupported SECURITY_TYPE: "${SECURITY_TYPE}". Use jwt | oauth2`);
     }
   }
+
+  private static buildCorsOrigins(environment: string): string[] {
+    const raw = process.env.ACCEPTED_ORIGINS ?? '';
+    if (!raw && environment === 'production')
+      throw new Error('ACCEPTED_ORIGINS is required in production');
+
+    const origins = raw
+      ? parseOrigins(raw)
+      : ['http://localhost:8080', 'http://localhost:4200', 'http://localhost:3000'];
+
+    if (origins.length === 0) throw new Error('ACCEPTED_ORIGINS contains no valid URLs');
+
+    return origins;
+  }
+
+  private static validateJwtSecret(environment: string, secret: string): string {
+    const WEAK_SECRETS = ['secret', 'password', 'changeme', '1234', 'test', 'dev'];
+    if (environment === 'production' && secret.length < 32)
+      throw new Error('JWT_SECRET must be at least 32 characters in production');
+    if (WEAK_SECRETS.some((w) => secret.toLowerCase().includes(w)))
+      console.warn('[config] JWT_SECRET looks weak — use a cryptographically random value');
+    return secret;
+  }
 }
+
 function required(name: string, value?: string): string {
   if (!value) {
     throw new Error(`Missing required env variable: ${name}`);
@@ -130,4 +166,31 @@ function toNumber(name: string, value?: string): number {
     throw new Error(`Env variable ${name} must be a number`);
   }
   return parsed;
+}
+
+function toPort(name: string, value?: string): number {
+  const n = toNumber(name, value);
+  if (!Number.isInteger(n) || n < 1 || n > 65535)
+    throw new Error(`${name} must be a valid port (1–65535), got: ${value}`);
+  return n;
+}
+
+const JWT_DURATION_RE = /^\d+[smhd]$/;
+function parseJwtExpiry(name: string, value: string): string {
+  if (!JWT_DURATION_RE.test(value))
+    throw new Error(`${name} format invalid: use e.g. '1d', '2h', '30m'`);
+  return value;
+}
+
+function parseOrigins(raw: string): string[] {
+  return raw
+    .split(',')
+    .map((o) => o.trim())
+    .filter((o) => {
+      try {
+        return ['http:', 'https:'].includes(new URL(o).protocol);
+      } catch {
+        return false;
+      }
+    });
 }

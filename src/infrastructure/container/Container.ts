@@ -54,5 +54,5 @@ export class DIContainer {
 
 // Export singleton
 export async function getContainer(): Promise<ContainerBuilder> {
-  return DIContainer.getInstance();
+  return await DIContainer.getInstance();
 }

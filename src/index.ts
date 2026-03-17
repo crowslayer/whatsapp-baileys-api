@@ -1,4 +1,6 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+
+dotenv.config();
 import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
 import { getContainer } from '@infrastructure/container/Container';
 import { createApp } from '@infrastructure/http/App';
@@ -27,7 +29,7 @@ async function bootstrap(): Promise<void> {
     await connectionManager.restoreConnections();
 
     // Create Express app
-    const app = createApp(logger, container);
+    const app = createApp(config, logger, container);
 
     // Start server
     const server = app.listen(config.api.port, () => {
