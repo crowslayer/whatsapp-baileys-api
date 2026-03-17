@@ -33,8 +33,8 @@ async function bootstrap(): Promise<void> {
 
     // Start server
     const server = app.listen(config.api.port, () => {
-      // logger.info(`${config.app.name}`);
-      // logger.info(`Version: ${config.app.version}`);
+      logger.info('Whatsapp api-rest baileys');
+      logger.info(`Version: ${config.api.version}`);
       logger.info(`Environment: ${config.environment}`);
       logger.info(`Port: ${config.api.port}`);
       logger.info(
