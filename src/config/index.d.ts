@@ -88,6 +88,7 @@ export interface IOAuth2SecurityConfig extends IBaseSecurityConfig {
 
 export type ISecurityConfig = IJwtSecurityConfig | IOAuth2SecurityConfig;
 export type Environment = 'development' | 'production' | 'test' | 'staging';
+
 export interface IConfig {
   environment: string;
   api: IApiConfig;

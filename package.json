@@ -23,7 +23,7 @@
     "api",
     "nodejs"
   ],
-  "author": "crowslayer",
+  "author": "Alexander Herrera <crowslayer@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "@hapi/boom": "^10.0.1",

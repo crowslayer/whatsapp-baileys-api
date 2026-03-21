@@ -1,7 +1,9 @@
 import { URL } from 'url';
 
 import { IConfig } from '.';
+
 type Environment = 'development' | 'production' | 'test' | 'staging';
+
 export class FactoryConfig {
   static loadConfig(): IConfig {
     const PORT = toPort('PORT', process.env.PORT ?? '3333');
@@ -40,6 +42,7 @@ export class FactoryConfig {
         throw new Error(`Invalid NODE_ENV: ${value}`);
     }
   }
+
   private static buildDatabase(): IConfig['database'] {
     const DB_TYPE = required('DB_TYPE', process.env.DB_TYPE);
 
@@ -81,6 +84,7 @@ export class FactoryConfig {
         throw new Error(`Unsupported DB_TYPE: ${DB_TYPE}`);
     }
   }
+
   private static buildSecurity(environment: string): IConfig['security'] {
     const SECURITY_TYPE = required('SECURITY_TYPE', process.env.SECURITY_TYPE);
     const corsOrigins = FactoryConfig.buildCorsOrigins(environment);
@@ -127,6 +131,7 @@ export class FactoryConfig {
 
   private static buildCorsOrigins(environment: string): string[] {
     const raw = process.env.ACCEPTED_ORIGINS ?? '';
+
     if (!raw && environment === 'production')
       throw new Error('ACCEPTED_ORIGINS is required in production');
 
@@ -141,10 +146,13 @@ export class FactoryConfig {
 
   private static validateJwtSecret(environment: string, secret: string): string {
     const WEAK_SECRETS = ['secret', 'password', 'changeme', '1234', 'test', 'dev'];
+
     if (environment === 'production' && secret.length < 32)
       throw new Error('JWT_SECRET must be at least 32 characters in production');
+
     if (WEAK_SECRETS.some((w) => secret.toLowerCase().includes(w)))
       console.warn('[config] JWT_SECRET looks weak — use a cryptographically random value');
+
     return secret;
   }
 }
@@ -162,6 +170,7 @@ function toBoolean(value?: string): boolean {
 
 function toNumber(name: string, value?: string): number {
   const parsed = Number(value);
+
   if (isNaN(parsed)) {
     throw new Error(`Env variable ${name} must be a number`);
   }
@@ -170,13 +179,16 @@ function toNumber(name: string, value?: string): number {
 
 function toPort(name: string, value?: string): number {
   const n = toNumber(name, value);
+
   if (!Number.isInteger(n) || n < 1 || n > 65535)
     throw new Error(`${name} must be a valid port (1–65535), got: ${value}`);
+
   return n;
 }
 
-const JWT_DURATION_RE = /^\d+[smhd]$/;
 function parseJwtExpiry(name: string, value: string): string {
+  const JWT_DURATION_RE = /^\d+[smhd]$/;
+
   if (!JWT_DURATION_RE.test(value))
     throw new Error(`${name} format invalid: use e.g. '1d', '2h', '30m'`);
   return value;
