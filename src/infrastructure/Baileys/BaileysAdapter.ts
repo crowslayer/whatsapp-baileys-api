@@ -156,13 +156,16 @@ export class BaileysAdapter {
 
   async sendMessage(to: string, message: string): Promise<void> {
     if (!this._socket) {
-      throw new WhatsAppConnectionError('_Socket not connected');
+      throw new WhatsAppConnectionError('Socket not connected');
     }
 
     try {
       await this._socket.sendMessage(to, { text: message });
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to send message: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to send message for instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 
@@ -177,8 +180,11 @@ export class BaileysAdapter {
         caption,
         fileName: fileName || 'image.jpg',
       });
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to send image: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to send image for instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 
@@ -200,8 +206,11 @@ export class BaileysAdapter {
         mimetype,
         caption,
       });
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to send document: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to send document for instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 
@@ -221,8 +230,11 @@ export class BaileysAdapter {
         ptt, // Push to talk (nota de voz)
         mimetype: mimetype || 'audio/mp4',
       });
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to send audio: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to send audio for instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 
@@ -244,8 +256,11 @@ export class BaileysAdapter {
         gifPlayback: gifPlayback || false,
         fileName: fileName || 'video.mp4',
       });
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to send video: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to send video for instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 
@@ -258,8 +273,11 @@ export class BaileysAdapter {
       await this._socket.sendMessage(to, {
         sticker,
       });
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to send sticker: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to send sticketfor instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 
@@ -283,8 +301,11 @@ export class BaileysAdapter {
           address,
         },
       });
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to send location: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to send location for instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 
@@ -303,8 +324,11 @@ export class BaileysAdapter {
           contacts: contacts.map((c) => ({ vcard: c.vcard })),
         },
       });
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to send contact: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to send contact for instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 
@@ -320,8 +344,11 @@ export class BaileysAdapter {
           key: { remoteJid: chatId, id: messageId },
         },
       });
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to send reaction: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to send reaction for instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 
@@ -335,8 +362,11 @@ export class BaileysAdapter {
         image: media,
         caption,
       });
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to send media: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to send media message for instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 
@@ -348,8 +378,11 @@ export class BaileysAdapter {
     try {
       const group = await this._socket.groupCreate(name, participants);
       return group.id;
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to create group: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to create group for instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 
@@ -360,8 +393,11 @@ export class BaileysAdapter {
 
     try {
       await this._socket.groupParticipantsUpdate(groupId, participants, 'add');
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to add participants: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to add participants for instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 
@@ -372,8 +408,11 @@ export class BaileysAdapter {
 
     try {
       await this._socket.groupParticipantsUpdate(groupId, participants, 'remove');
-    } catch (error: any) {
-      throw new WhatsAppConnectionError(`Failed to remove participants: ${error.message}`, error);
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to remove participants sfor instance ${this._options.instanceId}`,
+        error
+      );
     }
   }
 

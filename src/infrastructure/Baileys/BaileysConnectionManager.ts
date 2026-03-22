@@ -20,6 +20,19 @@ export class BaileysConnectionManager {
     private readonly _logger: ILogger
   ) {}
 
+  private setWebhookUrl(webhookUrl: string, instanceId: string): void {
+    const baseURL = webhookUrl.replace(/\/$/, '');
+    this._webhookClients.set(
+      instanceId,
+      axios.create({
+        baseURL,
+        timeout: 10000,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+    this._logger.info(`Webhook configured for instance ${instanceId}: ${baseURL}`);
+  }
+
   async createConnection(
     instanceId: string,
     usePairingCode: boolean = false,
@@ -32,16 +45,7 @@ export class BaileysConnectionManager {
       }
 
       if (instance.webhookUrl) {
-        const baseURL = instance.webhookUrl.replace(/\/$/, '');
-        this._webhookClients.set(
-          instanceId,
-          axios.create({
-            baseURL,
-            timeout: 10000,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
-        this._logger.info(`Webhook configured for instance ${instanceId}: ${baseURL}`);
+        this.setWebhookUrl(instance.webhookUrl, instanceId);
       }
 
       const adapter = new BaileysAdapter({
@@ -81,7 +85,7 @@ export class BaileysConnectionManager {
       this._connections.set(instanceId, adapter);
       instance.updateStatus(ConnectionStatusEnum.CONNECTING);
       await this.repository.update(instance);
-    } catch (error: any) {
+    } catch (error) {
       this._logger.error(`Failed to create connection for instance ${instanceId}:`, error);
       throw error;
     }
