@@ -22,7 +22,7 @@ export class BaileysConnectionManager {
   private _webhookClients: Map<string, AxiosInstance> = new Map();
 
   constructor(
-    private repository: IWhatsAppInstanceRepository,
+    private readonly repository: IWhatsAppInstanceRepository,
     private readonly _logger: ILogger,
     private readonly chatRepository: IChatRepository,
     private readonly chatSynchronizer: ChatSynchronizer,

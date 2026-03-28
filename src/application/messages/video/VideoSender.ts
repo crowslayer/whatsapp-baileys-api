@@ -32,12 +32,6 @@ export class VideoSender {
       ]);
     }
 
-    await adapter.sendVideo(
-      command.to,
-      command.video,
-      command.caption,
-      command.gifPlayback,
-      command.fileName
-    );
+    await adapter.sendVideo(command.to, command.video, command.caption, command.gifPlayback);
   }
 }

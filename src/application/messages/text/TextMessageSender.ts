@@ -32,6 +32,6 @@ export class TextMessageSender {
       ]);
     }
 
-    await adapter.sendMessage(command.to, command.message);
+    await adapter.sendText(command.to, command.message);
   }
 }

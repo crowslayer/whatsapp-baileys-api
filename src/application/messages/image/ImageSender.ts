@@ -32,6 +32,6 @@ export class ImageSender {
       ]);
     }
 
-    await adapter.sendImage(command.to, command.image, command.caption, command.fileName);
+    await adapter.sendImage(command.to, command.image, command.caption);
   }
 }

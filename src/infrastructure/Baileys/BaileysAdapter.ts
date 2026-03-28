@@ -40,8 +40,7 @@ export class BaileysAdapter {
   private _logger = pino({ level: 'silent' });
   private _options: IBaileysConnectionOptions;
   private _authPath: string;
-  // Chats Cache
-  // private _chatsCache = new Map<string, IBaileysChat>();
+
   private _msgRetryCounterCache = new NodeCache() as CacheStore;
 
   constructor(_options: IBaileysConnectionOptions) {
@@ -270,7 +269,7 @@ export class BaileysAdapter {
     to: string,
     content: AnyMessageContent,
     options?: MiscMessageGenerationOptions
-  ): Promise<proto.IWebMessageInfo | undefined> {
+  ): Promise<WAMessage | undefined> {
     if (!this._socket) {
       throw new WhatsAppConnectionError('Not Instances connected');
     }
@@ -289,7 +288,7 @@ export class BaileysAdapter {
     to: string,
     text: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<proto.IWebMessageInfo | undefined> {
+  ): Promise<WAMessage | undefined> {
     return await this.sendMessage(to, { text }, options);
   }
 
@@ -298,7 +297,7 @@ export class BaileysAdapter {
     image: Buffer | { url: string },
     caption?: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<proto.IWebMessageInfo | undefined> {
+  ): Promise<WAMessage | undefined> {
     return await this.sendMessage(to, { image, caption } as AnyMessageContent, options);
   }
 
@@ -308,7 +307,7 @@ export class BaileysAdapter {
     caption?: string,
     gifPlayback = false,
     options?: MiscMessageGenerationOptions
-  ): Promise<proto.IWebMessageInfo | undefined> {
+  ): Promise<WAMessage | undefined> {
     return await this.sendMessage(
       to,
       { video, caption, gifPlayback } as AnyMessageContent,
@@ -322,7 +321,7 @@ export class BaileysAdapter {
     ptt = false,
     mimetype = 'audio/mp4',
     options?: MiscMessageGenerationOptions
-  ): Promise<proto.IWebMessageInfo | undefined> {
+  ): Promise<WAMessage | undefined> {
     return await this.sendMessage(to, { audio, ptt, mimetype } as AnyMessageContent, options);
   }
 
@@ -333,7 +332,7 @@ export class BaileysAdapter {
     mimetype: string,
     caption?: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<proto.IWebMessageInfo | undefined> {
+  ): Promise<WAMessage | undefined> {
     return await this.sendMessage(
       to,
       { document, fileName, mimetype, caption } as AnyMessageContent,
@@ -345,7 +344,7 @@ export class BaileysAdapter {
     to: string,
     sticker: Buffer | { url: string },
     options?: MiscMessageGenerationOptions
-  ): Promise<proto.IWebMessageInfo | undefined> {
+  ): Promise<WAMessage | undefined> {
     return await this.sendMessage(to, { sticker } as AnyMessageContent, options);
   }
 
@@ -356,7 +355,7 @@ export class BaileysAdapter {
     name?: string,
     address?: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<proto.IWebMessageInfo | undefined> {
+  ): Promise<WAMessage | undefined> {
     return await this.sendMessage(
       to,
       { location: { degreesLatitude: latitude, degreesLongitude: longitude, name, address } },
@@ -368,7 +367,7 @@ export class BaileysAdapter {
     to: string,
     contacts: Array<{ displayName: string; vcard: string }>,
     options?: MiscMessageGenerationOptions
-  ): Promise<proto.IWebMessageInfo | undefined> {
+  ): Promise<WAMessage | undefined> {
     return await this.sendMessage(
       to,
       {
@@ -385,7 +384,7 @@ export class BaileysAdapter {
     to: string,
     targetKey: WAMessageKey,
     emoji: string
-  ): Promise<proto.IWebMessageInfo | undefined> {
+  ): Promise<WAMessage | undefined> {
     return await this.sendMessage(to, {
       react: { text: emoji, key: targetKey },
     });
@@ -401,28 +400,29 @@ export class BaileysAdapter {
     values: string[],
     selectableCount = 1,
     options?: MiscMessageGenerationOptions
-  ): Promise<proto.IWebMessageInfo | undefined> {
+  ): Promise<WAMessage | undefined> {
     return await this.sendMessage(to, { poll: { name, values, selectableCount } }, options);
   }
 
   /**
    * Reenvía un mensaje existente a otro chat.
    */
-  // async forwardMessage(
-  //   to: string,
-  //   message: proto.IWebMessageInfo,
-  //   options?: MiscMessageGenerationOptions
-  // ): Promise<proto.IWebMessageInfo | undefined> {
-  //   if (!this._socket) throw new WhatsAppConnectionError('Instancen not coneccted');
-  //   try {
-  //     return await this._socket.sendMessage(to, message, options);
-  //   } catch (error) {
-  //     throw new WhatsAppConnectionError(
-  //       `Failed to forward message for instance ${this._options.instanceId}`,
-  //       error
-  //     );
-  //   }
-  // }
+  async forwardMessage(
+    to: string,
+    message: WAMessage,
+    options?: MiscMessageGenerationOptions
+  ): Promise<WAMessage | undefined> {
+    if (!this._socket) throw new WhatsAppConnectionError('Instancen not coneccted');
+    try {
+      // return await this._socket.forwardMessages(to, message, options);
+      return undefined;
+    } catch (error) {
+      throw new WhatsAppConnectionError(
+        `Failed to forward message for instance ${this._options.instanceId}`,
+        error
+      );
+    }
+  }
 
   /**
    * Elimina un mensaje para todos.
