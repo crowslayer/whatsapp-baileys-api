@@ -1,7 +1,13 @@
 import axios, { AxiosInstance } from 'axios';
 
+import { IChatRepository } from '@domain/repositories/IChatRepository';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 import { ConnectionStatusEnum } from '@domain/value-objects/ConnectionStatus';
+
+import { ChatSynchronizer } from '@application/chats/syncronize/ChatSynchronizer';
+import { SyncChatsCommand } from '@application/chats/syncronize/SyncChatsCommand';
+import { ChatsUpdater } from '@application/chats/update/ChatsUpdater';
+import { UpdateChatsCommand } from '@application/chats/update/UpdateChatsCommand';
 
 import { ILogger } from '@infrastructure/loggers/Logger';
 
@@ -17,7 +23,10 @@ export class BaileysConnectionManager {
 
   constructor(
     private repository: IWhatsAppInstanceRepository,
-    private readonly _logger: ILogger
+    private readonly _logger: ILogger,
+    private readonly chatRepository: IChatRepository,
+    private readonly chatSynchronizer: ChatSynchronizer,
+    private readonly chatUpdater: ChatsUpdater
   ) {}
 
   private setWebhookUrl(webhookUrl: string, instanceId: string): void {
@@ -73,6 +82,17 @@ export class BaileysConnectionManager {
         },
         onMessage: async (message) => {
           await this.sendWebhook(instanceId, 'message', { message });
+        },
+        onChatsUpsert: async (chats, isFirstSync) => {
+          // primer lote = history sync → fullRefresh: true
+          // lotes siguientes = tiempo real → fullRefresh: false
+          await this.chatSynchronizer.execute(new SyncChatsCommand(instanceId, chats, isFirstSync));
+        },
+        onChatsUpdate: async (updates) => {
+          await this.chatUpdater.execute(new UpdateChatsCommand(instanceId, updates));
+        },
+        onChatsDelete: async (chatIds) => {
+          for (const id of chatIds) await this.chatRepository.delete(id, instanceId);
         },
       });
 
