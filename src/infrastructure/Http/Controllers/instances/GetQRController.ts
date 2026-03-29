@@ -30,4 +30,34 @@ export class GetQRController {
       next(error);
     }
   }
+
+  async renderQRPage(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { instanceId } = req.params;
+
+      // const instance = await this.repository.findById(instanceId);
+      const query = new GetQRCodeQuery(instanceId);
+      const response = await this.queryBus.ask<QRCodeResponse>(query);
+      const instance = response.content;
+
+      if (!instance) {
+        return res.status(404).render('error', {
+          message: 'Instancia no encontrada',
+          instanceId,
+        });
+      }
+
+      res.render('qr-code', {
+        instanceId: instance.instanceId,
+        instanceName: instance.name,
+        qrCode: instance.qrCode,
+        qrText: instance.qrText,
+        status: instance.status,
+        phoneNumber: instance.phoneNumber,
+      });
+      return;
+    } catch (error) {
+      next(error);
+    }
+  }
 }

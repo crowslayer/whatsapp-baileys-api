@@ -1047,12 +1047,15 @@ export class BaileysAdapter {
 
   async logout(): Promise<void> {
     if (this._socket) {
+      this._logger.info('Instances LogOut');
       await this._socket.logout();
     }
   }
 
   disconnect(): void {
     if (this._socket) {
+      this._logger.info('Instances disconected');
+      this.logout();
       this._socket.end(undefined);
       this._socket = undefined;
     }

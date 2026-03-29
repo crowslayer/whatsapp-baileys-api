@@ -7,3 +7,4 @@ imports:
   - { resource: ./instances/instances.yaml }
   - { resource: ./messages/application.yaml }
   - { resource: ./groups/application.yaml }
+  - { resource: ./chats/application.yaml }

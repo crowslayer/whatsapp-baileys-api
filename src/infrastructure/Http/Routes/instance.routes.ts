@@ -34,12 +34,12 @@ export const createInstanceRouter = (container: ContainerBuilder): Router => {
       getInstanceController.handle(req, res, next)
   );
   // Vista HTML del QR
-  // router.get(
-  //   '/:instanceId/qr/view',
-  //   validate(instanceIdSchema),
-  //   (req: Request, res: Response, next: NextFunction) =>
-  //     qetQRController.renderQRPage(req, res, next)
-  // );
+  router.get(
+    '/:instanceId/qr/view',
+    validate(instanceIdSchema),
+    (req: Request, res: Response, next: NextFunction) =>
+      qetQRController.renderQRPage(req, res, next)
+  );
 
   // API JSON del QR y status
   router.get(

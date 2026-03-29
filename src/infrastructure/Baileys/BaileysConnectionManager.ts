@@ -1,18 +1,15 @@
 import axios, { AxiosInstance } from 'axios';
 
-import { IChatRepository } from '@domain/repositories/IChatRepository';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 import { ConnectionStatusEnum } from '@domain/value-objects/ConnectionStatus';
 
-import { ChatSynchronizer } from '@application/chats/syncronize/ChatSynchronizer';
-import { SyncChatsCommand } from '@application/chats/syncronize/SyncChatsCommand';
-import { ChatsUpdater } from '@application/chats/update/ChatsUpdater';
-import { UpdateChatsCommand } from '@application/chats/update/UpdateChatsCommand';
+import { IChatSynchronizer } from '@application/chats/synchronize/IChatSynchronizer';
 
 import { ILogger } from '@infrastructure/loggers/Logger';
 
 import { DatabaseConnectionError } from '@shared/infrastructure/errors/DatabaseConnectionError';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
+import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 
 import { BaileysAdapter } from './BaileysAdapter';
 
@@ -23,10 +20,8 @@ export class BaileysConnectionManager {
 
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
-    private readonly _logger: ILogger,
-    private readonly chatRepository: IChatRepository,
-    private readonly chatSynchronizer: ChatSynchronizer,
-    private readonly chatUpdater: ChatsUpdater
+    private readonly syncService: IChatSynchronizer,
+    private readonly _logger: ILogger
   ) {}
 
   private setWebhookUrl(webhookUrl: string, instanceId: string): void {
@@ -86,13 +81,13 @@ export class BaileysConnectionManager {
         onChatsUpsert: async (chats, isFirstSync) => {
           // primer lote = history sync → fullRefresh: true
           // lotes siguientes = tiempo real → fullRefresh: false
-          await this.chatSynchronizer.execute(new SyncChatsCommand(instanceId, chats, isFirstSync));
+          await this.syncService.syncChats(instanceId, chats, isFirstSync);
         },
         onChatsUpdate: async (updates) => {
-          await this.chatUpdater.execute(new UpdateChatsCommand(instanceId, updates));
+          await this.syncService.updateChats(instanceId, updates);
         },
         onChatsDelete: async (chatIds) => {
-          for (const id of chatIds) await this.chatRepository.delete(id, instanceId);
+          this.syncService.deleteChats(instanceId, chatIds);
         },
       });
 
@@ -113,31 +108,35 @@ export class BaileysConnectionManager {
 
   async disconnectInstance(instanceId: string): Promise<void> {
     const adapter = this._connections.get(instanceId);
-    if (adapter) {
-      adapter.disconnect();
-      this._connections.delete(instanceId);
-      this._webhookClients.delete(instanceId);
+    if (!adapter) {
+      throw new WhatsAppConnectionError('Instances not found');
+    }
+    this._logger.info('Disconnected Instances');
+    adapter.disconnect();
+    this._connections.delete(instanceId);
+    this._webhookClients.delete(instanceId);
 
-      const instance = await this.repository.findById(instanceId);
-      if (instance) {
-        instance.disconnect('Manual disconnect');
-        await this.repository.update(instance);
-      }
+    const instance = await this.repository.findById(instanceId);
+    if (instance) {
+      this._logger.info('Erase Instance...');
+      instance.disconnect('Manual disconnect');
+      await this.repository.update(instance);
     }
   }
 
   async logoutInstance(instanceId: string): Promise<void> {
     const adapter = this._connections.get(instanceId);
-    if (adapter) {
-      await adapter.logout();
-      this._connections.delete(instanceId);
-      this._webhookClients.delete(instanceId);
+    if (!adapter) {
+      throw new WhatsAppConnectionError('Instances not found');
+    }
+    await adapter.logout();
+    this._connections.delete(instanceId);
+    this._webhookClients.delete(instanceId);
 
-      const instance = await this.repository.findById(instanceId);
-      if (instance) {
-        instance.disconnect('Logged out');
-        await this.repository.update(instance);
-      }
+    const instance = await this.repository.findById(instanceId);
+    if (instance) {
+      instance.disconnect('Logged out');
+      await this.repository.update(instance);
     }
   }
 

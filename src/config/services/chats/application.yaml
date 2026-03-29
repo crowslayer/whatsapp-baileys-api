@@ -1,0 +1,10 @@
+services:
+  # =============================================
+  # Sinchronize
+  # =============================================
+  application.chats.sincronizer:
+    class: '../../../application/chats/synchronize/ChatSynchronizeService'
+    arguments:
+      - '@infrastructure.repository.mongo.chat_repository'
+      - '@shared.logger'
+    public: true

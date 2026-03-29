@@ -26,6 +26,14 @@ services:
     class: '../../infrastructure/persistence/mongo/repositories/MongoWhatsAppInstanceReadRepository'
     public: true
 
+  infrastructure.repository.mongo.chat_read_repository:
+    class: '../../infrastructure/persistence/mongo/repositories/MongoChatReadRepository'
+    public: true
+
+  infrastructure.repository.mongo.chat_repository:
+    class: '../../infrastructure/persistence/mongo/repositories/MongoChatRepository'
+    public: true
+
   # =============================================
   # Baileys - WhatsApp
   # =============================================
@@ -34,5 +42,6 @@ services:
     class: '../../infrastructure/baileys/BaileysConnectionManager'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
+      - '@application.chats.sincronizer'
       - '@shared.logger'
     public: true
