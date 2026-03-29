@@ -16,3 +16,8 @@ services:
     class: ../../../infrastructure/http/controllers/groups/RemoveParticipantsController
     arguments:
       - '@shared.command_bus'
+
+  http.controller.groups.list_group:
+    class: ../../../infrastructure/http/controllers/groups/ListGroupsController
+    arguments:
+      - '@shared.query_bus'

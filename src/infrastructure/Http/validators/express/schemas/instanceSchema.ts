@@ -35,5 +35,6 @@ export const instanceIdSchema: Schema = {
     in: ['params'],
     isString: { errorMessage: 'Id not found' },
     notEmpty: { errorMessage: 'instanceId is required' },
+    isUUID: { errorMessage: 'Invalid id' },
   },
 };

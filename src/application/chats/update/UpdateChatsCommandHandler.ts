@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { ChatsUpdater } from '@application/chats/update/ChatsUpdater';
+import { UpdateChatsCommand } from '@application/chats/update/UpdateChatsCommand';
 
-import { ChatsUpdater } from './ChatsUpdater';
-import { UpdateChatsCommand } from './UpdateChatsCommand';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class UpdateChatsCommandHandler implements ICommandHandler<UpdateChatsCommand> {
   constructor(private readonly updater: ChatsUpdater) {}

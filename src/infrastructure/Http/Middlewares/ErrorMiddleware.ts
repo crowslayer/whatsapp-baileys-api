@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 
+import { StatusCode } from '@infrastructure/http/StatusCode';
 import { ILogger } from '@infrastructure/loggers/Logger';
 
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ApiError } from '@shared/infrastructure/ErrorHandler';
 import { ApplicationError } from '@shared/infrastructure/errors/ApplicationError';
 import { DomainError } from '@shared/infrastructure/errors/DomainError';
-import { ErrorCode } from '@shared/infrastructure/errors/ErrorCodes';
+import { ErrorCode } from '@shared/infrastructure/errors/ErrorCode';
 import { ErrorType } from '@shared/infrastructure/errors/ErrorType';
 import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
 import { UnauthorizedError } from '@shared/infrastructure/errors/UnauthorizedError';
@@ -14,12 +15,15 @@ import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-import { StatusCode } from '../StatusCode';
-
 type ErrorHandler = {
   supports: (error: unknown) => boolean;
-  handle: (error: Error, req: Request, res: Response, logger?: ILogger) => void;
+  handle: (error: unknown, req: Request, res: Response, logger?: ILogger) => void;
 };
+
+interface IRequestContext extends Request {
+  requestId?: string;
+  correlationId?: string;
+}
 
 type ErrorPayload = {
   code: number;
@@ -44,18 +48,7 @@ const ERROR_HANDLERS: ErrorHandler[] = [
       );
     },
   },
-  {
-    supports: (e): e is InfrastructureError => e instanceof InfrastructureError,
-    handle: (error, req: Request, res: Response, _logger?: ILogger) => {
-      if (!(error instanceof InfrastructureError)) return;
-      sendErrorResponse(
-        res,
-        req,
-        StatusCode.ClientErrorForbidden,
-        buildApplicationErrorPayload(error)
-      );
-    },
-  },
+
   {
     supports: (e): e is WhatsAppConnectionError => e instanceof WhatsAppConnectionError,
     handle: (error, req: Request, res: Response, _logger?: ILogger) => {
@@ -64,6 +57,19 @@ const ERROR_HANDLERS: ErrorHandler[] = [
         res,
         req,
         StatusCode.ClientErrorBadRequest,
+        buildApplicationErrorPayload(error)
+      );
+    },
+  },
+
+  {
+    supports: (e): e is InfrastructureError => e instanceof InfrastructureError,
+    handle: (error, req: Request, res: Response, _logger?: ILogger) => {
+      if (!(error instanceof InfrastructureError)) return;
+      sendErrorResponse(
+        res,
+        req,
+        StatusCode.ClientErrorForbidden,
         buildApplicationErrorPayload(error)
       );
     },
@@ -88,7 +94,7 @@ const ERROR_HANDLERS: ErrorHandler[] = [
         res,
         req,
         StatusCode.ClientErrorUnprocessableEntity,
-        buildApplicationErrorPayload(error)
+        buildDomainErrorPayload(error)
       );
     },
   },
@@ -107,7 +113,7 @@ const ERROR_HANDLERS: ErrorHandler[] = [
 ];
 
 export function errorMiddleware(logger: ILogger) {
-  return (error: unknown, req: Request, res: Response, _next: NextFunction): void => {
+  return (error: unknown, req: IRequestContext, res: Response, _next: NextFunction): void => {
     logError(logger, req, error);
 
     const handler = ERROR_HANDLERS.find((h) => h.supports(error));
@@ -120,7 +126,7 @@ export function errorMiddleware(logger: ILogger) {
       );
     }
 
-    return handler.handle(error as Error, req, res, logger);
+    return handler.handle(error, req, res, logger);
   };
 }
 
@@ -153,6 +159,16 @@ function normalizeError(error: unknown): ErrorPayload {
       stack: error.stack,
     };
   }
+  if (error instanceof DomainError) {
+    return {
+      code: ErrorCode.DOMAIN_ERROR,
+      type: ErrorType.DOMAIN,
+      name: error.name,
+      message: error.message,
+      description: error.message,
+      stack: error.stack,
+    };
+  }
   if (error instanceof Error) {
     return {
       code: ErrorCode.INTERNAL_ERROR,
@@ -173,13 +189,13 @@ function normalizeError(error: unknown): ErrorPayload {
   };
 }
 
-function logError(logger: ILogger, req: Request, error: unknown): void {
+function logError(logger: ILogger, req: IRequestContext, error: unknown): void {
   const normalized = normalizeError(error);
   const errorContext = {
     path: req.path,
     method: req.method,
-    // requestId: context?.requestId,
-    // correlationId: context?.correlationId,
+    requestId: req.requestId,
+    correlationId: req?.correlationId,
     timestamp: new Date().toISOString(),
     code: normalized.code ?? ErrorCode.INTERNAL_ERROR,
     type: normalized.type,
@@ -197,6 +213,17 @@ function buildApplicationErrorPayload(error: ApplicationError): ApiError[] {
     {
       code: error.code,
       type: error.type,
+      name: error.name,
+      description: error.message,
+    },
+  ];
+}
+
+function buildDomainErrorPayload(error: DomainError): ApiError[] {
+  return [
+    {
+      code: ErrorCode.DOMAIN_ERROR,
+      type: ErrorType.DOMAIN,
       name: error.name,
       description: error.message,
     },

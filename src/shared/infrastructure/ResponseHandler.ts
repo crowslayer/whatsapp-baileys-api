@@ -1,7 +1,7 @@
 import { Response } from 'express';
 
-import { IAuditData } from './AuditData';
-import { ApiError } from './ErrorHandler';
+import { ApiError } from '@shared/infrastructure//ErrorHandler';
+import { IAuditData } from '@shared/infrastructure/AuditData';
 
 export interface IApiResponse<T = any> {
   success: boolean;

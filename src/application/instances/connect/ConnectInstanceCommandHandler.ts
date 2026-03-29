@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { ConnectInstanceCommand } from '@application/instances/connect/ConnectInstanceCommand';
+import { InstancesConnect } from '@application/instances/connect/InstancesConnect';
 
-import { ConnectInstanceCommand } from './ConnectInstanceCommand';
-import { InstancesConnect } from './InstancesConnect';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class ConnectInstanceCommandHandler implements ICommandHandler<ConnectInstanceCommand> {
   constructor(private readonly conector: InstancesConnect) {}

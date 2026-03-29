@@ -1,11 +1,11 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { SendImageCommand } from '@application/messages/image/SendImageCommand';
+
 import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
-
-import { SendImageCommand } from './SendImageCommand';
 
 export class ImageSender {
   constructor(

@@ -1,8 +1,8 @@
 import { DatabaseError } from '@shared/infrastructure/errors/DatabaseError';
-import { ErrorCode } from '@shared/infrastructure/errors/ErrorCodes';
+import { ErrorCode } from '@shared/infrastructure/errors/ErrorCode';
 
 export class DatabaseConfigurationError extends DatabaseError {
-  code = ErrorCode.DB_CONNECTION_FAILED;
+  readonly code = ErrorCode.DB_CONNECTION_FAILED;
 
   constructor(originalError?: unknown) {
     super('Database Configuration error', originalError);

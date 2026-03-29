@@ -1,3 +1,4 @@
+import { setTimeout as delay } from 'node:timers/promises';
 import path from 'path';
 import Stream from 'stream';
 
@@ -30,10 +31,10 @@ import NodeCache from 'node-cache';
 import pino from 'pino';
 import QRCode from 'qrcode';
 
-import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
+import { IBaileysChat, IBaileysChatUpdate } from '@infrastructure/baileys/IBaileysChat';
+import { IBaileysConnectionOptions } from '@infrastructure/baileys/IBaileysConnectionOptions';
 
-import { IBaileysChat, IBaileysChatUpdate } from './IBaileysChat';
-import { IBaileysConnectionOptions } from './IBaileysConnectionOptions';
+import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 
 export class BaileysAdapter {
   private _socket?: WASocket;
@@ -161,6 +162,11 @@ export class BaileysAdapter {
         } else if (connection === 'open') {
           const phoneNumber = this._socket?.user?.id.split(':')[0] || '';
           this._options.onConnected?.(phoneNumber);
+          // almacenando
+          const chats = await this.syncGroupsMetadata();
+          if (chats.length > 0) {
+            this._options.onChatsUpsert?.(chats, false);
+          }
         }
       }
 
@@ -838,7 +844,9 @@ export class BaileysAdapter {
   async syncGroupsMetadata(): Promise<IBaileysChat[]> {
     if (!this._socket) throw new WhatsAppConnectionError('Instance not connected');
     try {
-      const groups = await this._socket!.groupFetchAllParticipating();
+      await delay(3000);
+
+      const groups = await this._socket.groupFetchAllParticipating();
       return Object.entries(groups).map(([groupId, meta]) => ({
         chatId: groupId,
         name: meta.subject || groupId,
@@ -1108,7 +1116,7 @@ export class BaileysAdapter {
     return {
       chatId: jid,
       name: chat.name || chat.username || phoneNumber || jid,
-      type: 'individual',
+      type: 'chat',
       phoneNumber,
       unreadCount: chat.unreadCount ?? 0,
       lastMessageTimestamp: timestamp,

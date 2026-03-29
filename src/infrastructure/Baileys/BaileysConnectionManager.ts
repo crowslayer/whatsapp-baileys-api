@@ -5,13 +5,12 @@ import { ConnectionStatusEnum } from '@domain/value-objects/ConnectionStatus';
 
 import { IChatSynchronizer } from '@application/chats/synchronize/IChatSynchronizer';
 
+import { BaileysAdapter } from '@infrastructure/baileys/BaileysAdapter';
 import { ILogger } from '@infrastructure/loggers/Logger';
 
 import { DatabaseConnectionError } from '@shared/infrastructure/errors/DatabaseConnectionError';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
-
-import { BaileysAdapter } from './BaileysAdapter';
 
 export class BaileysConnectionManager {
   private _connections: Map<string, BaileysAdapter> = new Map();

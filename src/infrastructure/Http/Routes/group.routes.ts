@@ -1,18 +1,26 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { ContainerBuilder } from 'node-dependency-injection';
 
-import { validate } from '../middlewares/ValidationMiddleware';
+import { validate } from '@infrastructure/http/middlewares/ValidationMiddleware';
 import {
   addParticipantsSchema,
   createGroupSchema,
   removeParticipantsSchema,
-} from '../validators/express/schemas/groupsSchema';
+} from '@infrastructure/http/validators/express/schemas/groupsSchema';
+import { instanceIdSchema } from '@infrastructure/http/validators/express/schemas/instanceSchema';
 
 export const createGroupRouter = (container: ContainerBuilder): Router => {
   const router = Router();
   const createController = container.get('http.controller.groups.create_group');
   const addParticipants = container.get('http.controller.groups.add_participants');
   const removeParticipants = container.get('http.controller.groups.remove_participants');
+  const listGroupsController = container.get('http.controller.groups.list_group');
+
+  router.get(
+    '/:instanceId/groups',
+    validate(instanceIdSchema),
+    (req: Request, res: Response, next: NextFunction) => listGroupsController.handle(req, res, next)
+  );
 
   router.post(
     '/:instanceId/groups',

@@ -1,6 +1,6 @@
 import { IChatRepository } from '@domain/repositories/IChatRepository';
 
-import { UpdateChatsCommand } from './UpdateChatsCommand';
+import { UpdateChatsCommand } from '@application/chats/update/UpdateChatsCommand';
 
 export class ChatsUpdater {
   constructor(private readonly _chatRepository: IChatRepository) {}

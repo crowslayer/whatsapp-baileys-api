@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { SendStickerCommand } from '@application/messages/sticker/SendStickerCommand';
+import { StickerSender } from '@application/messages/sticker/StickerSender';
 
-import { SendStickerCommand } from './SendStickerCommand';
-import { StickerSender } from './StickerSender';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class SendStickerCommandHandler implements ICommandHandler<SendStickerCommand> {
   constructor(private readonly stickerSender: StickerSender) {}

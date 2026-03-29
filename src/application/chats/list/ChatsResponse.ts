@@ -2,37 +2,31 @@ import { WhatsAppChat } from '@domain/queries/IChatReadRepository';
 
 import { IResponse } from '@shared/domain/Response';
 
-export interface IGetChatsResult {
-  all: WhatsAppChat[];
-  individual: WhatsAppChat[];
-  groups: WhatsAppChat[];
-  totalCount: number;
-  individualCount: number;
-  groupCount: number;
+interface IGetChatsResult {
+  chats: WhatsAppChat[];
+  chatsCount: number;
 }
 
-export class ChatsResponse implements IResponse {
-  content: IGetChatsResult;
+export type ChatResponse = IGetChatsResult;
 
-  private constructor(chats: IGetChatsResult) {
+export class ChatsResponse implements IResponse {
+  content: ChatResponse;
+
+  private constructor(chats: ChatResponse) {
     this.content = chats;
   }
 
-  static create(chats: IGetChatsResult): ChatsResponse {
+  static create(chats: ChatResponse): ChatsResponse {
     if (!chats) {
-      throw new Error('Not Found Chats');
+      return ChatsResponse.none();
     }
     return new ChatsResponse(chats);
   }
 
   static none(): ChatsResponse {
     return new ChatsResponse({
-      all: [],
-      individual: [],
-      groups: [],
-      groupCount: 0,
-      totalCount: 0,
-      individualCount: 0,
+      chats: [],
+      chatsCount: 0,
     });
   }
 }

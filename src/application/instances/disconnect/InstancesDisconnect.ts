@@ -1,6 +1,6 @@
-import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+import { DisconnectInstanceCommand } from '@application/instances/disconnect/DisconnectInstanceCommand';
 
-import { DisconnectInstanceCommand } from './DisconnectInstanceCommand';
+import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 export class InstancesDisconnect {
   constructor(private readonly manager: IConnectionManager) {}

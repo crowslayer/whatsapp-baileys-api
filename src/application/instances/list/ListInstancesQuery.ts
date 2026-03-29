@@ -1,5 +1,5 @@
-import { Query } from '@shared/domain/query/Query';
+import { InstancesResponse } from '@application/instances/InstancesResponse';
 
-import { InstancesResponse } from '../InstancesResponse';
+import { Query } from '@shared/domain/query/Query';
 
 export class ListInstancesQuery implements Query<InstancesResponse> {}

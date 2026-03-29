@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { DeleteInstanceCommand } from '@application/instances/delete/DeleteInstanceCommand';
+import { InstancesEraser } from '@application/instances/delete/InstancesEraser';
 
-import { DeleteInstanceCommand } from './DeleteInstanceCommand';
-import { InstancesEraser } from './InstancesEraser';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class DeleteInstanceCommandHandler implements ICommandHandler<DeleteInstanceCommand> {
   constructor(private readonly eraser: InstancesEraser) {}

@@ -1,7 +1,7 @@
 export interface IBaileysChat {
   chatId: string;
   name: string;
-  type: 'individual' | 'group';
+  type: 'chat' | 'group';
   phoneNumber?: string;
   unreadCount: number;
   lastMessageTimestamp?: Date;

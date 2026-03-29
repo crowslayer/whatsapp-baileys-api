@@ -1,12 +1,8 @@
 import { ILogger } from '@infrastructure/loggers/Logger';
+import { IDatabaseConnection } from '@infrastructure/persistence';
+import { MongoDBConnection } from '@infrastructure/persistence/mongo/MongoDBConnection';
 
 import { IConfig } from '@config/index';
-
-import { MongoDBConnection } from './mongo/MongoDBConnection';
-
-import { IDatabaseConnection } from './index';
-// import { TypeORMConnection } from './typeorm/TypeORMConnection';
-// import { SequelizeConnection } from './sequelize/SequelizeConnection';
 
 export class DatabaseConnectionFactory {
   static create(config: IConfig, logger: ILogger): IDatabaseConnection {

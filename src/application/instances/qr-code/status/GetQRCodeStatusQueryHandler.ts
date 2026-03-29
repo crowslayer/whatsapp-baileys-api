@@ -1,9 +1,9 @@
+import { GetQRCodeStatusQuery } from '@application/instances/qr-code/status/GetQRCodeStatusQuery';
+import { QRCodeStatus } from '@application/instances/qr-code/status/QRCodeStatus';
+import { QRCodeStatusResponse } from '@application/instances/qr-code/status/QRCodeStatusResponse';
+
 import { IQueryHandler } from '@shared/domain/query/QueryHandler';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
-
-import { GetQRCodeStatusQuery } from './GetQRCodeStatusQuery';
-import { QRCodeStatus } from './QRCodeStatus';
-import { QRCodeStatusResponse } from './QRCodeStatusResponse';
 
 export class GetQRCodeStatusQueryHandler implements IQueryHandler<
   GetQRCodeStatusQuery,

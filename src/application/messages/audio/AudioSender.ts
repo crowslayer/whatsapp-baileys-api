@@ -1,11 +1,11 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { SendAudioCommand } from '@application/messages/audio/SendAudioCommand';
+
 import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
-
-import { SendAudioCommand } from './SendAudioCommand';
 
 export class AudioSender {
   constructor(

@@ -1,4 +1,4 @@
-import { BaileysAdapter } from './BaileysAdapter';
+import { BaileysAdapter } from '@infrastructure/baileys/BaileysAdapter';
 
 export interface IConnectionManager {
   createConnection(

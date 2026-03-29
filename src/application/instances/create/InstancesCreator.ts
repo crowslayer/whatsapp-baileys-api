@@ -2,11 +2,11 @@ import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAg
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 import { Name } from '@domain/value-objects/Name';
 
+import { CreateInstanceCommand } from '@application/instances/create/CreateInstanceCommand';
+
 import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 import { ConflictError } from '@shared/infrastructure/errors/ConflictError';
-
-import { CreateInstanceCommand } from './CreateInstanceCommand';
 
 export class InstancesCreator {
   constructor(

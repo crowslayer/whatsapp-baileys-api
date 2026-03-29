@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { SendVideoCommand } from '@application/messages/video/SendVideoCommand';
+import { VideoSender } from '@application/messages/video/VideoSender';
 
-import { SendVideoCommand } from './SendVideoCommand';
-import { VideoSender } from './VideoSender';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class SendVideoCommandHandler implements ICommandHandler<SendVideoCommand> {
   constructor(private readonly videoSender: VideoSender) {}

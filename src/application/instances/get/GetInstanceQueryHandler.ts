@@ -1,12 +1,11 @@
 import { InstanceId } from '@domain/value-objects/InstanceId';
 
+import { FindInstance } from '@application/instances/get/FindInstance';
+import { GetInstanceQuery } from '@application/instances/get/GetInstanceQuery';
+import { InstanceResponse } from '@application/instances/InstanceResponse';
+
 import { IQueryHandler } from '@shared/domain/query/QueryHandler';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
-
-import { InstanceResponse } from '../InstanceResponse';
-
-import { FindInstance } from './FindInstance';
-import { GetInstanceQuery } from './GetInstanceQuery';
 
 export class GetInstanceQueryHandler implements IQueryHandler<GetInstanceQuery, InstanceResponse> {
   constructor(private readonly finder: FindInstance) {}

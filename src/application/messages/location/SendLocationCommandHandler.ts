@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { LocationSender } from '@application/messages/location/LocationSender';
+import { SendLocationCommand } from '@application/messages/location/SendLocationCommand';
 
-import { LocationSender } from './LocationSender';
-import { SendLocationCommand } from './SendLocationCommand';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class SendLocationCommandHandler implements ICommandHandler<SendLocationCommand> {
   constructor(private readonly locationSender: LocationSender) {}

@@ -1,10 +1,10 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { RemoveParticipantsGroupCommand } from '@application/groups/participants/remove/RemoveParticipantsGroupCommand';
+
 import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
-
-import { RemoveParticipantsGroupCommand } from './RemoveParticipantsGroupCommand';
 
 export class ParticipantsRemover {
   constructor(

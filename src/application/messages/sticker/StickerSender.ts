@@ -1,11 +1,11 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { SendStickerCommand } from '@application/messages/sticker/SendStickerCommand';
+
 import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
-
-import { SendStickerCommand } from './SendStickerCommand';
 
 export class StickerSender {
   constructor(

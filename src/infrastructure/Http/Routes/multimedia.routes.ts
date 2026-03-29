@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import multer from 'multer';
 import { ContainerBuilder } from 'node-dependency-injection';
 
-import { validate } from '../middlewares/ValidationMiddleware';
+import { validate } from '@infrastructure/http/middlewares/ValidationMiddleware';
 import {
   audioSchema,
   contactSchema,
@@ -12,7 +12,7 @@ import {
   reactionSchema,
   stickerSchema,
   videoSchema,
-} from '../validators/express/schemas/messageSchema';
+} from '@infrastructure/http/validators/express/schemas/messageSchema';
 
 // Configuración de multer para manejo de archivos
 const storage = multer.memoryStorage();

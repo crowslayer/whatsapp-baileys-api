@@ -1,5 +1,6 @@
+import { randomUUID as uuid } from 'crypto';
+
 import { NextFunction, Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
 
 interface IRequestContext extends Request {
   requestId?: string;
@@ -8,7 +9,7 @@ interface IRequestContext extends Request {
 
 export function requestIdMiddleware() {
   return (req: IRequestContext, res: Response, next: NextFunction) => {
-    const requestId = sanitizeId(req.header('x-request-id')) ?? uuidv4();
+    const requestId = sanitizeId(req.header('x-request-id')) ?? uuid();
 
     const correlationId = sanitizeId(req.header('x-correlation-id')) ?? requestId;
 

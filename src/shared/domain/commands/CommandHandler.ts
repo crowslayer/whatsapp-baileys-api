@@ -1,4 +1,4 @@
-import { Command } from './Command';
+import { Command } from '@shared/domain/commands/Command';
 
 export interface ICommandHandler<TCommand extends Command<unknown>> {
   subscribedTo(): new (...args: never[]) => TCommand;

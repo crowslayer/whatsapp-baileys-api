@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { AddParticipantGroupCommand } from '@application/groups/participants/add/AddParticipantGroupCommand';
+import { ParticipantsAggregator } from '@application/groups/participants/add/ParticipantsAggregator';
 
-import { AddParticipantGroupCommand } from './AddParticipantGroupCommand';
-import { ParticipantsAggregator } from './ParticipantsAggregator';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class AddParticipantGroupCommandHandler implements ICommandHandler<AddParticipantGroupCommand> {
   constructor(private readonly aggregator: ParticipantsAggregator) {}

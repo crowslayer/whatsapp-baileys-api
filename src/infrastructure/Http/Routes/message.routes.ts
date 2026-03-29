@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { ContainerBuilder } from 'node-dependency-injection';
 
-import { validate } from '../middlewares/ValidationMiddleware';
-import { messageSchema } from '../validators/express/schemas/messageSchema';
+import { validate } from '@infrastructure/http/middlewares/ValidationMiddleware';
+import { messageSchema } from '@infrastructure/http/validators/express/schemas/messageSchema';
 
 export const createMessageRouter = (container: ContainerBuilder): Router => {
   const router = Router();

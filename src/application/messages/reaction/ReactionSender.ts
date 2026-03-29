@@ -1,11 +1,11 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { SendReactionCommand } from '@application/messages/reaction/SendReactionCommand';
+
 import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
-
-import { SendReactionCommand } from './SendReactionCommand';
 
 export class ReactionSender {
   constructor(

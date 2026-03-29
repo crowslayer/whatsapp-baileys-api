@@ -1,6 +1,6 @@
-import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+import { ConnectInstanceCommand } from '@application/instances/connect/ConnectInstanceCommand';
 
-import { ConnectInstanceCommand } from './ConnectInstanceCommand';
+import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 export class InstancesConnect {
   constructor(private readonly manager: IConnectionManager) {}

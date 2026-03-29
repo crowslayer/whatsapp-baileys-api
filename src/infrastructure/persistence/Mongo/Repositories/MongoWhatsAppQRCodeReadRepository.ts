@@ -3,9 +3,9 @@ import {
   IWhatsAppQRCodeReadRepository,
 } from '@domain/queries/IWhatsAppQRCodeReadRepository';
 
-import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
+import { WhatsAppInstanceModel } from '@infrastructure/persistence/mongo/models/WhatsAppInstanceModel';
 
-import { WhatsAppInstanceModel } from '../models/WhatsAppInstanceModel';
+import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
 
 export class MongoWhatsAppQRCodeReadRepository implements IWhatsAppQRCodeReadRepository {
   async findById(instanceId: string): Promise<IWhatsAppQRCodeReadProjection | null> {

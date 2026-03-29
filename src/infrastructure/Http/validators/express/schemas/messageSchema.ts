@@ -1,6 +1,6 @@
 import { Schema } from 'express-validator';
 
-import { instanceIdSchema } from './instanceSchema';
+import { instanceIdSchema } from '@infrastructure/http/validators/express/schemas/instanceSchema';
 
 const recipientSquema: Schema = {
   to: {

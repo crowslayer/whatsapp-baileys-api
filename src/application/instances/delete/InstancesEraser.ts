@@ -1,8 +1,8 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
-import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+import { DeleteInstanceCommand } from '@application/instances/delete/DeleteInstanceCommand';
 
-import { DeleteInstanceCommand } from './DeleteInstanceCommand';
+import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 export class InstancesEraser {
   constructor(

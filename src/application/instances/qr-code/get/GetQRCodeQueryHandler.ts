@@ -1,9 +1,9 @@
+import { GetQRCodeQuery } from '@application/instances/qr-code/get/GetQRCodeQuery';
+import { QRCodeResponse } from '@application/instances/qr-code/get/QRCodeResponse';
+import { QRCodeSearcher } from '@application/instances/qr-code/get/QRCodeSearcher';
+
 import { IQueryHandler } from '@shared/domain/query/QueryHandler';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
-
-import { GetQRCodeQuery } from './GetQRCodeQuery';
-import { QRCodeResponse } from './QRCodeResponse';
-import { QRCodeSearcher } from './QRCodeSearcher';
 
 export class GetQRCodeQueryHandler implements IQueryHandler<GetQRCodeQuery, QRCodeResponse> {
   constructor(private readonly searcher: QRCodeSearcher) {}

@@ -1,7 +1,7 @@
 export interface IChatReadProjection {
   chatId: string;
   instanceId: string;
-  type: 'individual' | 'group';
+  type: 'chat' | 'group';
   name: string;
   phoneNumber?: string;
   unreadCount: number;
@@ -22,7 +22,7 @@ export interface IChatReadRepository {
   findByInstance(instanceId: string): Promise<WhatsAppChat[]>;
 
   /** Only individual (non-group) chats for a given instance. */
-  findIndividualByInstance(instanceId: string): Promise<WhatsAppChat[]>;
+  findChatsByInstance(instanceId: string): Promise<WhatsAppChat[]>;
 
   /** Only group chats for a given instance. */
   findGroupsByInstance(instanceId: string): Promise<WhatsAppChat[]>;

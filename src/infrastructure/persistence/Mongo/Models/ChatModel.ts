@@ -3,7 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IChatDocument extends Document {
   chatId: string;
   instanceId: string;
-  type: 'individual' | 'group';
+  type: 'chat' | 'group';
   name: string;
   phoneNumber?: string;
   unreadCount: number;
@@ -21,7 +21,7 @@ const ChatSchema = new Schema<IChatDocument>(
   {
     chatId: { type: String, required: true },
     instanceId: { type: String, required: true, index: true },
-    type: { type: String, enum: ['individual', 'group'], required: true, index: true },
+    type: { type: String, enum: ['chat', 'group'], required: true, index: true },
     name: { type: String, required: true },
     phoneNumber: { type: String },
     unreadCount: { type: Number, default: 0 },

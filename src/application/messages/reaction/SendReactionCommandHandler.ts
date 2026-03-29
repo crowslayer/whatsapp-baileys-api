@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { ReactionSender } from '@application/messages/reaction/ReactionSender';
+import { SendReactionCommand } from '@application/messages/reaction/SendReactionCommand';
 
-import { ReactionSender } from './ReactionSender';
-import { SendReactionCommand } from './SendReactionCommand';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class SendReactionCommandHandler implements ICommandHandler<SendReactionCommand> {
   constructor(private readonly reactionSender: ReactionSender) {}

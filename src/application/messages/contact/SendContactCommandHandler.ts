@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { ContactSender } from '@application/messages/contact/ContactSender';
+import { SendContactCommand } from '@application/messages/contact/SendContactCommand';
 
-import { ContactSender } from './ContactSender';
-import { SendContactCommand } from './SendContactCommand';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class SendContactCommandHandler implements ICommandHandler<SendContactCommand> {
   constructor(private readonly sender: ContactSender) {}

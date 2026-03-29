@@ -1,11 +1,11 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { SendDocumentCommand } from '@application/messages/document/SendDocumentCommand';
+
 import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
-
-import { SendDocumentCommand } from './SendDocumentCommand';
 
 export class DocumentSender {
   constructor(

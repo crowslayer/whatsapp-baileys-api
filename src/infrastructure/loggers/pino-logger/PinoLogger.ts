@@ -1,6 +1,6 @@
 import pino, { LoggerOptions, Logger as PinoLoggerType } from 'pino';
 
-import { ILogger } from '../Logger';
+import { ILogger } from '@infrastructure/loggers/Logger';
 
 enum Levels {
   FATAL = 'fatal',

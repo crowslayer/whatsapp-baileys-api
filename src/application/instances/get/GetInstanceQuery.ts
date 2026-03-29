@@ -1,6 +1,6 @@
-import { Query } from '@shared/domain/query/Query';
+import { InstanceResponse } from '@application/instances/InstanceResponse';
 
-import { InstanceResponse } from '../InstanceResponse';
+import { Query } from '@shared/domain/query/Query';
 
 export class GetInstanceQuery implements Query<InstanceResponse> {
   constructor(public readonly instanceId: string) {}

@@ -7,18 +7,17 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { ContainerBuilder } from 'node-dependency-injection';
 
+import { createCorsMiddleware } from '@infrastructure/http/middlewares/CorsMiddleware';
+import { errorMiddleware } from '@infrastructure/http/middlewares/ErrorMiddleware';
+import { loggerMiddleware } from '@infrastructure/http/middlewares/LoggerMiddleware';
+import { requestIdMiddleware } from '@infrastructure/http/middlewares/RequestIdMiddleware';
+import { createGroupRouter } from '@infrastructure/http/routes/group.routes';
+import { createInstanceRouter } from '@infrastructure/http/routes/instance.routes';
+import { createMessageRouter } from '@infrastructure/http/routes/message.routes';
+import { createMultimediaRouter } from '@infrastructure/http/routes/multimedia.routes';
 import { ILogger } from '@infrastructure/loggers/Logger';
 
 import { IConfig } from '@config/index';
-
-import { createCorsMiddleware } from './middlewares/CorsMiddleware';
-import { errorMiddleware } from './middlewares/ErrorMiddleware';
-import { loggerMiddleware } from './middlewares/LoggerMiddleware';
-import { requestIdMiddleware } from './middlewares/RequestIdMiddleware';
-import { createGroupRouter } from './routes/group.routes';
-import { createInstanceRouter } from './routes/instance.routes';
-import { createMessageRouter } from './routes/message.routes';
-import { createMultimediaRouter } from './routes/multimedia.routes';
 
 const _filename = fileURLToPath(import.meta.url);
 const _dirname = dirname(_filename);
@@ -131,7 +130,7 @@ export class ExpressApp {
       express.json({ limit: '50mb' }), // límite alto solo donde se necesita
       createMultimediaRouter(this.container)
     );
-    this._app.use(`${base}/groups`, createGroupRouter(this.container));
+    this._app.use(`${base}/instances`, createGroupRouter(this.container));
   }
 
   static create(config: IConfig, logger: ILogger, container: ContainerBuilder): Application {

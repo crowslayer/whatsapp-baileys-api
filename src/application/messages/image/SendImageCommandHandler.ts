@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { ImageSender } from '@application/messages/image/ImageSender';
+import { SendImageCommand } from '@application/messages/image/SendImageCommand';
 
-import { ImageSender } from './ImageSender';
-import { SendImageCommand } from './SendImageCommand';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class SendImageCommandHandler implements ICommandHandler<SendImageCommand> {
   constructor(private readonly sender: ImageSender) {}

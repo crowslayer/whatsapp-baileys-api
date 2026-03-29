@@ -10,7 +10,7 @@ export interface IChatRepository {
   findByInstance(instanceId: string): Promise<ChatAggregate[]>;
 
   /** Only individual (non-group) chats for a given instance. */
-  findIndividualByInstance(instanceId: string): Promise<ChatAggregate[]>;
+  findChatsByInstance(instanceId: string): Promise<ChatAggregate[]>;
 
   /** Only group chats for a given instance. */
   findGroupsByInstance(instanceId: string): Promise<ChatAggregate[]>;

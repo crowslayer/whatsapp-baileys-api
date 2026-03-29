@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { SendMessageCommand } from '@application/messages/text/SendMessageCommand';
+import { TextMessageSender } from '@application/messages/text/TextMessageSender';
 
-import { SendMessageCommand } from './SendMessageCommand';
-import { TextMessageSender } from './TextMessageSender';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class SendMessageCommandHandler implements ICommandHandler<SendMessageCommand> {
   constructor(private readonly sender: TextMessageSender) {}

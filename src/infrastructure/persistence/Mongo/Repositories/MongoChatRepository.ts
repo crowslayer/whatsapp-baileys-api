@@ -3,9 +3,9 @@ import { IChatRepository } from '@domain/repositories/IChatRepository';
 import { ChatId } from '@domain/value-objects/ChatId';
 import { ChatType } from '@domain/value-objects/ChatType';
 
-import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
+import { ChatModel, IChatDocument } from '@infrastructure/persistence/mongo/models/ChatModel';
 
-import { ChatModel, IChatDocument } from '../models/ChatModel';
+import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
 
 export class MongoChatRepository implements IChatRepository {
   // ─── Write ────────────────────────────────────────────────────────────────
@@ -13,8 +13,8 @@ export class MongoChatRepository implements IChatRepository {
   async save(chat: ChatAggregate): Promise<void> {
     try {
       await new ChatModel(this.toDocument(chat)).save();
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to save chat: ${error.message}`, error);
+    } catch (error) {
+      throw new InfrastructureError(`Failed to save chat`, error);
     }
   }
 
@@ -24,8 +24,8 @@ export class MongoChatRepository implements IChatRepository {
         chats.map((c) => this.toDocument(c)),
         { ordered: false }
       );
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to save chats in bulk: ${error.message}`, error);
+    } catch (error) {
+      throw new InfrastructureError(`Failed to save chats in bulk`, error);
     }
   }
 
@@ -35,8 +35,8 @@ export class MongoChatRepository implements IChatRepository {
         { chatId: chat.chatId, instanceId: chat.instanceId },
         { $set: this.toDocument(chat) }
       );
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to update chat: ${error.message}`, error);
+    } catch (error) {
+      throw new InfrastructureError(`Failed to update chat`, error);
     }
   }
 
@@ -47,8 +47,8 @@ export class MongoChatRepository implements IChatRepository {
         { $set: this.toDocument(chat) },
         { upsert: true }
       );
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to upsert chat: ${error.message}`, error);
+    } catch (error) {
+      throw new InfrastructureError(`Failed to upsert chat`, error);
     }
   }
 
@@ -63,24 +63,24 @@ export class MongoChatRepository implements IChatRepository {
         },
       }));
       await ChatModel.bulkWrite(ops, { ordered: false });
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to bulk-upsert chats: ${error.message}`, error);
+    } catch (error) {
+      throw new InfrastructureError(`Failed to bulk-upsert chats `, error);
     }
   }
 
   async delete(chatId: string, instanceId: string): Promise<void> {
     try {
       await ChatModel.deleteOne({ chatId, instanceId });
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to delete chat: ${error.message}`, error);
+    } catch (error) {
+      throw new InfrastructureError(`Failed to delete chat `, error);
     }
   }
 
   async deleteByInstance(instanceId: string): Promise<void> {
     try {
       await ChatModel.deleteMany({ instanceId });
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to delete chats for instance: ${error.message}`, error);
+    } catch (error) {
+      throw new InfrastructureError(`Failed to delete chats for instance `, error);
     }
   }
 
@@ -90,8 +90,8 @@ export class MongoChatRepository implements IChatRepository {
     try {
       const doc = await ChatModel.findOne({ chatId, instanceId });
       return doc ? this.toDomain(doc) : null;
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to find chat by id: ${error.message}`, error);
+    } catch (error) {
+      throw new InfrastructureError(`Failed to find chat by id `, error);
     }
   }
 
@@ -99,22 +99,19 @@ export class MongoChatRepository implements IChatRepository {
     try {
       const docs = await ChatModel.find({ instanceId }).sort({ lastMessageTimestamp: -1 });
       return docs.map((d) => this.toDomain(d));
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to find chats by instance: ${error.message}`, error);
+    } catch (error) {
+      throw new InfrastructureError(`Failed to find chats by instance `, error);
     }
   }
 
-  async findIndividualByInstance(instanceId: string): Promise<ChatAggregate[]> {
+  async findChatsByInstance(instanceId: string): Promise<ChatAggregate[]> {
     try {
-      const docs = await ChatModel.find({ instanceId, type: 'individual' }).sort({
+      const docs = await ChatModel.find({ instanceId, type: 'chat' }).sort({
         lastMessageTimestamp: -1,
       });
       return docs.map((d) => this.toDomain(d));
-    } catch (error: any) {
-      throw new InfrastructureError(
-        `Failed to find individual chats by instance: ${error.message}`,
-        error
-      );
+    } catch (error) {
+      throw new InfrastructureError(`Failed to find individual chats by instance `, error);
     }
   }
 
@@ -124,11 +121,8 @@ export class MongoChatRepository implements IChatRepository {
         lastMessageTimestamp: -1,
       });
       return docs.map((d) => this.toDomain(d));
-    } catch (error: any) {
-      throw new InfrastructureError(
-        `Failed to find group chats by instance: ${error.message}`,
-        error
-      );
+    } catch (error) {
+      throw new InfrastructureError(`Failed to find group chats by instance `, error);
     }
   }
 

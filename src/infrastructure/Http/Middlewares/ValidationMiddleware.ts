@@ -3,6 +3,7 @@ import { Schema, checkSchema, validationResult } from 'express-validator';
 
 import { ApiError } from '@shared/infrastructure/ErrorHandler';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
+
 export const validate = (validations: Schema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     await checkSchema(validations).run(req);

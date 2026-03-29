@@ -1,5 +1,5 @@
 import { ApplicationError } from '@shared/infrastructure/errors/ApplicationError';
-import { ErrorCode } from '@shared/infrastructure/errors/ErrorCodes';
+import { ErrorCode } from '@shared/infrastructure/errors/ErrorCode';
 import { ErrorType } from '@shared/infrastructure/errors/ErrorType';
 
 export class InfrastructureError extends ApplicationError {

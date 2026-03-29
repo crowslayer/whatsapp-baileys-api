@@ -1,4 +1,4 @@
-import { IBaileysChat, IBaileysChatUpdate } from './IBaileysChat';
+import { IBaileysChat, IBaileysChatUpdate } from '@infrastructure/baileys/IBaileysChat';
 
 export interface IBaileysConnectionOptions {
   instanceId: string;

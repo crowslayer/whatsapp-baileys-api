@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { ContainerBuilder } from 'node-dependency-injection';
 
-import { validate } from '../middlewares/ValidationMiddleware';
+import { validate } from '@infrastructure/http/middlewares/ValidationMiddleware';
 import {
   createInstanceSchema,
   instanceIdSchema,
-} from '../validators/express/schemas/instanceSchema';
+} from '@infrastructure/http/validators/express/schemas/instanceSchema';
 
 export const createInstanceRouter = (container: ContainerBuilder): Router => {
   const router = Router();

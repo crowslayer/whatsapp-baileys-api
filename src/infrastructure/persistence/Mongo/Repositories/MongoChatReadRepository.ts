@@ -1,8 +1,8 @@
 import { WhatsAppChat } from '@domain/queries/IChatReadRepository';
 
-import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
+import { ChatModel, IChatDocument } from '@infrastructure/persistence/mongo/models/ChatModel';
 
-import { ChatModel, IChatDocument } from '../models/ChatModel';
+import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
 
 export class MongoChatReadRepository {
   async findById(chatId: string, instanceId: string): Promise<WhatsAppChat | null> {
@@ -23,9 +23,9 @@ export class MongoChatReadRepository {
     }
   }
 
-  async findIndividualByInstance(instanceId: string): Promise<WhatsAppChat[]> {
+  async findChatsByInstance(instanceId: string): Promise<WhatsAppChat[]> {
     try {
-      const docs = await ChatModel.find({ instanceId, type: 'individual' }).sort({
+      const docs = await ChatModel.find({ instanceId, type: 'chat' }).sort({
         lastMessageTimestamp: -1,
       });
       return docs.map((d) => this.toReadProjection(d));

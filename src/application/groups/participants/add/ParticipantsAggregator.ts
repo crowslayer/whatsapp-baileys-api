@@ -1,10 +1,10 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { AddParticipantGroupCommand } from '@application/groups/participants/add/AddParticipantGroupCommand';
+
 import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
-
-import { AddParticipantGroupCommand } from './AddParticipantGroupCommand';
 
 export class ParticipantsAggregator {
   constructor(

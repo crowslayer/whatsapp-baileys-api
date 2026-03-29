@@ -1,5 +1,5 @@
 import { DomainError } from '@shared/infrastructure/errors/DomainError';
-import { ErrorCode } from '@shared/infrastructure/errors/ErrorCodes';
+import { ErrorCode } from '@shared/infrastructure/errors/ErrorCode';
 import { ErrorType } from '@shared/infrastructure/errors/ErrorType';
 
 export type ValidationItem = {

@@ -1,6 +1,6 @@
-import { Query } from '@shared/domain/query/Query';
+import { QRCodeResponse } from '@application/instances/qr-code/get/QRCodeResponse';
 
-import { QRCodeResponse } from './QRCodeResponse';
+import { Query } from '@shared/domain/query/Query';
 
 export class GetQRCodeQuery implements Query<QRCodeResponse> {
   constructor(public readonly instanceId: string) {}

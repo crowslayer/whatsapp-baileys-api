@@ -1,6 +1,6 @@
-import { Command } from '@shared/domain/commands/Command';
+import { AggregateResponse } from '@application/instances/create/AggregateResponse';
 
-import { AggregateResponse } from './AggregateResponse';
+import { Command } from '@shared/domain/commands/Command';
 
 export class CreateInstanceCommand extends Command<AggregateResponse> {
   constructor(

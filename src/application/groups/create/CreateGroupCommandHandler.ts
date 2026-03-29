@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { CreateGroupCommand } from '@application/groups/create/CreateGroupCommand';
+import { GroupCreator } from '@application/groups/create/GroupCreator';
 
-import { CreateGroupCommand } from './CreateGroupCommand';
-import { GroupCreator } from './GroupCreator';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class CreateGroupCommandHandler implements ICommandHandler<CreateGroupCommand> {
   constructor(private readonly creator: GroupCreator) {}

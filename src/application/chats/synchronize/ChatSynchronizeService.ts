@@ -3,10 +3,10 @@ import { IChatRepository } from '@domain/repositories/IChatRepository';
 import { ChatId } from '@domain/value-objects/ChatId';
 import { ChatType } from '@domain/value-objects/ChatType';
 
+import { IChatSynchronizer } from '@application/chats/synchronize/IChatSynchronizer';
+
 import { IBaileysChat, IBaileysChatUpdate } from '@infrastructure/baileys/IBaileysChat';
 import { ILogger } from '@infrastructure/loggers/Logger';
-
-import { IChatSynchronizer } from './IChatSynchronizer';
 
 /**
  * Application Service — sincronización reactiva de chats.

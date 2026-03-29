@@ -1,4 +1,4 @@
-import { ErrorCode } from '@shared/infrastructure/errors/ErrorCodes';
+import { ErrorCode } from '@shared/infrastructure/errors/ErrorCode';
 import { ErrorType } from '@shared/infrastructure/errors/ErrorType';
 
 export abstract class ApplicationError extends Error {

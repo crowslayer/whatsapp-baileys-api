@@ -1,10 +1,8 @@
+import { InstancesResponse } from '@application/instances/InstancesResponse';
+import { InstancesSearcher } from '@application/instances/list/InstancesSearcher';
 import { ListInstancesQuery } from '@application/instances/list/ListInstancesQuery';
 
 import { IQueryHandler } from '@shared/domain/query/QueryHandler';
-
-import { InstancesResponse } from '../InstancesResponse';
-
-import { InstancesSearcher } from './InstancesSearcher';
 
 export class ListInstancesQueryHandler implements IQueryHandler<
   ListInstancesQuery,

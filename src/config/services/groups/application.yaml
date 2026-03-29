@@ -23,6 +23,12 @@ services:
       - '@infrastructure.baileys.connection_manager'
     public: true
 
+  application.groups.list.groups_finder:
+    class: '../../../application/groups/list/GroupsFinder'
+    arguments:
+      - '@infrastructure.repository.mongo.chat_read_repository'
+    public: true
+
   # =============================================
   # CommandHandlers
   # =============================================
@@ -48,4 +54,15 @@ services:
       - '@application.groups.participants.participants_remover'
     tags:
       - { name: 'commandHandler' }
+    public: true
+
+  # =============================================
+  # QueryHandlers
+  # =============================================
+  application.group.list.groups_query_handler:
+    class: '../../../application/groups/list/GroupsQueryHandler'
+    arguments:
+      - '@application.groups.list.groups_finder'
+    tags:
+      - { name: 'queryHandler' }
     public: true

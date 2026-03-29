@@ -1,7 +1,7 @@
-import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { ParticipantsRemover } from '@application/groups/participants/remove/ParticipantsRemover';
+import { RemoveParticipantsGroupCommand } from '@application/groups/participants/remove/RemoveParticipantsGroupCommand';
 
-import { ParticipantsRemover } from './ParticipantsRemover';
-import { RemoveParticipantsGroupCommand } from './RemoveParticipantsGroupCommand';
+import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
 
 export class RemoveParticipantsGroupCommandHandler implements ICommandHandler<RemoveParticipantsGroupCommand> {
   constructor(private readonly remover: ParticipantsRemover) {}
