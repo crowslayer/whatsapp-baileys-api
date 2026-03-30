@@ -6,12 +6,17 @@ API REST profesional para interactuar con WhatsApp usando la librería Baileys, 
 
 - ✅ **Multi-instancia**: Soporte para múltiples sesiones de WhatsApp simultáneas
 - ✅ **Conexión flexible**: Sincronización mediante QR o código de emparejamiento
-- ✅ **Multimedia completo**: Imágenes, documentos, audio, video, ubicaciones
+- ✅ **QR en navegador**: Ruta `GET .../qr/view` que renderiza una página HTML con el código (útil fuera de producción; en producción la app no monta vistas EJS)
+- ✅ **Consulta de chats**: Listado de conversaciones/chats asociados a una instancia conectada
+- ✅ **Consulta de grupos**: Listado de grupos de WhatsApp de la cuenta vinculada a la instancia
+- ✅ **Multimedia completo**: Imágenes, documentos, audio, video, ubicaciones, contactos vCard y stickers WebP
 - ✅ **Reacciones con emojis**: Responder mensajes con emojis
 - ✅ **Notas de voz**: Soporte para mensajes PTT (Push To Talk)
 - ✅ **Baileys v7**: Última versión con mejores características y rendimiento
+- ✅ **Reintentos de mensajes**: Caché interna (`node-cache`) integrada con Baileys para el flujo de reintentos de mensajes
 - ✅ **ES Modules**: Arquitectura moderna con ESM
 - ✅ **Arquitectura hexagonal**: Separación clara entre dominio, aplicación e infraestructura
+- ✅ **Inyección de dependencias**: Contenedor con `node-dependency-injection` y servicios declarados en YAML
 - ✅ **DDD**: Entidades, Value Objects, Aggregates y Domain Events
 - ✅ **CQRS**: Separación entre comandos y consultas
 - ✅ **MongoDB**: Persistencia de instancias y sesiones
@@ -20,13 +25,15 @@ API REST profesional para interactuar con WhatsApp usando la librería Baileys, 
 - ✅ **Manejo de errores**: Gestión centralizada y tipada de errores
 - ✅ **ResponseHandler homologado**: Respuestas consistentes en toda la API
 - ✅ **Validación**: Validación de datos con express-validator
+- ✅ **Seguridad HTTP**: Helmet con CSP estricta, CORS configurable y rate limiting global opcional (`ENABLED_RATE_LIMITS=true`)
+- ✅ **Health check**: `GET /health` para supervisión (estado, timestamp, uptime)
 - ✅ **TypeScript estricto**: Tipado fuerte en todo el proyecto
 
 ## 📋 Requisitos Previos
 
 - Node.js >= 20.x (recomendado para ESM)
 - MongoDB >= 6.x
-- npm >= 9.x o yarn
+- npm >= 9.x (u otro gestor compatible; el script `build` invoca `pnpm` para `build:di`, conviene tener **pnpm** instalado)
 
 ## 🛠️ Instalación
 
@@ -86,6 +93,8 @@ Notas:
 npm run build
 ```
 
+El script de compilación ejecuta TypeScript, resuelve alias (`tsc-alias`), copia assets al `dist/` y requiere **`pnpm`** para el paso `build:di`. Si falla por falta de `pnpm`, instálalo globalmente o usa `corepack enable` según tu entorno.
+
 ### 5. Iniciar la aplicación
 
 **Desarrollo:**
@@ -101,6 +110,16 @@ npm start
 ```
 
 ## 🔌 API Endpoints
+
+La URL base de la API es `http://localhost:{PORT}/{API_PATH}/{API_VERSION}` (por defecto `PORT=3333`, `API_PATH=api`, `API_VERSION=v1` → `http://localhost:3333/api/v1`).
+
+### Salud del servicio
+
+```http
+GET /health
+```
+
+Respuesta JSON con `status`, `timestamp` y `uptime` del proceso.
 
 ### Instancias
 
@@ -176,6 +195,14 @@ GET /api/v1/instances/:instanceId/qr
 GET /api/v1/instances/:instanceId/qr/status
 ```
 
+#### Vista HTML del QR (navegador)
+
+```http
+GET /api/v1/instances/:instanceId/qr/view
+```
+
+Disponible cuando la app **no** está en modo `production` (en ese entorno no se registran vistas EJS).
+
 #### Desconectar instancia
 
 ```http
@@ -187,6 +214,16 @@ POST /api/v1/instances/:instanceId/disconnect
 ```http
 DELETE /api/v1/instances/:instanceId
 ```
+
+### Chats
+
+#### Listar chats de la instancia
+
+```http
+GET /api/v1/instances/:instanceId/chats
+```
+
+Requiere que la instancia esté conectada a WhatsApp.
 
 ### Mensajes
 
@@ -207,7 +244,7 @@ Content-Type: application/json
 #### Enviar imagen
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/multimedia/:instanceId/send/image \
+curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/image \
   -F "image=@imagen.jpg" \
   -F "to=5215512345678@s.whatsapp.net" \
   -F "caption=¡Mira esta imagen! 📸"
@@ -216,7 +253,7 @@ curl -X POST http://localhost:3000/api/v1/multimedia/:instanceId/send/image \
 #### Enviar documento (PDF, Word, Excel, etc.)
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/multimedia/:instanceId/send/document \
+curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/document \
   -F "document=@documento.pdf" \
   -F "to=5215512345678@s.whatsapp.net" \
   -F "caption=Documento adjunto"
@@ -226,13 +263,13 @@ curl -X POST http://localhost:3000/api/v1/multimedia/:instanceId/send/document \
 
 ```bash
 # Audio normal
-curl -X POST http://localhost:3000/api/v1/multimedia/:instanceId/send/audio \
+curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/audio \
   -F "audio=@audio.mp3" \
   -F "to=5215512345678@s.whatsapp.net" \
   -F "ptt=false"
 
 # Nota de voz (PTT)
-curl -X POST http://localhost:3000/api/v1/multimedia/:instanceId/send/audio \
+curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/audio \
   -F "audio=@voz.ogg" \
   -F "to=5215512345678@s.whatsapp.net" \
   -F "ptt=true"
@@ -242,13 +279,13 @@ curl -X POST http://localhost:3000/api/v1/multimedia/:instanceId/send/audio \
 
 ```bash
 # Video normal
-curl -X POST http://localhost:3000/api/v1/multimedia/:instanceId/send/video \
+curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/video \
   -F "video=@video.mp4" \
   -F "to=5215512345678@s.whatsapp.net" \
   -F "caption=¡Mira esto! 🎥"
 
 # GIF animado
-curl -X POST http://localhost:3000/api/v1/multimedia/:instanceId/send/video \
+curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/video \
   -F "video=@animacion.mp4" \
   -F "to=5215512345678@s.whatsapp.net" \
   -F "gifPlayback=true"
@@ -302,17 +339,25 @@ Content-Type: application/json
 #### Enviar sticker (WebP)
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/multimedia/:instanceId/send/sticker \
+curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/sticker \
   -F "sticker=@sticker.webp" \
   -F "to=5215512345678@s.whatsapp.net"
 ```
 
 ### Grupos
 
+Las rutas de grupos viven bajo el prefijo de instancias: `/api/v1/instances/:instanceId/groups`.
+
+#### Listar grupos
+
+```http
+GET /api/v1/instances/:instanceId/groups
+```
+
 #### Crear grupo
 
 ```http
-POST /api/v1/groups/:instanceId/groups
+POST /api/v1/instances/:instanceId/groups
 Content-Type: application/json
 
 {
@@ -327,7 +372,7 @@ Content-Type: application/json
 #### Agregar participantes
 
 ```http
-POST /api/v1/groups/:instanceId/groups/:groupId/participants/add
+POST /api/v1/instances/:instanceId/groups/:groupId/participants/add
 Content-Type: application/json
 
 {
@@ -340,7 +385,7 @@ Content-Type: application/json
 #### Eliminar participantes
 
 ```http
-POST /api/v1/groups/:instanceId/groups/:groupId/participants/remove
+POST /api/v1/instances/:instanceId/groups/:groupId/participants/remove
 Content-Type: application/json
 
 {
@@ -455,6 +500,9 @@ Errores tipados y jerárquicos:
 
 - Validación de datos con `express-validator`
 - Sanitización de inputs
+- **Helmet** con políticas de cabeceras (CSP restrictiva, HSTS en producción detrás de HTTPS, políticas COOP/COEP/CORP según configuración)
+- **CORS** con orígenes permitidos vía `ACCEPTED_ORIGINS` (obligatorio en producción)
+- **Rate limiting** opcional en rutas bajo `/api/` cuando `ENABLED_RATE_LIMITS=true`
 - Gestión segura de sesiones de WhatsApp
 - Almacenamiento cifrado de credenciales (recomendado para producción)
 
@@ -505,20 +553,25 @@ POST /api/v1/instances
   "usePairingCode": false
 }
 
-// 2. Obtener QR para escanear
+// 2. Obtener QR (JSON) o abrir en navegador la vista HTML
 GET /api/v1/instances/{instanceId}/qr
+GET /api/v1/instances/{instanceId}/qr/view
 
 // 3. Esperar conexión (webhook o polling)
 
-// 4. Enviar mensaje
+// 4. Listar chats o grupos (instancia conectada)
+GET /api/v1/instances/{instanceId}/chats
+GET /api/v1/instances/{instanceId}/groups
+
+// 5. Enviar mensaje
 POST /api/v1/messages/{instanceId}/send
 {
   "to": "5215512345678@s.whatsapp.net",
   "message": "¡Hola!"
 }
 
-// 5. Crear grupo
-POST /api/v1/groups/{instanceId}/groups
+// 6. Crear grupo
+POST /api/v1/instances/{instanceId}/groups
 {
   "name": "Equipo Ventas",
   "participants": ["5215512345678@s.whatsapp.net"]
