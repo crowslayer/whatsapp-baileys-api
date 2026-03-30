@@ -11,6 +11,7 @@ import { createCorsMiddleware } from '@infrastructure/http/middlewares/CorsMiddl
 import { errorMiddleware } from '@infrastructure/http/middlewares/ErrorMiddleware';
 import { loggerMiddleware } from '@infrastructure/http/middlewares/LoggerMiddleware';
 import { requestIdMiddleware } from '@infrastructure/http/middlewares/RequestIdMiddleware';
+import { createChatsRouter } from '@infrastructure/http/routes/chats.routes';
 import { createGroupRouter } from '@infrastructure/http/routes/group.routes';
 import { createInstanceRouter } from '@infrastructure/http/routes/instance.routes';
 import { createMessageRouter } from '@infrastructure/http/routes/message.routes';
@@ -124,13 +125,14 @@ export class ExpressApp {
 
     // Routes
     this._app.use(`${base}/instances`, createInstanceRouter(this.container));
+    this._app.use(`${base}/instances`, createGroupRouter(this.container));
+    this._app.use(`${base}/instances`, createChatsRouter(this.container));
     this._app.use(`${base}/messages`, createMessageRouter(this.container));
     this._app.use(
       `${base}/multimedia`,
       express.json({ limit: '50mb' }), // límite alto solo donde se necesita
       createMultimediaRouter(this.container)
     );
-    this._app.use(`${base}/instances`, createGroupRouter(this.container));
   }
 
   static create(config: IConfig, logger: ILogger, container: ContainerBuilder): Application {

@@ -1,0 +1,8 @@
+services:
+  # =============================================
+  # Controllers
+  # =============================================
+  http.controller.chats.list_chats:
+    class: ../../../infrastructure/http/controllers/chats/list/ListChatsController
+    arguments:
+      - '@shared.query_bus'
