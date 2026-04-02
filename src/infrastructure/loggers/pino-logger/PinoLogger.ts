@@ -31,7 +31,7 @@ export class PinoLogger implements ILogger {
           },
           {
             target: 'pino/file',
-            level: Levels.DEBUG,
+            level: Levels.TRACE,
             options: {
               destination: `./logs/apps/log.app.siec-${Levels.DEBUG}-${date.toJSON().slice(0, 10)}.log`,
               mkdir: true,
