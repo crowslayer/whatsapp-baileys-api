@@ -808,7 +808,7 @@ export class BaileysAdapter {
 
   async createGroup(name: string, participants: string[]): Promise<string> {
     if (!this._socket) {
-      throw new WhatsAppConnectionError('_Socket not connected');
+      throw new WhatsAppConnectionError('WhatsApp Socket not connected');
     }
 
     try {
