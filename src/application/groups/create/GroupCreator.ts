@@ -9,8 +9,8 @@ import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 
 export class GroupCreator {
   constructor(
-    private repository: IWhatsAppInstanceRepository,
-    private connectionManager: IConnectionManager
+    private readonly repository: IWhatsAppInstanceRepository,
+    private readonly connectionManager: IConnectionManager
   ) {}
 
   async execute(command: CreateGroupCommand): Promise<string> {

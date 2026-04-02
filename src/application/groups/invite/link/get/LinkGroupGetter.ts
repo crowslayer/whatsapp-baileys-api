@@ -5,13 +5,13 @@ import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
 
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 
-export class GroupInviteAccepted {
+export class LinkGroupGetter {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
     private readonly connectionManager: IConnectionManager
   ) {}
 
-  async execute(instanceId: InstanceId, code: string): Promise<string | undefined> {
+  async execute(instanceId: InstanceId, groupId: string): Promise<string> {
     const instance = await this.repository.findById(instanceId.value);
     if (!instance || !instance.canSendMessages()) {
       throw new WhatsAppConnectionError('WhatsApp Instance not found or not connected');
@@ -21,6 +21,6 @@ export class GroupInviteAccepted {
     if (!adapter) {
       throw new WhatsAppConnectionError('WhatsApp Instance not connected or not found');
     }
-    return await adapter.acceptGroupInvite(code);
+    return await adapter.getGroupInviteLink(groupId);
   }
 }
