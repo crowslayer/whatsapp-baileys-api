@@ -266,7 +266,7 @@ export class BaileysAdapter {
       }
 
       if (events['labels.edit']) {
-        // await this._options.onLabelsEdit?.(events['labels.edit']);
+        await this._options.onLabelsEdit?.(events['labels.edit']);
       }
     });
   }
@@ -1091,9 +1091,9 @@ export class BaileysAdapter {
     }
 
     const isGroup = isJidGroup(jid);
-    const isIndividual = isPnUser(jid) || jid.endsWith('@lid');
+    const isChat = isPnUser(jid) || jid.endsWith('@lid');
 
-    if (!isGroup && !isIndividual) return null;
+    if (!isGroup && !isChat) return null;
 
     const timestamp = chat.conversationTimestamp
       ? new Date(Number(chat.conversationTimestamp) * 1000)

@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Mixed, Schema } from 'mongoose';
 
 export interface IWhatsAppInstanceDocument extends Document {
   instanceId: string;
@@ -9,7 +9,7 @@ export interface IWhatsAppInstanceDocument extends Document {
   qrText?: string;
   pairingCode?: string;
   webhookUrl?: string;
-  sessionData?: any;
+  sessionData?: Mixed;
   lastConnectedAt?: Date;
   createdAt: Date;
   updatedAt: Date;

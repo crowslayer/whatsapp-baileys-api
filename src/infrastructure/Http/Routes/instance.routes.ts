@@ -9,7 +9,7 @@ import {
 
 export const createInstanceRouter = (container: ContainerBuilder): Router => {
   const router = Router();
-  const qetQRController = container.get('http.controller.get_qr');
+  const getQRController = container.get('http.controller.get_qr');
   const createController = container.get('http.controller.instance.creator');
   const listController = container.get('http.controller.instances.get.instances');
   const getInstanceController = container.get('http.controller.instances.get.instance');
@@ -38,7 +38,7 @@ export const createInstanceRouter = (container: ContainerBuilder): Router => {
     '/:instanceId/qr/view',
     validate(instanceIdSchema),
     (req: Request, res: Response, next: NextFunction) =>
-      qetQRController.renderQRPage(req, res, next)
+      getQRController.renderQRPage(req, res, next)
   );
 
   // API JSON del QR y status
@@ -50,7 +50,7 @@ export const createInstanceRouter = (container: ContainerBuilder): Router => {
   router.get(
     '/:instanceId/qr',
     validate(instanceIdSchema),
-    (req: Request, res: Response, next: NextFunction) => qetQRController.handle(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => getQRController.handle(req, res, next)
   );
 
   router.delete(

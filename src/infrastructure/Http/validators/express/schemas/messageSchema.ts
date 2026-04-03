@@ -2,7 +2,7 @@ import { Schema } from 'express-validator';
 
 import { instanceIdSchema } from '@infrastructure/http/validators/express/schemas/instanceSchema';
 
-const recipientSquema: Schema = {
+const recipientSchema: Schema = {
   to: {
     in: ['body'],
     exists: { errorMessage: 'Recipient is required' },
@@ -14,14 +14,14 @@ const recipientSquema: Schema = {
 
 export const messageSchema: Schema = {
   ...instanceIdSchema,
-  ...recipientSquema,
+  ...recipientSchema,
   message: {
     in: ['body'],
     exists: { errorMessage: 'Message is required' },
     isString: { errorMessage: 'Message must be a string' },
     escape: true,
     trim: true,
-    notEmpty: { errorMessage: 'Message not be a null or empty' },
+    notEmpty: { errorMessage: 'Message cannot be null or empty' },
   },
 };
 
@@ -42,20 +42,20 @@ const filenameSchema: Schema = {
 
 export const imageSchema: Schema = {
   ...instanceIdSchema,
-  ...recipientSquema,
+  ...recipientSchema,
   ...captionSchema,
   ...filenameSchema,
 };
 
 export const documentSchema: Schema = {
   ...instanceIdSchema,
-  ...recipientSquema,
+  ...recipientSchema,
   ...captionSchema,
 };
 
 export const audioSchema: Schema = {
   ...instanceIdSchema,
-  ...recipientSquema,
+  ...recipientSchema,
   ptt: {
     in: ['body'],
     optional: true,
@@ -65,22 +65,22 @@ export const audioSchema: Schema = {
 
 export const videoSchema: Schema = {
   ...instanceIdSchema,
-  ...recipientSquema,
-  ...captionSchema,
+  ...recipientSchema,
+  captionSchema,
   gifPlayback: {
     in: ['body'],
     optional: true,
-    isString: { errorMessage: 'Playback optiones is string' },
+    isBoolean: { errorMessage: 'gifPlayback must be a boolean' },
   },
   ...filenameSchema,
 };
 
 export const locationSchema: Schema = {
   ...instanceIdSchema,
-  ...recipientSquema,
+  ...recipientSchema,
   latitude: {
     in: ['body'],
-    exists: { errorMessage: 'Latitudes is required' },
+    exists: { errorMessage: 'Latitude is required' },
     isFloat: { errorMessage: 'Valid latitude is required' },
   },
   longitude: {
@@ -96,7 +96,7 @@ export const locationSchema: Schema = {
   address: {
     in: ['body'],
     optional: true,
-    isString: { errorMessage: 'address must be a string' },
+    isString: { errorMessage: 'Address must be a string' },
   },
 };
 
@@ -108,7 +108,7 @@ export const reactionSchema: Schema = {
     isString: { errorMessage: 'MessageId must be string' },
     escape: true,
     trim: true,
-    notEmpty: { errorMessage: 'MessageId not empry' },
+    notEmpty: { errorMessage: 'MessageId cannot be empty' },
   },
   chatId: {
     in: ['body'],
@@ -116,7 +116,7 @@ export const reactionSchema: Schema = {
     isString: { errorMessage: 'ChatId must be string' },
     escape: true,
     trim: true,
-    notEmpty: { errorMessage: 'ChatId not empry' },
+    notEmpty: { errorMessage: 'ChatId cannot be empty' },
   },
   emoji: {
     in: ['body'],
@@ -124,14 +124,14 @@ export const reactionSchema: Schema = {
     isString: { errorMessage: 'emoji must be string' },
     escape: true,
     trim: true,
-    notEmpty: { errorMessage: 'Emoji not empry' },
+    notEmpty: { errorMessage: 'Emoji cannot be empty' },
   },
 };
 
 export const contactSchema: Schema = {
   ...instanceIdSchema,
-  ...recipientSquema,
-  conctacts: {
+  ...recipientSchema,
+  contacts: {
     exists: { errorMessage: 'Contact is required' },
     isArray: { options: { min: 1 }, errorMessage: 'Contact must be Array' },
   },
@@ -147,5 +147,5 @@ export const contactSchema: Schema = {
 
 export const stickerSchema: Schema = {
   ...instanceIdSchema,
-  ...recipientSquema,
+  ...recipientSchema,
 };
