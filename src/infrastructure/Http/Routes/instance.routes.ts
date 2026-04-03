@@ -4,6 +4,7 @@ import { ContainerBuilder } from 'node-dependency-injection';
 import { validate } from '@infrastructure/http/middlewares/ValidationMiddleware';
 import {
   createInstanceSchema,
+  createInstanceSchemaWithWebhookValidation,
   instanceIdSchema,
 } from '@infrastructure/http/validators/express/schemas/instanceSchema';
 
@@ -20,6 +21,7 @@ export const createInstanceRouter = (container: ContainerBuilder): Router => {
   router.post(
     '/',
     validate(createInstanceSchema),
+    validate(createInstanceSchemaWithWebhookValidation),
     (req: Request, res: Response, next: NextFunction) => createController.handle(req, res, next)
   );
 

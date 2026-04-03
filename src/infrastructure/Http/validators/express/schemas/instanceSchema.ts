@@ -1,4 +1,6 @@
-import { Schema } from 'express-validator';
+import { Schema, ValidationChain } from 'express-validator';
+
+import { webhookUrlValidator } from '@infrastructure/http/validators/custom/WebhookUrlValidator';
 
 export const createInstanceSchema: Schema = {
   name: {
@@ -7,7 +9,7 @@ export const createInstanceSchema: Schema = {
     isString: { errorMessage: 'Name is required' },
     trim: true,
     escape: true,
-    notEmpty: { errorMessage: 'Name can be null' },
+    notEmpty: { errorMessage: 'Name cannot be null or empty' },
   },
   webhookUrl: {
     in: ['body'],
@@ -29,6 +31,8 @@ export const createInstanceSchema: Schema = {
     },
   },
 };
+
+export const createInstanceSchemaWithWebhookValidation: ValidationChain[] = [webhookUrlValidator()];
 
 export const instanceIdSchema: Schema = {
   instanceId: {
