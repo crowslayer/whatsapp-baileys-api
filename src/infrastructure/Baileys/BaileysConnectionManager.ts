@@ -1,11 +1,10 @@
-import axios, { AxiosInstance } from 'axios';
-
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 import { ConnectionStatusEnum } from '@domain/value-objects/ConnectionStatus';
 
 import { IChatSynchronizer } from '@application/chats/synchronize/IChatSynchronizer';
 
 import { BaileysAdapter } from '@infrastructure/baileys/BaileysAdapter';
+import { WebhookService } from '@infrastructure/http/webhooks/WebhookService';
 import { ILogger } from '@infrastructure/loggers/Logger';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
@@ -13,26 +12,14 @@ import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppC
 
 export class BaileysConnectionManager {
   private _connections: Map<string, BaileysAdapter> = new Map();
-  /** Cliente HTTP por instancia para enviar webhooks a la URL configurada de cada una */
-  private _webhookClients: Map<string, AxiosInstance> = new Map();
+  private readonly _webhookService: WebhookService;
 
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
     private readonly syncService: IChatSynchronizer,
     private readonly _logger: ILogger
-  ) {}
-
-  private setWebhookUrl(webhookUrl: string, instanceId: string): void {
-    const baseURL = webhookUrl.replace(/\/$/, '');
-    this._webhookClients.set(
-      instanceId,
-      axios.create({
-        baseURL,
-        timeout: 10000,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    );
-    this._logger.info(`Webhook configured for instance ${instanceId}: ${baseURL}`);
+  ) {
+    this._webhookService = new WebhookService(_logger);
   }
 
   async createConnection(
@@ -47,7 +34,7 @@ export class BaileysConnectionManager {
       }
 
       if (instance.webhookUrl) {
-        this.setWebhookUrl(instance.webhookUrl, instanceId);
+        this._webhookService.configureWebhook(instance.webhookUrl, instanceId);
       }
 
       const adapter = new BaileysAdapter({
@@ -156,7 +143,7 @@ export class BaileysConnectionManager {
     this._logger.info('Disconnected Instances');
     await adapter.disconnect();
     this._connections.delete(instanceId);
-    this._webhookClients.delete(instanceId);
+    this._webhookService.removeWebhook(instanceId);
 
     const instance = await this.repository.findById(instanceId);
     if (instance) {
@@ -173,7 +160,7 @@ export class BaileysConnectionManager {
     }
     await adapter.logout();
     this._connections.delete(instanceId);
-    this._webhookClients.delete(instanceId);
+    this._webhookService.removeWebhook(instanceId);
 
     const instance = await this.repository.findById(instanceId);
     if (instance) {
@@ -230,22 +217,15 @@ export class BaileysConnectionManager {
 
   /**
    * Envía un webhook a la URL configurada para la instancia.
-   * Solo se envía si la instancia tiene webhookUrl; los errores se registran pero no se relanzan.
+   * Usa circuit breaker para evitar fallos en cascada.
+   * Los errores se registran pero no se relanzan.
    */
   async sendWebhook(instanceId: string, type: string, body: unknown): Promise<void> {
-    const client = this._webhookClients.get(instanceId);
-    if (!client) return;
-
-    try {
-      await client.post('', {
-        type,
-        body,
-        instanceId,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error: unknown) {
-      this._logger.error(`Webhook error for instance ${instanceId} (${type}):`, error);
-      // No relanzar: el webhook no debe romper el flujo de mensajes
+    const sent = await this._webhookService.send(instanceId, type, body);
+    if (!sent) {
+      this._logger.warn(
+        `Webhook skipped for instance ${instanceId} (${type}) - circuit open or no client`
+      );
     }
   }
 }
