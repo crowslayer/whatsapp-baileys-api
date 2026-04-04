@@ -14,8 +14,6 @@ import { ILogger } from '@infrastructure/loggers/Logger';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 
-type ConnectionState = 'idle' | 'connecting' | 'connected' | 'reconnecting' | 'closed';
-
 export class BaileysConnectionManager {
   private _connections: Map<string, BaileysAdapter> = new Map();
   private readonly _webhookService: WebhookService;
@@ -264,9 +262,20 @@ export class BaileysConnectionManager {
   async sendBulkMessage(instanceId: string, toList: string[], text: string): Promise<void> {
     const adapter = this.getAdapterOrThrow(instanceId);
 
-    await Promise.all(
+    const results = await Promise.allSettled(
       toList.map((to) => this._messageLimiter.run(() => adapter.sendText(to, text)))
     );
+
+    const success = results.filter((r) => r.status === 'fulfilled').length;
+    const failed = results.length - success;
+    const metric = {
+      instanceId,
+      success,
+      failed,
+    };
+
+    this._logger.info(`Bulk result: ${success} sent, ${failed} failed`);
+    this._logger.info('Messageg sended', metric);
   }
 
   private async safeSyncGroups(instanceId: string): Promise<void> {
