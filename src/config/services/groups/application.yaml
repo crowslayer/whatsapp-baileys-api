@@ -27,6 +27,8 @@ services:
     class: '../../../application/groups/list/GroupsFinder'
     arguments:
       - '@infrastructure.repository.mongo.chat_read_repository'
+      - '@infrastructure.baileys.connection_manager'
+      - '@application.chats.sincronizer'
     public: true
 
   # =============================================
