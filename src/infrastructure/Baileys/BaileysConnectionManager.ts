@@ -1,9 +1,13 @@
+import { WAMessage, WAMessageKey } from '@whiskeysockets/baileys';
+
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 import { ConnectionStatusEnum } from '@domain/value-objects/ConnectionStatus';
 
 import { IChatSynchronizer } from '@application/chats/synchronize/IChatSynchronizer';
 
 import { BaileysAdapter } from '@infrastructure/baileys/BaileysAdapter';
+import { BaileysRateLimiter } from '@infrastructure/baileys/BaileysRateLimiter';
+import { IBaileysChat } from '@infrastructure/baileys/IBaileysChat';
 import { WebhookService } from '@infrastructure/http/webhooks/WebhookService';
 import { ILogger } from '@infrastructure/loggers/Logger';
 
@@ -11,12 +15,16 @@ import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 
 type ConnectionState = 'idle' | 'connecting' | 'connected' | 'reconnecting' | 'closed';
-type DisconnectType = 'disconnect' | 'logout' | 'error';
 
 export class BaileysConnectionManager {
   private _connections: Map<string, BaileysAdapter> = new Map();
   private readonly _webhookService: WebhookService;
-  private _states = new Map<string, ConnectionState>();
+
+  private readonly _messageLimiter = new BaileysRateLimiter({ concurrency: 1, minDelayMs: 400 });
+
+  private readonly _queryLimiter = new BaileysRateLimiter({ concurrency: 2, minDelayMs: 300 });
+
+  private readonly _heavyLimiter = new BaileysRateLimiter({ concurrency: 1, minDelayMs: 1000 });
 
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
@@ -25,7 +33,7 @@ export class BaileysConnectionManager {
   ) {
     this._webhookService = new WebhookService(_logger);
   }
-
+  // eslint-disable-next-line
   async createConnection(
     instanceId: string,
     usePairingCode: boolean = false,
@@ -63,15 +71,15 @@ export class BaileysConnectionManager {
         this._logger.info(`Instance ${instanceId} connected with phone ${phoneNumber}`);
       },
       onConnectionClosed: async (event) => {
+        instance.disconnect(event.reason);
+        await this.repository.update(instance);
+
         if (event.recoverable) {
           this._logger.warn(`Recoverable disconnect (${event.reason})`);
           return;
         }
 
         this._logger.warn(`Final disconnect (${event.reason})`);
-
-        instance.disconnect(event.reason);
-        await this.repository.update(instance);
 
         this._connections.delete(instanceId);
         this._webhookService.removeWebhook(instanceId);
@@ -217,6 +225,71 @@ export class BaileysConnectionManager {
 
   getAllConnections(): Map<string, BaileysAdapter> {
     return this._connections;
+  }
+
+  // eslint-disable-next-line
+  async sendMessage(instanceId: string, to: string, text: string): Promise<WAMessage | undefined> {
+    const adapter = this.getAdapterOrThrow(instanceId);
+    return this._messageLimiter.run(() => adapter.sendText(to, text));
+  }
+
+  async getGroups(instanceId: string): Promise<IBaileysChat[]> {
+    const adapter = this.getAdapterOrThrow(instanceId);
+
+    return await this._heavyLimiter.run(async () => {
+      const groups = await adapter.syncGroupsMetadata();
+      await this.syncService.syncChats(instanceId, groups, false);
+      return groups;
+    });
+  }
+  // eslint-disable-next-line
+  async fetchHistory(
+    instanceId: string,
+    count: number,
+    key: WAMessageKey,
+    timestamp: number
+  ): Promise<string | undefined> {
+    const adapter = this.getAdapterOrThrow(instanceId);
+
+    return this._heavyLimiter.run(() => adapter.fetchMessageHistory(count, key, timestamp));
+  }
+
+  // eslint-disable-next-line
+  async getProfilePicture(instanceId: string, jid: string): Promise<string | undefined> {
+    const adapter = this.getAdapterOrThrow(instanceId);
+
+    return this._queryLimiter.run(() => adapter.getProfilePictureUrl(jid));
+  }
+
+  async sendBulkMessage(instanceId: string, toList: string[], text: string): Promise<void> {
+    const adapter = this.getAdapterOrThrow(instanceId);
+
+    await Promise.all(
+      toList.map((to) => this._messageLimiter.run(() => adapter.sendText(to, text)))
+    );
+  }
+
+  private async safeSyncGroups(instanceId: string): Promise<void> {
+    try {
+      await this._heavyLimiter.run(async () => {
+        const adapter = this.getAdapterOrThrow(instanceId);
+        const groups = await adapter.syncGroupsMetadata();
+
+        await this.syncService.syncChats(instanceId, groups, false);
+
+        this._logger.info(`Groups synced for ${instanceId}`);
+      });
+    } catch (error) {
+      this._logger.warn(`Failed to preload groups for ${instanceId}`, error);
+    }
+  }
+
+  private getAdapterOrThrow(instanceId: string): BaileysAdapter {
+    const adapter = this._connections.get(instanceId);
+    if (!adapter) {
+      throw new WhatsAppConnectionError('Instance not connected');
+    }
+    return adapter;
   }
 
   /**

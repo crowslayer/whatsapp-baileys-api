@@ -25,13 +25,6 @@ export class TextMessageSender {
       ]);
     }
 
-    const adapter = this.connectionManager.getConnection(command.instanceId);
-    if (!adapter) {
-      throw new ValidationError([
-        { field: 'instance', message: `Instance ${command.instanceId} adapter not found` },
-      ]);
-    }
-
-    await adapter.sendText(command.to, command.message);
+    await this.connectionManager.sendMessage(instance.id, command.to, command.message);
   }
 }

@@ -136,9 +136,10 @@ export class BaileysAdapter {
     await this.connect(phoneNumber);
   }
 
+  // eslint-disable-next-line
   private setupEventHandlers(saveCreds: () => Promise<void>): void {
     if (!this._socket) return;
-
+    // eslint-disable-next-line
     this._socket.ev.process(async (events) => {
       // Connection
 

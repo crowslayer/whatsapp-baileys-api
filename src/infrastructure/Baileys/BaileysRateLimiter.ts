@@ -33,7 +33,7 @@ export class BaileysRateLimiter {
     this._maxRetries = options?.maxRetries ?? 2;
     this._retryDelayMs = options?.retryDelayMs ?? 500;
   }
-
+  // eslint-disable-next-line
   async run<T>(task: Task<T>): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       const item: IQueueItem<T> = {
