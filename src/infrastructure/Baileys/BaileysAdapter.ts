@@ -5,6 +5,7 @@ import Stream from 'stream';
 import { Boom } from '@hapi/boom';
 import makeWASocket, {
   AnyMessageContent,
+  AuthenticationState,
   CacheStore,
   Chat,
   DisconnectReason,
@@ -17,9 +18,9 @@ import makeWASocket, {
   WAPrivacyGroupAddValue,
   WAPrivacyValue,
   WASocket,
+  WAVersion,
   downloadMediaMessage,
   fetchLatestBaileysVersion,
-  generateMessageIDV2,
   isJidGroup,
   isJidNewsletter,
   isPnUser,
@@ -38,9 +39,10 @@ import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppC
 
 export class BaileysAdapter {
   private _socket?: WASocket;
-  private _logger = pino({ level: 'silent' });
+  private _logger = pino({ level: 'debug' });
   private _options: IBaileysConnectionOptions;
   private _authPath: string;
+  private _connecting: boolean = false;
 
   private _msgRetryCounterCache = new NodeCache() as CacheStore;
 
@@ -49,70 +51,45 @@ export class BaileysAdapter {
     this._authPath = path.join(process.cwd(), 'sessions', _options.instanceId);
   }
 
-  async connect(): Promise<void> {
-    try {
-      const { state, saveCreds } = await useMultiFileAuthState(this._authPath);
-      const { version } = await fetchLatestBaileysVersion();
-
-      this._socket = makeWASocket({
-        version,
-        logger: this._logger,
-        printQRInTerminal: false,
-        auth: {
-          creds: state.creds,
-          keys: makeCacheableSignalKeyStore(state.keys, this._logger),
-        },
-        browser: ['WhatsApp API', 'Chrome', '4.0.0'],
-        markOnlineOnConnect: false,
-        generateHighQualityLinkPreview: true,
-        syncFullHistory: false,
-        msgRetryCounterCache: this._msgRetryCounterCache,
-        getMessage: async (_key) => {
-          return await proto.Message.create({ conversation: 'message not found' });
-        },
-      });
-
-      this.setupEventHandlers(saveCreds);
-    } catch (error) {
-      throw new WhatsAppConnectionError(
-        `Failed to connect instance ${this._options.instanceId}`,
-        error
-      );
-    }
+  private async createSocket(state: AuthenticationState, version: WAVersion): Promise<WASocket> {
+    return makeWASocket({
+      version,
+      logger: this._logger,
+      printQRInTerminal: false,
+      auth: {
+        creds: state.creds,
+        keys: makeCacheableSignalKeyStore(state.keys, this._logger),
+      },
+      browser: ['WhatsApp API', 'Chrome', '4.0.0'],
+      markOnlineOnConnect: false,
+      generateHighQualityLinkPreview: true,
+      syncFullHistory: false,
+      msgRetryCounterCache: this._msgRetryCounterCache,
+      getMessage: async () => undefined,
+    });
   }
 
-  async connectWithPairingCode(phoneNumber: string): Promise<void> {
+  async connect(phoneNumber?: string): Promise<void> {
+    if (this._connecting) return;
+    this._connecting = true;
+
     try {
       const { state, saveCreds } = await useMultiFileAuthState(this._authPath);
       const { version } = await fetchLatestBaileysVersion();
 
-      this._socket = makeWASocket({
-        version,
-        logger: this._logger,
-        printQRInTerminal: false,
-        auth: {
-          creds: state.creds,
-          keys: makeCacheableSignalKeyStore(state.keys, this._logger),
-        },
-        browser: ['WhatsApp API', 'Chrome', '4.0.0'],
-        markOnlineOnConnect: false,
-        generateHighQualityLinkPreview: true,
-        syncFullHistory: false,
-        msgRetryCounterCache: this._msgRetryCounterCache,
-        getMessage: async (_key) => {
-          return await proto.Message.create({ conversation: 'Message not found' });
-        },
-      });
+      this._socket = await this.createSocket(state, version);
 
       if (!this._socket.authState.creds.registered) {
-        const code = await this._socket.requestPairingCode(phoneNumber);
-        this._options.onPairingCode?.(code);
+        if (phoneNumber) {
+          const code = await this._socket.requestPairingCode(phoneNumber);
+          this._options.onPairingCode?.(code);
+        }
       }
-
       this.setupEventHandlers(saveCreds);
     } catch (error) {
+      this._connecting = false;
       throw new WhatsAppConnectionError(
-        `Failed to connect with pairing code for instance ${this._options.instanceId}`,
+        `Failed to connect instance ${this._options.instanceId}`,
         error
       );
     }
@@ -133,6 +110,8 @@ export class BaileysAdapter {
         }
 
         if (connection === 'close') {
+          this._connecting = false;
+
           const shouldReconnect =
             (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
 
@@ -142,24 +121,51 @@ export class BaileysAdapter {
             // Manejo de errores específicos
             if (statusCode === DisconnectReason.restartRequired) {
               this._logger.info('Restart required, reconnecting...');
+              if (this._socket) {
+                this._socket.end(undefined);
+                this._socket = undefined;
+              }
               await this.connect();
             } else if (statusCode === DisconnectReason.timedOut) {
               this._logger.info('Connection timed out, reconnecting...');
+              if (this._socket) {
+                this._socket.end(undefined);
+                this._socket = undefined;
+              }
               await this.connect();
             } else if (statusCode === DisconnectReason.connectionClosed) {
               this._logger.info('Connection closed, reconnecting...');
+              if (this._socket) {
+                this._socket.end(undefined);
+                this._socket = undefined;
+              }
               await this.connect();
             } else if (statusCode === DisconnectReason.connectionLost) {
               this._logger.info('Connection lost, reconnecting...');
+              if (this._socket) {
+                this._socket.end(undefined);
+                this._socket = undefined;
+              }
               await this.connect();
             } else {
               this._logger.info('Connection closed, reconnecting...');
+              if (this._socket) {
+                this._socket.end(undefined);
+                this._socket = undefined;
+              }
               await this.connect();
             }
           } else {
             this._options.onDisconnected?.('Logged out');
+            if (this._socket) {
+              this._socket.end(undefined);
+              this._socket = undefined;
+            }
+            this._connecting = false;
           }
         } else if (connection === 'open') {
+          this._connecting = false;
+
           const phoneNumber = this._socket?.user?.id.split(':')[0] || '';
           this._options.onConnected?.(phoneNumber);
           // almacenando
@@ -277,11 +283,10 @@ export class BaileysAdapter {
     options?: MiscMessageGenerationOptions
   ): Promise<WAMessage | undefined> {
     if (!this._socket) {
-      throw new WhatsAppConnectionError('Not Instances connected');
+      throw new WhatsAppConnectionError('Instance not connected');
     }
     try {
-      const id = generateMessageIDV2(this._socket.user?.id);
-      return await this._socket.sendMessage(to, content, { messageId: id, ...options });
+      return await this._socket.sendMessage(to, content, options);
     } catch (error) {
       throw new WhatsAppConnectionError(
         `Failed to send message for instance ${this._options.instanceId}`,
@@ -418,10 +423,9 @@ export class BaileysAdapter {
     message: WAMessage,
     options?: MiscMessageGenerationOptions
   ): Promise<WAMessage | undefined> {
-    if (!this._socket) throw new WhatsAppConnectionError('Instancen not coneccted');
+    if (!this._socket) throw new WhatsAppConnectionError('Instance not coneccted');
     try {
-      // return await this._socket.forwardMessages(to, message, options);
-      return undefined;
+      return await this._socket.sendMessage(to, { forward: message }, options);
     } catch (error) {
       throw new WhatsAppConnectionError(
         `Failed to forward message for instance ${this._options.instanceId}`,
@@ -582,7 +586,7 @@ export class BaileysAdapter {
   async updateProfilePicture(jid: string, image: Buffer | { url: string }): Promise<void> {
     if (!this._socket) throw new WhatsAppConnectionError('Instance not connected');
     try {
-      await this._socket.updateProfilePicture(jid, image as { url: string });
+      await this._socket.updateProfilePicture(jid, image);
     } catch (error) {
       throw new WhatsAppConnectionError(
         `Failed to update profile picture for instance ${this._options.instanceId}`,
@@ -866,7 +870,7 @@ export class BaileysAdapter {
   }
   async addParticipantsToGroup(groupId: string, participants: string[]): Promise<void> {
     if (!this._socket) {
-      throw new WhatsAppConnectionError('_Socket not connected');
+      throw new WhatsAppConnectionError('Instance not connected');
     }
 
     try {
@@ -881,7 +885,7 @@ export class BaileysAdapter {
 
   async removeParticipantsFromGroup(groupId: string, participants: string[]): Promise<void> {
     if (!this._socket) {
-      throw new WhatsAppConnectionError('_Socket not connected');
+      throw new WhatsAppConnectionError('Instance not connected');
     }
 
     try {
@@ -1071,6 +1075,10 @@ export class BaileysAdapter {
 
   getSocket(): WASocket | undefined {
     return this._socket;
+  }
+
+  private normalizePhoneNumber(phone: string): string {
+    return `${phone.replace(/\D/g, '')}@s.whatsapp.net`;
   }
 
   // ─── Helpers privados ────────────────────────────────────────────────────────

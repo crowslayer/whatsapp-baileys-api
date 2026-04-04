@@ -121,7 +121,7 @@ export class BaileysConnectionManager {
       });
 
       if (usePairingCode && phoneNumber) {
-        await adapter.connectWithPairingCode(phoneNumber);
+        await adapter.connect(phoneNumber);
       } else {
         await adapter.connect();
       }

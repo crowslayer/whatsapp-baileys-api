@@ -26,8 +26,11 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
       });
 
       await document.save();
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to save WhatsApp instance: ${error.message}`, error);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new InfrastructureError(`Failed to save WhatsApp instance: ${error.message}`, error);
+      }
+      throw error;
     }
   }
 
@@ -37,8 +40,11 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
       if (!document) return null;
 
       return this.toDomain(document);
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to find WhatsApp instance: ${error.message}`, error);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new InfrastructureError(`Failed to save WhatsApp instance: ${error.message}`, error);
+      }
+      throw error;
     }
   }
 
@@ -48,11 +54,11 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
       if (!document) return null;
 
       return this.toDomain(document);
-    } catch (error: any) {
-      throw new InfrastructureError(
-        `Failed to find WhatsApp instance by name: ${error.message}`,
-        error
-      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new InfrastructureError(`Failed to save WhatsApp instance: ${error.message}`, error);
+      }
+      throw error;
     }
   }
 
@@ -60,11 +66,11 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
     try {
       const documents = await WhatsAppInstanceModel.find().sort({ createdAt: -1 });
       return documents.map((doc) => this.toDomain(doc));
-    } catch (error: any) {
-      throw new InfrastructureError(
-        `Failed to find all WhatsApp instances: ${error.message}`,
-        error
-      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new InfrastructureError(`Failed to save WhatsApp instance: ${error.message}`, error);
+      }
+      throw error;
     }
   }
 
@@ -87,16 +93,25 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
           },
         }
       );
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to update WhatsApp instance: ${error.message}`, error);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new InfrastructureError(`Failed to save WhatsApp instance: ${error.message}`, error);
+      }
+      throw error;
     }
   }
 
   async delete(instanceId: string): Promise<void> {
     try {
+      const document = await WhatsAppInstanceModel.findOne({ instanceId });
+      if (!document) return;
+
       await WhatsAppInstanceModel.deleteOne({ instanceId });
-    } catch (error: any) {
-      throw new InfrastructureError(`Failed to delete WhatsApp instance: ${error.message}`, error);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new InfrastructureError(`Failed to save WhatsApp instance: ${error.message}`, error);
+      }
+      throw error;
     }
   }
 
@@ -104,11 +119,11 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
     try {
       const count = await WhatsAppInstanceModel.countDocuments({ instanceId });
       return count > 0;
-    } catch (error: any) {
-      throw new InfrastructureError(
-        `Failed to check if WhatsApp instance exists: ${error.message}`,
-        error
-      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new InfrastructureError(`Failed to save WhatsApp instance: ${error.message}`, error);
+      }
+      throw error;
     }
   }
 
