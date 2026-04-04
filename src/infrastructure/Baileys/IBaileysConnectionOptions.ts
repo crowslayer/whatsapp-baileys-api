@@ -24,7 +24,7 @@ export interface IGroupParticipantsUpdate {
   participants: GroupParticipant[];
   action: 'add' | 'remove' | 'promote' | 'demote' | 'modify';
 }
-
+type Event = { reason: string; code: number; recoverable: boolean };
 // ─── Interface principal ──────────────────────────────────────────────────────
 
 export interface IBaileysConnectionOptions {
@@ -36,8 +36,7 @@ export interface IBaileysConnectionOptions {
   onQRCode?: (qrBase64: string, qrText: string) => void | Promise<void>;
   onPairingCode?: (code: string) => void | Promise<void>;
   onConnected?: (phoneNumber: string) => void | Promise<void>;
-  onDisconnected?: (reason?: string) => void | Promise<void>;
-
+  onConnectionClosed?: (event: Event) => void | Promise<void>;
   // ── Mensajes ───────────────────────────────────────────────────────────────
   onMessage?: (message: WAMessage) => void | Promise<void>;
 

@@ -6,7 +6,6 @@ import Stream from 'stream';
 import { Boom } from '@hapi/boom';
 import makeWASocket, {
   AnyMessageContent,
-  AuthenticationState,
   CacheStore,
   Chat,
   DisconnectReason,
@@ -19,7 +18,6 @@ import makeWASocket, {
   WAPrivacyGroupAddValue,
   WAPrivacyValue,
   WASocket,
-  WAVersion,
   downloadMediaMessage,
   fetchLatestBaileysVersion,
   isJidGroup,
@@ -40,68 +38,76 @@ import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppC
 
 export class BaileysAdapter {
   private _socket?: WASocket;
-  private _logger = pino({ level: 'debug' });
-  private _options: IBaileysConnectionOptions;
+  private _logger = pino({ level: 'info' });
+
   private _authPath: string;
-  private _connecting: boolean = false;
+
+  private _isConnecting = false;
+  private _shouldReconnect = true;
+
   private _retryCount = 0;
   private _maxRetries = 5;
   private _baseDelay = 2000; // 2s
 
   private _msgRetryCounterCache = new NodeCache() as CacheStore;
 
-  constructor(_options: IBaileysConnectionOptions) {
-    this._options = _options;
+  constructor(private readonly _options: IBaileysConnectionOptions) {
     this._authPath = path.join(process.cwd(), 'sessions', _options.instanceId);
   }
 
-  private async createSocket(state: AuthenticationState, version: WAVersion): Promise<WASocket> {
-    return makeWASocket({
-      version,
-      logger: this._logger,
-      printQRInTerminal: false,
-      auth: {
-        creds: state.creds,
-        keys: makeCacheableSignalKeyStore(state.keys, this._logger),
-      },
-      browser: ['WhatsApp API', 'Chrome', '4.0.0'],
-      markOnlineOnConnect: false,
-      generateHighQualityLinkPreview: true,
-      syncFullHistory: false,
-      msgRetryCounterCache: this._msgRetryCounterCache,
-      getMessage: async () => undefined,
-    });
-  }
+  // Connection
 
   async connect(phoneNumber?: string): Promise<void> {
-    if (this._connecting) return;
-    this._connecting = true;
+    if (this._isConnecting) return;
+    this._isConnecting = true;
+    this._shouldReconnect = true;
 
     try {
       const { state, saveCreds } = await useMultiFileAuthState(this._authPath);
       const { version } = await fetchLatestBaileysVersion();
 
-      this._socket = await this.createSocket(state, version);
+      // this._socket = await this.createSocket(state, version);
+      this._socket = makeWASocket({
+        version,
+        logger: this._logger,
+        printQRInTerminal: false,
+        auth: {
+          creds: state.creds,
+          keys: makeCacheableSignalKeyStore(state.keys, this._logger),
+        },
+        browser: ['WhatsApp API', 'Chrome', '4.0.0'],
+        markOnlineOnConnect: false,
+        syncFullHistory: false,
+        msgRetryCounterCache: this._msgRetryCounterCache,
+        getMessage: async () => undefined, // ← idealmente reemplazar con store
+      });
 
-      if (!this._socket.authState.creds.registered) {
-        if (phoneNumber) {
-          const code = await this._socket.requestPairingCode(phoneNumber);
-          this._options.onPairingCode?.(code);
-        }
+      if (!this._socket.authState.creds.registered && phoneNumber) {
+        const code = await this._socket.requestPairingCode(phoneNumber);
+        this._options.onPairingCode?.(code);
       }
       this.setupEventHandlers(saveCreds);
       // reset retries
       this._retryCount = 0;
     } catch (error) {
-      this.handleRetry(error, phoneNumber);
+      this._isConnecting = false;
+      throw error; // await this.handleRetry(error, phoneNumber);
     }
   }
-
   private async handleRetry(error: unknown, phoneNumber?: string): Promise<void> {
-    this.resetConnectionState();
+    if (this._socket) {
+      this._socket.end(undefined);
+      this._socket = undefined;
+    }
 
     if (this._retryCount >= this._maxRetries) {
-      this._options.onDisconnected?.('Max retries reached');
+      if (error instanceof Boom) {
+        this._options.onConnectionClosed?.({
+          reason: DisconnectReason[error.output.statusCode],
+          code: error.output.statusCode,
+          recoverable: true,
+        });
+      }
       return;
     }
 
@@ -134,6 +140,8 @@ export class BaileysAdapter {
     if (!this._socket) return;
 
     this._socket.ev.process(async (events) => {
+      // Connection
+
       if (events['connection.update']) {
         const { connection, lastDisconnect, qr } = events['connection.update'];
 
@@ -143,21 +151,40 @@ export class BaileysAdapter {
           // Pasar tanto el código QR en texto como en imagen
           this._options.onQRCode?.(qrCodeBase64, qr);
         }
+        if (connection === 'open') {
+          this._isConnecting = false;
+          this._retryCount = 0;
 
+          const phoneNumber = this._socket?.user?.id.split(':')[0] || '';
+          this._options.onConnected?.(phoneNumber);
+        }
         if (connection === 'close') {
-          this._connecting = false;
+          this._isConnecting = false;
 
-          const shouldReconnect =
-            (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
+          const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
+          const recoverable =
+            statusCode !== DisconnectReason.loggedOut &&
+            statusCode !== DisconnectReason.badSession &&
+            statusCode !== DisconnectReason.multideviceMismatch;
 
-          if (shouldReconnect) {
-            const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
+          if (statusCode === DisconnectReason.loggedOut) {
+            this._shouldReconnect = false;
+            await this.clearAuthFolder();
+            this._options.onConnectionClosed?.({
+              reason: DisconnectReason[statusCode] || 'unknown',
+              code: statusCode,
+              recoverable,
+            });
+            return;
+          }
+
+          if (this._shouldReconnect) {
             this._logger.warn(`Connection closed with code: ${statusCode}`);
 
             // Manejo de errores específicos
             if (statusCode === DisconnectReason.restartRequired) {
               this._logger.info('Restart required, reconnecting...');
-              this.resetConnectionState();
+
               await this.connect();
             } else if (statusCode === DisconnectReason.timedOut) {
               this._logger.info('Connection timed out, reconnecting...');
@@ -170,66 +197,59 @@ export class BaileysAdapter {
               await this.handleRetry(lastDisconnect?.error);
             } else if (statusCode === DisconnectReason.badSession) {
               this._logger.info('Bad session, reconnecting...');
-              this.resetConnectionState();
+
               await this.clearAuthFolder();
-              this._options.onDisconnected?.('Session cleared, re-pair required');
+              this._options.onConnectionClosed?.({
+                reason: DisconnectReason[statusCode] || 'unknown',
+                code: statusCode,
+                recoverable,
+              });
             } else if (statusCode === DisconnectReason.multideviceMismatch) {
               this._logger.info('Bad session, reconnecting...');
-              this.resetConnectionState();
-              await this.clearAuthFolder();
-              this._options.onDisconnected?.('Session cleared, re-pair required');
-            } else {
-              await this.handleRetry(lastDisconnect?.error);
-            }
-          } else {
-            this.resetConnectionState();
-            this._options.onDisconnected?.('Logged out');
-          }
-        } else if (connection === 'open') {
-          this._connecting = false;
 
-          const phoneNumber = this._socket?.user?.id.split(':')[0] || '';
-          this._options.onConnected?.(phoneNumber);
-          // almacenando
-          const chats = await this.syncGroupsMetadata();
-          if (chats.length > 0) {
-            this._options.onChatsUpsert?.(chats, false);
+              await this.clearAuthFolder();
+              this._options.onConnectionClosed?.({
+                reason: DisconnectReason[statusCode] || 'unknown',
+                code: statusCode,
+                recoverable,
+              });
+            }
           }
         }
       }
 
+      // Creds
       if (events['creds.update']) {
         await saveCreds();
       }
 
+      // Messages
       if (events['messages.upsert']) {
         const { messages, type } = events['messages.upsert'];
 
         if (type === 'notify') {
-          for (const message of messages) {
-            if (!message.key.fromMe && !isJidNewsletter(message.key.remoteJid ?? undefined)) {
-              this._options.onMessage?.(message);
-            }
-          }
+          await Promise.all(
+            messages.map((msg) => {
+              if (!msg.key.fromMe && !isJidNewsletter(msg.key.remoteJid ?? '')) {
+                return this._options.onMessage?.(msg);
+              }
+            })
+          );
         }
       }
-
+      // History chats
       if (events['messaging-history.set']) {
         const { chats } = events['messaging-history.set'];
 
         if (chats?.length) {
-          const mapped = chats
-            .map((c) => this.mapWAChatToDto(c))
-            .filter((c): c is IBaileysChat => c !== null);
+          const mapped = chats.map((chat) => this.mapChat(chat)).filter((c) => c !== null);
           await this._options.onChatsUpsert?.(mapped, true);
         }
       }
 
       // ── Chats: nuevos en tiempo real ──────────────────────────────────────────
       if (events['chats.upsert']) {
-        const mapped = events['chats.upsert']
-          .map((c) => this.mapWAChatToDto(c))
-          .filter((c): c is IBaileysChat => c !== null);
+        const mapped = events['chats.upsert'].map((c) => this.mapChat(c)).filter((c) => c !== null);
 
         if (mapped.length > 0) {
           await this._options.onChatsUpsert?.(mapped, false);
@@ -240,14 +260,10 @@ export class BaileysAdapter {
         const partial: IBaileysChatUpdate[] = events['chats.update'].map((u) => ({
           chatId: String(u.id),
           ...(u.unreadCount !== undefined && { unreadCount: u.unreadCount ?? 0 }),
-          ...(u.conversationTimestamp !== undefined && {
-            lastMessageTimestamp: u.conversationTimestamp
-              ? new Date(Number(u.conversationTimestamp) * 1000)
-              : undefined,
-          }),
           ...(u.archived !== undefined && { isArchived: u.archived ?? false }),
           ...(u.muteEndTime !== undefined && { isMuted: Number(u.muteEndTime) > 0 }),
         }));
+
         await this._options.onChatsUpdate?.(partial);
       }
 
@@ -1080,53 +1096,42 @@ export class BaileysAdapter {
   // ─── Lifecycle ───────────────────────────────────────────────────────────────
 
   async logout(): Promise<void> {
+    this._shouldReconnect = false;
+
     if (this._socket) {
-      this._logger.info('Instances LogOut');
+      this._logger.info('Instances Logged Out');
       await this._socket.logout();
+      this._socket = undefined;
     }
   }
 
-  disconnect(): void {
+  async disconnect(): Promise<void> {
+    this._shouldReconnect = false;
+
     if (this._socket) {
       this._logger.info('Instances disconected');
-      this.logout();
       this._socket.end(undefined);
       this._socket = undefined;
     }
   }
 
-  async reconnect(phoneNumber?: string): Promise<void> {
-    this.resetConnectionState();
+  async reconnect(phone?: string): Promise<void> {
     this._retryCount = 0;
-    await this.connect(phoneNumber);
+    this._shouldReconnect = true;
+
+    await this.connect(phone);
   }
 
   getSocket(): WASocket | undefined {
     return this._socket;
   }
 
-  private clearAuthFolder(): void {
+  // ─── Helpers privados ────────────────────────────────────────────────────────
+  private async clearAuthFolder(): Promise<void> {
     if (fs.existsSync(this._authPath)) {
       fs.rmSync(this._authPath, { recursive: true, force: true });
     }
   }
-
-  private normalizePhoneNumber(phone: string): string {
-    return `${phone.replace(/\D/g, '')}@s.whatsapp.net`;
-  }
-  private resetConnectionState(): void {
-    if (this._socket) {
-      try {
-        this._socket.end(undefined);
-      } catch {
-        this._logger.info('Reset Connection state ...');
-      }
-    }
-
-    this._socket = undefined;
-    this._connecting = false;
-  }
-  // ─── Helpers privados ────────────────────────────────────────────────────────
   /**
    * Convierte un WAChat de Baileys v7 al DTO interno.
    * Retorna null para JIDs que no son chats reales (broadcast, newsletters, status).
@@ -1136,7 +1141,7 @@ export class BaileysAdapter {
    * - @lid: identificador anónimo nuevo para grupos grandes (también es chat individual)
    * - isJidNewsletter(): canales/newsletters, se excluyen del procesamiento
    */
-  private mapWAChatToDto(chat: Chat): IBaileysChat | null {
+  private mapChat(chat: Chat): IBaileysChat | null {
     const jid: string = String(chat.id);
 
     if (jid === 'status@broadcast' || jid.endsWith('@broadcast') || isJidNewsletter(jid)) {
@@ -1148,31 +1153,11 @@ export class BaileysAdapter {
 
     if (!isGroup && !isChat) return null;
 
-    const timestamp = chat.conversationTimestamp
-      ? new Date(Number(chat.conversationTimestamp) * 1000)
-      : undefined;
-
-    if (isGroup) {
-      return {
-        chatId: jid,
-        name: chat.name || jid,
-        type: 'group',
-        unreadCount: chat.unreadCount ?? 0,
-        lastMessageTimestamp: timestamp,
-        isArchived: chat.archived ?? false,
-        isMuted: Number(chat.muteEndTime) > 0,
-      };
-    }
-
-    const phoneNumber = isPnUser(jid) ? jid.split('@')[0] : undefined;
-
     return {
       chatId: jid,
-      name: chat.name || chat.username || phoneNumber || jid,
-      type: 'chat',
-      phoneNumber,
+      name: chat.name || chat.username || jid,
+      type: isGroup ? 'group' : 'chat',
       unreadCount: chat.unreadCount ?? 0,
-      lastMessageTimestamp: timestamp,
       isArchived: chat.archived ?? false,
       isMuted: Number(chat.muteEndTime) > 0,
     };
