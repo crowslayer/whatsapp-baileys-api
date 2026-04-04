@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { setTimeout as delay } from 'node:timers/promises';
 import path from 'path';
 import Stream from 'stream';
@@ -43,6 +44,9 @@ export class BaileysAdapter {
   private _options: IBaileysConnectionOptions;
   private _authPath: string;
   private _connecting: boolean = false;
+  private _retryCount = 0;
+  private _maxRetries = 5;
+  private _baseDelay = 2000; // 2s
 
   private _msgRetryCounterCache = new NodeCache() as CacheStore;
 
@@ -86,13 +90,44 @@ export class BaileysAdapter {
         }
       }
       this.setupEventHandlers(saveCreds);
+      // reset retries
+      this._retryCount = 0;
     } catch (error) {
-      this._connecting = false;
-      throw new WhatsAppConnectionError(
-        `Failed to connect instance ${this._options.instanceId}`,
-        error
-      );
+      this.handleRetry(error, phoneNumber);
     }
+  }
+
+  private async handleRetry(error: unknown, phoneNumber?: string): Promise<void> {
+    this.resetConnectionState();
+
+    if (this._retryCount >= this._maxRetries) {
+      this._options.onDisconnected?.('Max retries reached');
+      return;
+    }
+
+    this._retryCount++;
+    let delayTime = this._baseDelay;
+
+    if (error instanceof Boom) {
+      const statusCode = error.output.statusCode;
+
+      if (statusCode === DisconnectReason.timedOut) {
+        delayTime = this._baseDelay * 3;
+      }
+
+      if (statusCode === DisconnectReason.connectionLost) {
+        delayTime = this._baseDelay * 2;
+      }
+    }
+    delayTime = delayTime * Math.pow(2, this._retryCount); // exponential backoff
+
+    this._logger.warn(
+      `Retrying connection (${this._retryCount}/${this._maxRetries}) in ${delayTime}ms`
+    );
+
+    await delay(delayTime);
+
+    await this.connect(phoneNumber);
   }
 
   private setupEventHandlers(saveCreds: () => Promise<void>): void {
@@ -117,51 +152,38 @@ export class BaileysAdapter {
 
           if (shouldReconnect) {
             const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
+            this._logger.warn(`Connection closed with code: ${statusCode}`);
 
             // Manejo de errores específicos
             if (statusCode === DisconnectReason.restartRequired) {
               this._logger.info('Restart required, reconnecting...');
-              if (this._socket) {
-                this._socket.end(undefined);
-                this._socket = undefined;
-              }
+              this.resetConnectionState();
               await this.connect();
             } else if (statusCode === DisconnectReason.timedOut) {
               this._logger.info('Connection timed out, reconnecting...');
-              if (this._socket) {
-                this._socket.end(undefined);
-                this._socket = undefined;
-              }
-              await this.connect();
+              await this.handleRetry(lastDisconnect?.error);
             } else if (statusCode === DisconnectReason.connectionClosed) {
               this._logger.info('Connection closed, reconnecting...');
-              if (this._socket) {
-                this._socket.end(undefined);
-                this._socket = undefined;
-              }
-              await this.connect();
+              await this.handleRetry(lastDisconnect?.error);
             } else if (statusCode === DisconnectReason.connectionLost) {
               this._logger.info('Connection lost, reconnecting...');
-              if (this._socket) {
-                this._socket.end(undefined);
-                this._socket = undefined;
-              }
-              await this.connect();
+              await this.handleRetry(lastDisconnect?.error);
+            } else if (statusCode === DisconnectReason.badSession) {
+              this._logger.info('Bad session, reconnecting...');
+              this.resetConnectionState();
+              await this.clearAuthFolder();
+              this._options.onDisconnected?.('Session cleared, re-pair required');
+            } else if (statusCode === DisconnectReason.multideviceMismatch) {
+              this._logger.info('Bad session, reconnecting...');
+              this.resetConnectionState();
+              await this.clearAuthFolder();
+              this._options.onDisconnected?.('Session cleared, re-pair required');
             } else {
-              this._logger.info('Connection closed, reconnecting...');
-              if (this._socket) {
-                this._socket.end(undefined);
-                this._socket = undefined;
-              }
-              await this.connect();
+              await this.handleRetry(lastDisconnect?.error);
             }
           } else {
+            this.resetConnectionState();
             this._options.onDisconnected?.('Logged out');
-            if (this._socket) {
-              this._socket.end(undefined);
-              this._socket = undefined;
-            }
-            this._connecting = false;
           }
         } else if (connection === 'open') {
           this._connecting = false;
@@ -1073,14 +1095,37 @@ export class BaileysAdapter {
     }
   }
 
+  async reconnect(phoneNumber?: string): Promise<void> {
+    this.resetConnectionState();
+    this._retryCount = 0;
+    await this.connect(phoneNumber);
+  }
+
   getSocket(): WASocket | undefined {
     return this._socket;
+  }
+
+  private clearAuthFolder(): void {
+    if (fs.existsSync(this._authPath)) {
+      fs.rmSync(this._authPath, { recursive: true, force: true });
+    }
   }
 
   private normalizePhoneNumber(phone: string): string {
     return `${phone.replace(/\D/g, '')}@s.whatsapp.net`;
   }
+  private resetConnectionState(): void {
+    if (this._socket) {
+      try {
+        this._socket.end(undefined);
+      } catch {
+        this._logger.info('Reset Connection state ...');
+      }
+    }
 
+    this._socket = undefined;
+    this._connecting = false;
+  }
   // ─── Helpers privados ────────────────────────────────────────────────────────
   /**
    * Convierte un WAChat de Baileys v7 al DTO interno.

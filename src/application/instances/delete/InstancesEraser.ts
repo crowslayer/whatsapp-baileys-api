@@ -11,7 +11,7 @@ export class InstancesEraser {
   ) {}
 
   async execute(command: DeleteInstanceCommand): Promise<void> {
-    await this.connectionManager.logoutInstance(command.instanceId);
     await this.repository.delete(command.instanceId);
+    await this.connectionManager.logoutInstance(command.instanceId);
   }
 }

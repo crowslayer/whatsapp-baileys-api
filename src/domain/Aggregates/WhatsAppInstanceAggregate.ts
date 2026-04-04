@@ -123,6 +123,9 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
 
   disconnect(reason?: string): void {
     this._status = ConnectionStatus.disconnected();
+    this._phoneNumber = undefined;
+    this._qrCode = '';
+    this._qrText = '';
 
     this.addDomainEvent(
       new InstanceDisconnectedEvent(this.instanceId, {
