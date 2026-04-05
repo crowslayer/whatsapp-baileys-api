@@ -41,6 +41,7 @@ export class BaileysAdapter {
   private _logger = pino({ level: 'info' });
 
   private _authPath: string;
+  private _phoneNumber?: string;
 
   private _isConnecting = false;
   private _shouldReconnect = true;
@@ -49,10 +50,12 @@ export class BaileysAdapter {
   private _maxRetries = 5;
   private _baseDelay = 2000; // 2s
 
-  private _msgRetryCounterCache = new NodeCache() as CacheStore;
+  private _msgRetryCounterCache = new NodeCache({ stdTTL: 3600, checkperiod: 600 }) as CacheStore;
 
   constructor(private readonly _options: IBaileysConnectionOptions) {
-    this._authPath = path.join(process.cwd(), 'sessions', _options.instanceId);
+    const instanceId = _options.instanceId;
+    const safeId = instanceId.replace(/[^a-zA-Z0-9-_]/g, '');
+    this._authPath = path.join(process.cwd(), 'sessions', safeId);
   }
 
   // Connection
@@ -61,12 +64,16 @@ export class BaileysAdapter {
     if (this._isConnecting) return;
     this._isConnecting = true;
     this._shouldReconnect = true;
-
+    this._phoneNumber = phoneNumber;
     try {
       const { state, saveCreds } = await useMultiFileAuthState(this._authPath);
       const { version } = await fetchLatestBaileysVersion();
 
-      // this._socket = await this.createSocket(state, version);
+      if (this._socket) {
+        this._socket.end(undefined);
+        this._socket = undefined;
+      }
+
       this._socket = makeWASocket({
         version,
         logger: this._logger,
@@ -79,7 +86,7 @@ export class BaileysAdapter {
         markOnlineOnConnect: false,
         syncFullHistory: false,
         msgRetryCounterCache: this._msgRetryCounterCache,
-        getMessage: async () => undefined, // ← idealmente reemplazar con store
+        // getMessage: async () => undefined, // ← idealmente reemplazar con store
       });
 
       if (!this._socket.authState.creds.registered && phoneNumber) {
@@ -94,20 +101,20 @@ export class BaileysAdapter {
       throw error; // await this.handleRetry(error, phoneNumber);
     }
   }
-  private async handleRetry(error: unknown, phoneNumber?: string): Promise<void> {
+  private async handleRetry(error: unknown): Promise<void> {
     if (this._socket) {
       this._socket.end(undefined);
       this._socket = undefined;
     }
 
     if (this._retryCount >= this._maxRetries) {
-      if (error instanceof Boom) {
-        this._options.onConnectionClosed?.({
-          reason: DisconnectReason[error.output.statusCode],
-          code: error.output.statusCode,
-          recoverable: true,
-        });
-      }
+      this._shouldReconnect = false;
+      this._options.onConnectionClosed?.({
+        reason: 'max_retries_exceeded',
+        code: 500,
+        recoverable: false,
+      });
+
       return;
     }
 
@@ -133,7 +140,7 @@ export class BaileysAdapter {
 
     await delay(delayTime);
 
-    await this.connect(phoneNumber);
+    await this.connect(this._phoneNumber);
   }
 
   // eslint-disable-next-line
@@ -155,7 +162,10 @@ export class BaileysAdapter {
         if (connection === 'open') {
           this._isConnecting = false;
           this._retryCount = 0;
-
+          this._logger.info('Instance connected', {
+            isntanceId: this._options?.instanceId,
+            event: 'connection_open',
+          });
           const phoneNumber = this._socket?.user?.id.split(':')[0] || '';
           this._options.onConnected?.(phoneNumber);
         }
@@ -174,7 +184,7 @@ export class BaileysAdapter {
             this._options.onConnectionClosed?.({
               reason: DisconnectReason[statusCode] || 'unknown',
               code: statusCode,
-              recoverable,
+              recoverable: false,
             });
             return;
           }
@@ -184,21 +194,34 @@ export class BaileysAdapter {
 
             // Manejo de errores específicos
             if (statusCode === DisconnectReason.restartRequired) {
-              this._logger.info('Restart required, reconnecting...');
-
-              await this.connect();
+              this._logger.info('Restart required, reconnecting', {
+                isntanceId: this._options?.instanceId,
+                event: 'connection_restart_reconnecting',
+              });
+              await this.handleRetry('Restart required');
             } else if (statusCode === DisconnectReason.timedOut) {
-              this._logger.info('Connection timed out, reconnecting...');
+              this._logger.info('Connection timed out, reconnecting', {
+                isntanceId: this._options?.instanceId,
+                event: 'connection_timeout_reconnecting',
+              });
               await this.handleRetry(lastDisconnect?.error);
             } else if (statusCode === DisconnectReason.connectionClosed) {
-              this._logger.info('Connection closed, reconnecting...');
+              this._logger.info('Connection closed, reconnecting', {
+                isntanceId: this._options?.instanceId,
+                event: 'connection_close_reconnecting',
+              });
               await this.handleRetry(lastDisconnect?.error);
             } else if (statusCode === DisconnectReason.connectionLost) {
-              this._logger.info('Connection lost, reconnecting...');
+              this._logger.info('Connection lost, reconnecting', {
+                isntanceId: this._options?.instanceId,
+                event: 'connection_close_reconnecting',
+              });
               await this.handleRetry(lastDisconnect?.error);
             } else if (statusCode === DisconnectReason.badSession) {
-              this._logger.info('Bad session, reconnecting...');
-
+              this._logger.info('Connection bad sessdion, reconnecting', {
+                isntanceId: this._options?.instanceId,
+                event: 'connection_badsession_reconnecting',
+              });
               await this.clearAuthFolder();
               this._options.onConnectionClosed?.({
                 reason: DisconnectReason[statusCode] || 'unknown',
@@ -206,8 +229,10 @@ export class BaileysAdapter {
                 recoverable,
               });
             } else if (statusCode === DisconnectReason.multideviceMismatch) {
-              this._logger.info('Bad session, reconnecting...');
-
+              this._logger.info('Connection Multidevice missmatch, reconnecting', {
+                isntanceId: this._options?.instanceId,
+                event: 'connection_multidevice_mismatch_reconnecting',
+              });
               await this.clearAuthFolder();
               this._options.onConnectionClosed?.({
                 reason: DisconnectReason[statusCode] || 'unknown',
@@ -231,12 +256,20 @@ export class BaileysAdapter {
         if (type === 'notify') {
           await Promise.all(
             messages.map((msg) => {
-              if (!msg.key.fromMe && !isJidNewsletter(msg.key.remoteJid ?? '')) {
+              if (
+                !msg.key.fromMe &&
+                msg.message &&
+                !isJidNewsletter(msg.key.remoteJid ?? '') &&
+                msg.key.remoteJid !== 'status@broadcast'
+              ) {
                 return this._options.onMessage?.(msg);
               }
             })
           );
         }
+      }
+      if (events['messages.update']) {
+        // await this._options.onMessagesUpdate?.(events['messages.update']);
       }
       // History chats
       if (events['messaging-history.set']) {
@@ -325,6 +358,7 @@ export class BaileysAdapter {
       throw new WhatsAppConnectionError('Instance not connected');
     }
     try {
+      if (!this.isValidJid(to)) return;
       return await this._socket.sendMessage(to, content, options);
     } catch (error) {
       throw new WhatsAppConnectionError(
@@ -1100,7 +1134,10 @@ export class BaileysAdapter {
     this._shouldReconnect = false;
 
     if (this._socket) {
-      this._logger.info('Instances Logged Out');
+      this._logger.info('Instances Logged Out', {
+        InstanceId: this._options.instanceId,
+        event: 'connection_closed',
+      });
       await this._socket.logout();
       this._socket = undefined;
     }
@@ -1110,10 +1147,14 @@ export class BaileysAdapter {
     this._shouldReconnect = false;
 
     if (this._socket) {
-      this._logger.info('Instances disconected');
+      this._logger.info('Instances disconected', {
+        InstanceId: this._options.instanceId,
+        event: 'connection_closed',
+      });
       this._socket.end(undefined);
       this._socket = undefined;
     }
+    this._msgRetryCounterCache.flushAll();
   }
 
   async reconnect(phone?: string): Promise<void> {
@@ -1127,12 +1168,29 @@ export class BaileysAdapter {
     return this._socket;
   }
 
+  async isAlive(): Promise<boolean> {
+    return !!this._socket?.user;
+  }
+
   // ─── Helpers privados ────────────────────────────────────────────────────────
   private async clearAuthFolder(): Promise<void> {
-    if (fs.existsSync(this._authPath)) {
-      fs.rmSync(this._authPath, { recursive: true, force: true });
+    try {
+      if (fs.existsSync(this._authPath)) {
+        await fs.promises.rm(this._authPath, { recursive: true, force: true });
+      }
+    } catch (error) {
+      this._logger.error('Error flush auth folder', error);
     }
   }
+
+  private normalizePhoneNumber(phone: string): string {
+    return `${phone.replace(/\D/g, '')}@s.whatsapp.net`;
+  }
+
+  private isValidJid(jid: string): boolean {
+    return jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
+  }
+
   /**
    * Convierte un WAChat de Baileys v7 al DTO interno.
    * Retorna null para JIDs que no son chats reales (broadcast, newsletters, status).
