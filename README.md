@@ -12,7 +12,7 @@ API REST profesional para interactuar con WhatsApp usando la librería Baileys, 
 - ✅ **Multimedia completo**: Imágenes, documentos, audio, video, ubicaciones, contactos vCard y stickers WebP
 - ✅ **Reacciones con emojis**: Responder mensajes con emojis
 - ✅ **Notas de voz**: Soporte para mensajes PTT (Push To Talk)
-- ✅ **Baileys v7**: Última versión con mejores características y rendimiento
+- ✅ **Baileys 7 (RC)**: `@whiskeysockets/baileys` en rama 7.x (p. ej. `7.0.0-rc.x`)
 - ✅ **Reintentos de mensajes**: Caché interna (`node-cache`) integrada con Baileys para el flujo de reintentos de mensajes
 - ✅ **ES Modules**: Arquitectura moderna con ESM
 - ✅ **Arquitectura hexagonal**: Separación clara entre dominio, aplicación e infraestructura
@@ -33,7 +33,8 @@ API REST profesional para interactuar con WhatsApp usando la librería Baileys, 
 
 - Node.js >= 20.x (recomendado para ESM)
 - MongoDB >= 6.x
-- npm >= 9.x (u otro gestor compatible; el script `build` invoca `pnpm` para `build:di`, conviene tener **pnpm** instalado)
+- npm >= 9.x
+- **pnpm** (recomendado): el script `npm run build` ejecuta internamente `pnpm run build:di`; `npm run validate` también usa pnpm. Con Node 16+ puedes activar Corepack: `corepack enable` y luego `corepack prepare pnpm@latest --activate`
 
 ## 🛠️ Instalación
 
@@ -52,7 +53,16 @@ npm install
 
 ### 3. Configurar variables de entorno
 
-Este proyecto carga variables desde un archivo `.env` (vía `dotenv`). Actualmente el repo **no incluye** `.env.example`, así que crea un `.env` en la raíz con una configuración mínima como esta:
+El proyecto carga variables desde `.env` (vía `dotenv`). Puedes partir de la plantilla del repositorio:
+
+```bash
+# Linux / macOS / Git Bash
+cp .env.example .env
+# Windows (PowerShell)
+# Copy-Item .env.example .env
+```
+
+Ajusta los valores; configuración mínima de referencia:
 
 ```env
 # Runtime
@@ -85,7 +95,22 @@ Notas:
 
 - **`NODE_ENV` es obligatorio** y solo admite: `development | production | test | staging`.
 - En **production** se requieren **`APP_URL`** y **`ACCEPTED_ORIGINS`**; y si usas JWT, **`JWT_SECRET`** debe tener **mínimo 32 caracteres**.
-- Para base de datos, `DB_TYPE` soporta `mongoose | typeorm | sequelize` (en este repo se usa típicamente `mongoose`).
+- Para base de datos, `DB_TYPE` soporta `mongoose | typeorm | sequelize` (en este repo el flujo principal está probado con **mongoose**; otros adaptadores exigen variables `DB_HOST`, `DB_PORT`, etc., según `FactoryConfig.ts`).
+- **`SECURITY_TYPE`**: `jwt` (por defecto en los ejemplos) u **`oauth2`**, que requiere `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET` y `OAUTH_AUTH_SERVER`.
+- **`PROTECT_ROUTES`**: se lee en la configuración, pero **en el código actual no hay middleware de autenticación aplicado a las rutas**; trátalo como reservado para evolución futura.
+
+### Scripts útiles (`package.json`)
+
+| Script | Descripción |
+|--------|-------------|
+| `npm run dev` | Servidor en caliente con `tsx watch` |
+| `npm run build` | Compila TypeScript, `tsc-alias` y copia assets (`build:di` vía pnpm) |
+| `npm start` | Ejecuta `dist/index.js` (tras `build`) |
+| `npm run type-check` | `tsc --noEmit` |
+| `npm run lint` / `lint:fix` | ESLint |
+| `npm run format` / `format:check` | Prettier sobre `src/**` |
+| `npm run validate` | `type-check` + `lint` + `format:check` (usa pnpm) |
+| `npm run clean` | Borra `dist/` con `rm -rf` (en Windows, si falla, elimina la carpeta `dist` manualmente o usa un shell tipo Git Bash) |
 
 ### 4. Compilar TypeScript
 
@@ -533,15 +558,9 @@ Errores tipados y jerárquicos:
 - `pairing_code_ready`: Código de emparejamiento generado
 - `error`: Error en la conexión
 
-## 🧪 Testing (Recomendado)
+## 🧪 Tests
 
-```bash
-# Instalar dependencias de testing
-npm install --save-dev jest @types/jest ts-jest
-
-# Ejecutar tests
-npm test
-```
+En el estado actual del repositorio **no hay suite de tests configurada** en `package.json` (no existe script `test` ni dependencias Jest/Vitest). Si quieres añadir tests, configura el runner que prefieras e incorpora el script correspondiente.
 
 ## 📝 Ejemplo de Uso Completo
 
@@ -582,7 +601,7 @@ POST /api/v1/instances/{instanceId}/groups
 
 ### Configurar path de sesiones
 
-Por defecto, las sesiones se guardan en `./sessions/{instanceId}`. Puedes modificar esto en `BaileysAdapter.ts`.
+Por defecto, las credenciales de Baileys se guardan en el sistema de archivos bajo `{cwd}/sessions/{instanceId}` (ver `BaileysAdapter.ts`). El proyecto también incluye utilidades de auth orientadas a MongoDB (`useMongoAuthState`); si quieres persistir solo en BD, habría que integrar ese flujo en el adaptador.
 
 ### Configurar reconexión automática
 
