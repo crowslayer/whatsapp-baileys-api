@@ -10,6 +10,7 @@ import { BaileysRateLimiter } from '@infrastructure/baileys/BaileysRateLimiter';
 import { IBaileysChat } from '@infrastructure/baileys/IBaileysChat';
 import { WebhookService } from '@infrastructure/http/webhooks/WebhookService';
 import { ILogger } from '@infrastructure/loggers/Logger';
+import { IMessageMetrics, IMetricsInstanceStats } from '@infrastructure/metrics/IMessageMetrics';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
@@ -27,7 +28,8 @@ export class BaileysConnectionManager {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
     private readonly syncService: IChatSynchronizer,
-    private readonly _logger: ILogger
+    private readonly _logger: ILogger,
+    private readonly _metrics?: IMessageMetrics
   ) {
     this._webhookService = new WebhookService(_logger);
   }
@@ -225,10 +227,19 @@ export class BaileysConnectionManager {
     return this._connections;
   }
 
-  // eslint-disable-next-line
   async sendMessage(instanceId: string, to: string, text: string): Promise<WAMessage | undefined> {
     const adapter = this.getAdapterOrThrow(instanceId);
-    return this._messageLimiter.run(() => adapter.sendText(to, text));
+    // metrics
+    this._metrics?.recordAttempt(instanceId);
+    const start = Date.now();
+    try {
+      const result = await this._messageLimiter.run(() => adapter.sendText(to, text));
+      this._metrics?.recordSent(instanceId, Date.now() - start);
+      return result;
+    } catch (error) {
+      this._metrics?.recordFailed(instanceId, error);
+      throw error;
+    }
   }
 
   async getGroups(instanceId: string): Promise<IBaileysChat[]> {
@@ -260,10 +271,8 @@ export class BaileysConnectionManager {
   }
 
   async sendBulkMessage(instanceId: string, toList: string[], text: string): Promise<void> {
-    const adapter = this.getAdapterOrThrow(instanceId);
-
     const results = await Promise.allSettled(
-      toList.map((to) => this._messageLimiter.run(() => adapter.sendText(to, text)))
+      toList.map((to) => this.sendMessage(instanceId, to, text))
     );
 
     const success = results.filter((r) => r.status === 'fulfilled').length;
@@ -278,6 +287,26 @@ export class BaileysConnectionManager {
     this._logger.info('Messageg sended', metric);
   }
 
+  // return metrics
+  getMetrics(instanceId: string): IMetricsInstanceStats | undefined {
+    return this._metrics?.getStats(instanceId);
+  }
+
+  /**
+   * Envía un webhook a la URL configurada para la instancia.
+   * Usa circuit breaker para evitar fallos en cascada.
+   * Los errores se registran pero no se relanzan.
+   */
+  async sendWebhook(instanceId: string, type: string, body: unknown): Promise<void> {
+    const sent = await this._webhookService.send(instanceId, type, body);
+    if (!sent) {
+      this._logger.warn(
+        `Webhook skipped for instance ${instanceId} (${type}) - circuit open or no client`
+      );
+    }
+  }
+
+  // helpers
   private async safeSyncGroups(instanceId: string): Promise<void> {
     try {
       await this._heavyLimiter.run(async () => {
@@ -299,19 +328,5 @@ export class BaileysConnectionManager {
       throw new WhatsAppConnectionError('Instance not connected');
     }
     return adapter;
-  }
-
-  /**
-   * Envía un webhook a la URL configurada para la instancia.
-   * Usa circuit breaker para evitar fallos en cascada.
-   * Los errores se registran pero no se relanzan.
-   */
-  async sendWebhook(instanceId: string, type: string, body: unknown): Promise<void> {
-    const sent = await this._webhookService.send(instanceId, type, body);
-    if (!sent) {
-      this._logger.warn(
-        `Webhook skipped for instance ${instanceId} (${type}) - circuit open or no client`
-      );
-    }
   }
 }
