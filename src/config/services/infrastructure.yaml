@@ -44,4 +44,12 @@ services:
       - '@infrastructure.repository.whatsapp_instance'
       - '@application.chats.sincronizer'
       - '@shared.logger'
+      - '@infrastructure.metrics.message'
     public: true
+
+  # =============================================
+  # Metrics
+  # =============================================
+  infrastructure.metrics.message:
+    class: '../../infrastructure/metrics/MessageMetrics'
+  public: true
