@@ -3,6 +3,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import path from 'path';
 import Stream from 'stream';
 
+import NodeCache from '@cacheable/node-cache';
 import { Boom } from '@hapi/boom';
 import makeWASocket, {
   AnyMessageContent,
@@ -27,7 +28,6 @@ import makeWASocket, {
   proto,
   useMultiFileAuthState,
 } from '@whiskeysockets/baileys';
-import NodeCache from 'node-cache';
 import pino from 'pino';
 import QRCode from 'qrcode';
 
