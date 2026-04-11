@@ -1,4 +1,5 @@
 import { InstanceConnectedEvent } from '@domain/events/InstanceConnectedEvent';
+import { InstanceCreatedEvent } from '@domain/events/InstanceCreatedEvent';
 import { InstanceDisconnectedEvent } from '@domain/events/InstanceDisconnectedEvent';
 import { PairingCodeGeneratedEvent } from '@domain/events/PairingCodeGeneratedEvent';
 import { QRCodeGeneratedEvent } from '@domain/events/QRCodeGeneratedEvent';
@@ -48,6 +49,13 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     this._sessionData = props.sessionData;
     this._lastConnectedAt = props.lastConnectedAt;
     this.validate();
+
+    this.addDomainEvent(
+      new InstanceCreatedEvent(props.instanceId.value, {
+        phoneNumber: props.phoneNumber?.value,
+        webhookUrl: props.webhookUrl,
+      })
+    );
   }
 
   static create(name: Name, webhookUrl?: string): WhatsAppInstanceAggregate {
