@@ -151,6 +151,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     this.addDomainEvent(
       new QRCodeGeneratedEvent(this.instanceId, {
         qrCode,
+        qrText,
       })
     );
   }
