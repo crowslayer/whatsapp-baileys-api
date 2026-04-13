@@ -1,4 +1,4 @@
-import { IWhatsAppRuntime } from '@infrastructure/baileys/adapter/IWhatsAppRuntime';
+import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
 
 export interface IRuntimeRegistry {
   register(instanceId: string, runtime: IWhatsAppRuntime): void;

@@ -1,6 +1,9 @@
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers';
+import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
+
 import { BaileysConnection } from '@infrastructure/baileys/adapter/BaileysConnection';
 import { BaileysEventRouter } from '@infrastructure/baileys/adapter/BaileysEventRouter';
 import { BaileysGroupsService } from '@infrastructure/baileys/adapter/BaileysGroupsService';
@@ -11,7 +14,6 @@ import { IGroupService } from '@infrastructure/baileys/adapter/IGroupService';
 import { IMessageService } from '@infrastructure/baileys/adapter/IMessageService';
 import { IPresenceService } from '@infrastructure/baileys/adapter/IPresenceService';
 import { IProfileService } from '@infrastructure/baileys/adapter/IProfileService';
-import { IWhatsAppRuntime } from '@infrastructure/baileys/adapter/IWhatsAppRuntime';
 
 type DisconnectEvent = {
   type: 'TRANSIENT' | 'INVALID_SESSION' | 'LOGGED_OUT';
@@ -28,7 +30,8 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
 
   constructor(
     private readonly instance: WhatsAppInstanceAggregate,
-    private readonly repository: IWhatsAppInstanceRepository
+    private readonly repository: IWhatsAppInstanceRepository,
+    private readonly eventHandlers: IBaileysEventHandlers // 👈 INYECTADO
   ) {}
 
   async start(): Promise<void> {
@@ -57,7 +60,12 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
     this._presence = new BaileysPresenceService(socket);
     this._profile = new BaileysProfileService(socket);
 
-    const router = new BaileysEventRouter(socket, this.instance);
+    const router = new BaileysEventRouter(
+      socket,
+      this.instance,
+      this.eventHandlers // 👈 AQUÍ
+    );
+
     router.bind();
   }
 

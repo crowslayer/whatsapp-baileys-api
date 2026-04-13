@@ -1,6 +1,6 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
-import { WhatsAppInstanceRuntime } from '@infrastructure/baileys/adapter/WhatsAppInstanceRuntime';
+import { WhatsAppInstanceRuntime } from '@application/runtime/WhatsAppInstanceRuntime';
 
 export class ConnectionManager {
   private _runtimes = new Map<string, WhatsAppInstanceRuntime>();

@@ -1,5 +1,5 @@
-import { IRuntimeRegistry } from '@infrastructure/baileys/adapter/IRuntimeRegistry';
-import { IWhatsAppRuntime } from '@infrastructure/baileys/adapter/IWhatsAppRuntime';
+import { IRuntimeRegistry } from '@application/runtime/IRuntimeRegistry';
+import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
 
 export class RuntimeRegistry implements IRuntimeRegistry {
   private _runtimes = new Map<string, IWhatsAppRuntime>();

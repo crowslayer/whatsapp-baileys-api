@@ -5,7 +5,7 @@ import { WAMessage } from '@whiskeysockets/baileys';
 import { HumanBehaviorService } from '@application/services/HumanBehaviorService';
 import { LimiterFactory } from '@application/services/LimiterFactory';
 
-import { RuntimeRegistry } from '@infrastructure/baileys/adapter/RuntimeRegistry';
+import { RuntimeRegistry } from '@application/runtime/RuntimeRegistry';
 
 export class MessageOrchestrator {
   constructor(

@@ -4,8 +4,8 @@ import { Label } from '@whiskeysockets/baileys/lib/Types/Label';
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
 
 import { IChatSynchronizer } from '@application/chats/synchronize/IChatSynchronizer';
+import { Asociacion, IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers';
 
-import { Asociacion } from '@infrastructure/baileys/adapter/IBaileysEventHandlers';
 import { IBaileysChat, IBaileysChatUpdate } from '@infrastructure/baileys/IBaileysChat';
 import {
   IGroupParticipantsUpdate,
@@ -14,7 +14,7 @@ import {
 import { WebhookService } from '@infrastructure/http/webhooks/WebhookService';
 import { ILogger } from '@infrastructure/loggers/Logger';
 
-export class BaileysEventHandlers {
+export class BaileysEventHandlers implements IBaileysEventHandlers {
   constructor(
     private readonly instance: WhatsAppInstanceAggregate,
     private readonly syncService: IChatSynchronizer,
@@ -73,7 +73,7 @@ export class BaileysEventHandlers {
     }
   }
 
-  async onContactsUpdate(contacts: Contact[]): Promise<void> {
+  async onContactsUpdate(contacts: Partial<Contact>[]): Promise<void> {
     try {
       await this.webhookService.send(this.instance.instanceId, 'contacts.update', { contacts });
     } catch (error) {

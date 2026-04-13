@@ -1,4 +1,4 @@
-import { IWhatsAppRuntime } from '@infrastructure/baileys/adapter/IWhatsAppRuntime';
+import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
 
 export interface IRuntimeManager {
   start(instanceId: string): Promise<void>;

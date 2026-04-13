@@ -3,10 +3,12 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
-import { IRuntimeManager } from '@infrastructure/baileys/adapter/IRuntimeManager';
-import { IRuntimeRegistry } from '@infrastructure/baileys/adapter/IRuntimeRegistry';
-import { IWhatsAppRuntime } from '@infrastructure/baileys/adapter/IWhatsAppRuntime';
-import { WhatsAppInstanceRuntime } from '@infrastructure/baileys/adapter/WhatsAppInstanceRuntime';
+import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
+import { IRuntimeRegistry } from '@application/runtime/IRuntimeRegistry';
+import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
+import { WhatsAppInstanceRuntime } from '@application/runtime/WhatsAppInstanceRuntime';
+import { WhatsAppRuntimeFactory } from '@application/runtime/WhatsAppRuntimeFactory';
+
 import { ILogger } from '@infrastructure/loggers/Logger';
 
 export class RuntimeManager implements IRuntimeManager {
@@ -15,6 +17,7 @@ export class RuntimeManager implements IRuntimeManager {
   constructor(
     private readonly registry: IRuntimeRegistry,
     private readonly repository: IWhatsAppInstanceRepository,
+    private readonly runtimeFactory: WhatsAppRuntimeFactory,
     private readonly logger: ILogger
   ) {}
 
@@ -26,7 +29,7 @@ export class RuntimeManager implements IRuntimeManager {
 
     const instance = await this.getInstanceOrThrow(instanceId);
 
-    const runtime = new WhatsAppInstanceRuntime(instance, this.repository);
+    const runtime = this.runtimeFactory.create(instance);
 
     await runtime.start();
     this.logger.info({

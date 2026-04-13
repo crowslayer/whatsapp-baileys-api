@@ -1,6 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 
-import { IWhatsAppRuntime } from '@infrastructure/baileys/adapter/IWhatsAppRuntime';
+import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
 
 export class HumanBehaviorService {
   getTypingDelay(text: string): number {

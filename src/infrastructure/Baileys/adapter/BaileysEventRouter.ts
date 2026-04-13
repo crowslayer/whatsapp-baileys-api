@@ -2,7 +2,8 @@ import { Chat, WASocket } from '@whiskeysockets/baileys';
 
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
 
-import { IBaileysEventHandlers } from '@infrastructure/baileys/adapter/IBaileysEventHandlers';
+import { IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers';
+
 import { IBaileysChat } from '@infrastructure/baileys/IBaileysChat';
 
 export class BaileysEventRouter {
