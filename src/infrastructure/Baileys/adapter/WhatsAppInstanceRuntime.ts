@@ -1,15 +1,30 @@
-import { WAMessage } from '@whiskeysockets/baileys';
-
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
-import { BaileysConnection } from './BaileysConnection';
-import { BaileysEventRouter } from './BaileysEventRouter';
-import { BaileysMessageService } from './BaileysMessageService';
+import { BaileysConnection } from '@infrastructure/baileys/adapter/BaileysConnection';
+import { BaileysEventRouter } from '@infrastructure/baileys/adapter/BaileysEventRouter';
+import { BaileysGroupsService } from '@infrastructure/baileys/adapter/BaileysGroupsService';
+import { BaileysMessageService } from '@infrastructure/baileys/adapter/BaileysMessageService';
+import { BaileysPresenceService } from '@infrastructure/baileys/adapter/BaileysPresenceService';
+import { BaileysProfileService } from '@infrastructure/baileys/adapter/BaileysProfileService';
+import { IGroupService } from '@infrastructure/baileys/adapter/IGroupService';
+import { IMessageService } from '@infrastructure/baileys/adapter/IMessageService';
+import { IPresenceService } from '@infrastructure/baileys/adapter/IPresenceService';
+import { IProfileService } from '@infrastructure/baileys/adapter/IProfileService';
+import { IWhatsAppRuntime } from '@infrastructure/baileys/adapter/IWhatsAppRuntime';
 
-export class WhatsAppInstanceRuntime {
+type DisconnectEvent = {
+  type: 'TRANSIENT' | 'INVALID_SESSION' | 'LOGGED_OUT';
+  reason?: string;
+};
+
+export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
   private _connection!: BaileysConnection;
-  private _messaging!: BaileysMessageService;
+  private _messaging!: IMessageService;
+  private _groups!: IGroupService;
+  private _presence!: IPresenceService;
+  private _profile!: IProfileService;
+  private _disconnectHandler?: (event: DisconnectEvent) => void;
 
   constructor(
     private readonly instance: WhatsAppInstanceAggregate,
@@ -18,17 +33,18 @@ export class WhatsAppInstanceRuntime {
 
   async start(): Promise<void> {
     this._connection = new BaileysConnection(this.instance.instanceId, {
-      onQR: async (qr) => {
-        this.instance.generateQRCode(qr, qr);
+      onQR: async (qr, qrText) => {
+        this.instance.generateQRCode(qr, qrText);
         await this.repository.update(this.instance);
       },
       onConnected: async (phone) => {
         this.instance.connect(phone);
         await this.repository.update(this.instance);
       },
-      onDisconnected: async (reason) => {
-        this.instance.disconnect(reason);
+      onDisconnected: async (event) => {
+        this.instance.disconnect(event.reason);
         await this.repository.update(this.instance);
+        this._disconnectHandler?.(event);
       },
     });
 
@@ -37,19 +53,35 @@ export class WhatsAppInstanceRuntime {
     const socket = this._connection.getSocket();
 
     this._messaging = new BaileysMessageService(socket);
+    this._groups = new BaileysGroupsService(socket);
+    this._presence = new BaileysPresenceService(socket);
+    this._profile = new BaileysProfileService(socket);
 
     const router = new BaileysEventRouter(socket, this.instance);
     router.bind();
   }
 
-  async sendText(to: string, text: string): Promise<WAMessage | undefined> {
-    if (!this.instance.canSendMessages()) {
-      throw new Error('Instance not ready');
-    }
-    return this._messaging.sendText(to, text);
+  onDisconnect(handler: (event: DisconnectEvent) => void): void {
+    this._disconnectHandler = handler;
   }
 
   async stop(): Promise<void> {
     await this._connection.disconnect();
+  }
+
+  get messaging(): IMessageService {
+    return this._messaging;
+  }
+
+  get groups(): IGroupService {
+    return this._groups;
+  }
+
+  get profile(): IProfileService {
+    return this._profile;
+  }
+
+  get presence(): IPresenceService {
+    return this._presence;
   }
 }
