@@ -3,6 +3,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { IWhatsAppRuntime } from '@infrastructure/baileys/adapter/IWhatsAppRuntime';
 import { RuntimeRegistry } from '@infrastructure/baileys/adapter/RuntimeRegistry';
 import { WhatsAppInstanceRuntime } from '@infrastructure/baileys/adapter/WhatsAppInstanceRuntime';
 
@@ -73,7 +74,7 @@ export class RuntimeManager {
   // ===============================
   // GET RUNTIME
   // ===============================
-  get(instanceId: string): WhatsAppInstanceRuntime {
+  get(instanceId: string): IWhatsAppRuntime {
     return this.registry.get(instanceId);
   }
 
@@ -135,7 +136,7 @@ export class RuntimeManager {
     }
   }
 
-  private safeGet(instanceId: string): WhatsAppInstanceRuntime | undefined {
+  private safeGet(instanceId: string): IWhatsAppRuntime | undefined {
     try {
       return this.registry.get(instanceId);
     } catch {
