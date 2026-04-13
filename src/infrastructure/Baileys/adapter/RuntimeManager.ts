@@ -3,16 +3,19 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { IRuntimeManager } from '@infrastructure/baileys/adapter/IRuntimeManager';
+import { IRuntimeRegistry } from '@infrastructure/baileys/adapter/IRuntimeRegistry';
 import { IWhatsAppRuntime } from '@infrastructure/baileys/adapter/IWhatsAppRuntime';
-import { RuntimeRegistry } from '@infrastructure/baileys/adapter/RuntimeRegistry';
 import { WhatsAppInstanceRuntime } from '@infrastructure/baileys/adapter/WhatsAppInstanceRuntime';
+import { ILogger } from '@infrastructure/loggers/Logger';
 
-export class RuntimeManager {
+export class RuntimeManager implements IRuntimeManager {
   private _restarting = new Set<string>();
 
   constructor(
-    private readonly registry: RuntimeRegistry,
-    private readonly repository: IWhatsAppInstanceRepository
+    private readonly registry: IRuntimeRegistry,
+    private readonly repository: IWhatsAppInstanceRepository,
+    private readonly logger: ILogger
   ) {}
 
   // ===============================
@@ -26,7 +29,10 @@ export class RuntimeManager {
     const runtime = new WhatsAppInstanceRuntime(instance, this.repository);
 
     await runtime.start();
-
+    this.logger.info({
+      instance: instanceId,
+      event: 'instance.initialize',
+    });
     this.registry.register(instanceId, runtime);
 
     this.attachLifecycle(instanceId, runtime);
@@ -41,6 +47,10 @@ export class RuntimeManager {
 
     await runtime.stop();
     this.registry.remove(instanceId);
+    this.logger.info({
+      instance: instanceId,
+      event: 'instance.stop',
+    });
   }
 
   // ===============================
@@ -55,6 +65,10 @@ export class RuntimeManager {
       await this.stop(instanceId);
       await delay(2000);
       await this.start(instanceId);
+      this.logger.info({
+        instance: instanceId,
+        event: 'instance.restart',
+      });
     } finally {
       this._restarting.delete(instanceId);
     }
@@ -67,7 +81,7 @@ export class RuntimeManager {
     const instances = await this.repository.findAll();
 
     const connected = instances.filter((i) => i.status.isConnected());
-
+    this.logger.info('Instances restoring...');
     await Promise.allSettled(connected.map((i) => this.start(i.instanceId)));
   }
 
