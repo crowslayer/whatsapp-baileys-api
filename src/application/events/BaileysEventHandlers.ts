@@ -23,10 +23,11 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
   ) {}
 
   // ─────────────────────────────────────────────
-  // 📩 Messages
+  // Messages
   // ─────────────────────────────────────────────
   async onMessage(message: WAMessage): Promise<void> {
     try {
+      this.logger.info('Message recieved', message);
       await this.webhookService.send(this.instance.instanceId, 'message', {
         message,
       });
@@ -36,10 +37,11 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
   }
 
   // ─────────────────────────────────────────────
-  // 💬 Chats
+  // Chats
   // ─────────────────────────────────────────────
   async onChatsUpsert(chats: IBaileysChat[], isFirstSync: boolean): Promise<void> {
     try {
+      this.logger.info('ChatsUpser Event');
       await this.syncService.syncChats(this.instance.instanceId, chats, isFirstSync);
     } catch (error) {
       this.logger.error('Error syncing chats', error);
@@ -48,6 +50,7 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
 
   async onChatsUpdate(updates: IBaileysChatUpdate[]): Promise<void> {
     try {
+      this.logger.info('Baileys onChatsUpdate');
       await this.syncService.updateChats(this.instance.instanceId, updates);
     } catch (error) {
       this.logger.error('Error updating chats', error);
@@ -56,6 +59,7 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
 
   async onChatsDelete(chatIds: string[]): Promise<void> {
     try {
+      this.logger.info('Baileys onChatDelete');
       await this.syncService.deleteChats(this.instance.instanceId, chatIds);
     } catch (error) {
       this.logger.error('Error deleting chats', error);
@@ -63,10 +67,11 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
   }
 
   // ─────────────────────────────────────────────
-  // 👤 Contacts
+  // Contacts
   // ─────────────────────────────────────────────
   async onContactsUpsert(contacts: Contact[]): Promise<void> {
     try {
+      this.logger.info('Baileys ContactUpser');
       await this.webhookService.send(this.instance.instanceId, 'contacts.upsert', { contacts });
     } catch (error) {
       this.logger.error('Error contacts upsert', error);
@@ -75,6 +80,7 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
 
   async onContactsUpdate(contacts: Partial<Contact>[]): Promise<void> {
     try {
+      this.logger.info('Baileys ContactUpdate');
       await this.webhookService.send(this.instance.instanceId, 'contacts.update', { contacts });
     } catch (error) {
       this.logger.error('Error contacts update', error);
@@ -82,10 +88,11 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
   }
 
   // ─────────────────────────────────────────────
-  // 🟢 Presence
+  // Presence
   // ─────────────────────────────────────────────
   async onPresenceUpdate(presence: IPresenceUpdate): Promise<void> {
     try {
+      this.logger.info('Baileys Presence Update', presence);
       await this.webhookService.send(this.instance.instanceId, 'presence.update', { presence });
     } catch (error) {
       this.logger.error('Error presence update', error);
@@ -93,7 +100,7 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
   }
 
   // ─────────────────────────────────────────────
-  // 👥 Groups
+  // Groups
   // ─────────────────────────────────────────────
   async onGroupsUpsert(groups: GroupMetadata[]): Promise<void> {
     try {
@@ -107,7 +114,7 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
         participantCount: g.participants?.length,
         description: g.desc,
       }));
-
+      this.logger.info('Baileys Groups Upsert');
       await this.syncService.syncChats(this.instance.instanceId, chats, true);
     } catch (error) {
       this.logger.error('Error groups upsert', error);
@@ -121,7 +128,7 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
         name: g.subject ?? undefined,
         description: g.desc ?? undefined,
       }));
-
+      this.logger.info('Baileys Group Update');
       await this.syncService.updateChats(this.instance.instanceId, partial);
     } catch (error) {
       this.logger.error('Error groups update', error);
@@ -130,6 +137,7 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
 
   async onGroupParticipantsUpdate(update: IGroupParticipantsUpdate): Promise<void> {
     try {
+      this.logger.info('Baileys Group Update Parciticipants');
       await this.webhookService.send(this.instance.instanceId, 'group.participants', { update });
     } catch (error) {
       this.logger.error('Error group participants update', error);
@@ -137,10 +145,11 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
   }
 
   // ─────────────────────────────────────────────
-  // 📞 Calls
+  // Calls
   // ─────────────────────────────────────────────
   async onCall(call: WACallEvent[]): Promise<void> {
     try {
+      this.logger.info('Baileys Call event');
       await this.webhookService.send(this.instance.instanceId, 'call', { call });
     } catch (error) {
       this.logger.error('Error call event', error);
@@ -148,7 +157,7 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
   }
 
   // ─────────────────────────────────────────────
-  // 🏷️ Labels
+  // Labels
   // ─────────────────────────────────────────────
   async onLabelsAssociation(association: Asociacion): Promise<void> {
     try {
