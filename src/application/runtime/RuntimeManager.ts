@@ -24,18 +24,20 @@ export class RuntimeManager implements IRuntimeManager {
   // ===============================
   // START INSTANCE
   // ===============================
-  async start(instanceId: string): Promise<void> {
+  async start(instanceId: string, phoneNumber?: string): Promise<void> {
     if (this.registryExists(instanceId)) return;
 
     const instance = await this.getInstanceOrThrow(instanceId);
 
     const runtime = this.runtimeFactory.create(instance);
 
-    await runtime.start();
+    await runtime.start(phoneNumber);
+
     this.logger.info({
       instance: instanceId,
       event: 'instance.initialize',
     });
+
     this.registry.register(instanceId, runtime);
 
     this.attachLifecycle(instanceId, runtime);

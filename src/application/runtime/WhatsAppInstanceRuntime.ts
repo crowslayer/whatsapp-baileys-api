@@ -34,7 +34,7 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
     private readonly eventHandlers: IBaileysEventHandlers // 👈 INYECTADO
   ) {}
 
-  async start(): Promise<void> {
+  async start(phoneNumber?: string): Promise<void> {
     this._connection = new BaileysConnection(this.instance.instanceId, {
       onQR: async (qr, qrText) => {
         this.instance.generateQRCode(qr, qrText);
@@ -51,7 +51,7 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
       },
     });
 
-    await this._connection.connect();
+    await this._connection.connect(phoneNumber);
 
     const socket = this._connection.getSocket();
 
