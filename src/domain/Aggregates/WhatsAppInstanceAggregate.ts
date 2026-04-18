@@ -1,8 +1,6 @@
 import { InstanceConnectedEvent } from '@domain/events/InstanceConnectedEvent';
 import { InstanceCreatedEvent } from '@domain/events/InstanceCreatedEvent';
 import { InstanceDisconnectedEvent } from '@domain/events/InstanceDisconnectedEvent';
-import { PairingCodeGeneratedEvent } from '@domain/events/PairingCodeGeneratedEvent';
-import { QRCodeGeneratedEvent } from '@domain/events/QRCodeGeneratedEvent';
 import { ConnectionStatus, ConnectionStatusEnum } from '@domain/value-objects/ConnectionStatus';
 import { InstanceId } from '@domain/value-objects/InstanceId';
 import { Name } from '@domain/value-objects/Name';
@@ -16,11 +14,11 @@ export interface IWhatsAppInstanceProps {
   name: Name;
   status: ConnectionStatus;
   phoneNumber?: PhoneNumber;
-  qrCode?: string;
-  qrText?: string;
-  pairingCode?: string;
+  // qrCode?: string;
+  // qrText?: string;
+  // pairingCode?: string;
   webhookUrl?: string;
-  sessionData?: any;
+  // sessionData?: any;
   createdAt?: Date;
   updatedAt?: Date;
   lastConnectedAt?: Date;
@@ -30,11 +28,11 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
   private _name: Name;
   private _status: ConnectionStatus;
   private _phoneNumber?: PhoneNumber;
-  private _qrCode?: string;
-  private _qrText?: string;
-  private _pairingCode?: string;
+  // private _qrCode?: string;
+  // private _qrText?: string;
+  // private _pairingCode?: string;
   private _webhookUrl?: string;
-  private _sessionData?: any;
+  // private _sessionData?: any;
   private _lastConnectedAt?: Date;
 
   private constructor(props: IWhatsAppInstanceProps) {
@@ -42,32 +40,34 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     this._name = props.name;
     this._status = props.status;
     this._phoneNumber = props.phoneNumber;
-    this._qrCode = props.qrCode;
-    this._qrText = props.qrText;
-    this._pairingCode = props.pairingCode;
+    // this._qrCode = props.qrCode;
+    // this._qrText = props.qrText;
+    // this._pairingCode = props.pairingCode;
     this._webhookUrl = props.webhookUrl;
-    this._sessionData = props.sessionData;
+    // this._sessionData = props.sessionData;
     this._lastConnectedAt = props.lastConnectedAt;
     this.validate();
-
-    this.addDomainEvent(
-      new InstanceCreatedEvent(props.instanceId.value, {
-        phoneNumber: props.phoneNumber?.value,
-        webhookUrl: props.webhookUrl,
-      })
-    );
   }
 
   static create(name: Name, webhookUrl?: string): WhatsAppInstanceAggregate {
     const instanceId = InstanceId.create();
     const status = ConnectionStatus.disconnected();
 
-    return new WhatsAppInstanceAggregate({
+    const instance = new WhatsAppInstanceAggregate({
       instanceId,
       name,
       status,
       webhookUrl,
     });
+
+    instance.addDomainEvent(
+      new InstanceCreatedEvent(instanceId.value, {
+        // phoneNumber: props.phoneNumber?.value,
+        webhookUrl,
+      })
+    );
+
+    return instance;
   }
 
   static restore(props: IWhatsAppInstanceProps): WhatsAppInstanceAggregate {
@@ -91,25 +91,25 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     return this._phoneNumber;
   }
 
-  get qrCode(): string | undefined {
-    return this._qrCode;
-  }
+  // get qrCode(): string | undefined {
+  //   return this._qrCode;
+  // }
 
-  get qrText(): string | undefined {
-    return this._qrText;
-  }
+  // get qrText(): string | undefined {
+  //   return this._qrText;
+  // }
 
-  get pairingCode(): string | undefined {
-    return this._pairingCode;
-  }
+  // get pairingCode(): string | undefined {
+  //   return this._pairingCode;
+  // }
 
   get webhookUrl(): string | undefined {
     return this._webhookUrl;
   }
 
-  get sessionData(): any {
-    return this._sessionData;
-  }
+  // get sessionData(): any {
+  //   return this._sessionData;
+  // }
 
   get lastConnectedAt(): Date | undefined {
     return this._lastConnectedAt;
@@ -140,40 +140,40 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     );
   }
 
-  generateQRCode(qrCode: string, qrText: string): void {
-    this._qrCode = qrCode;
-    this._qrText = qrText;
-    this._status = ConnectionStatus.qrReady();
+  // generateQRCode(qrCode: string, qrText: string): void {
+  //   this._qrCode = qrCode;
+  //   this._qrText = qrText;
+  //   this._status = ConnectionStatus.qrReady();
 
-    this.addDomainEvent(
-      new QRCodeGeneratedEvent(this.instanceId, {
-        qrCode,
-        qrText,
-      })
-    );
-  }
+  //   this.addDomainEvent(
+  //     new QRCodeGeneratedEvent(this.instanceId, {
+  //       qrCode,
+  //       qrText,
+  //     })
+  //   );
+  // }
 
-  generatePairingCode(pairingCode: string): void {
-    this._pairingCode = pairingCode;
-    this._status = ConnectionStatus.pairingCodeReady();
+  // generatePairingCode(pairingCode: string): void {
+  //   this._pairingCode = pairingCode;
+  //   this._status = ConnectionStatus.pairingCodeReady();
 
-    this.addDomainEvent(
-      new PairingCodeGeneratedEvent(this.instanceId, {
-        pairingCode,
-      })
-    );
-  }
+  //   this.addDomainEvent(
+  //     new PairingCodeGeneratedEvent(this.instanceId, {
+  //       pairingCode,
+  //     })
+  //   );
+  // }
 
   updateStatus(status: ConnectionStatusEnum): void {
     this._status = ConnectionStatus.create(status);
   }
 
-  updateSessionData(sessionData: any): void {
-    this._sessionData = sessionData;
-  }
+  // updateSessionData(sessionData: any): void {
+  //   this._sessionData = sessionData;
+  // }
 
   canSendMessages(): boolean {
-    return this._status.canSendMessages();
+    return this._status.isConnected();
   }
 
   protected validate(): void {
@@ -194,9 +194,9 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
       name: this._name.value,
       status: this._status.value,
       phoneNumber: this._phoneNumber?.value,
-      qrCode: this._qrCode,
-      qrText: this._qrText,
-      pairingCode: this._pairingCode,
+      // qrCode: this._qrCode,
+      // qrText: this._qrText,
+      // pairingCode: this._pairingCode,
       webhookUrl: this._webhookUrl,
       lastConnectedAt: this._lastConnectedAt,
       createdAt: this.createdAt,

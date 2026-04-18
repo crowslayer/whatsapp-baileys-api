@@ -2,6 +2,7 @@ import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAg
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
 import { IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers';
+import { IConnectionStateStore } from '@application/runtime/IConnectionStateStore';
 import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
 
 import { BaileysConnection } from '@infrastructure/baileys/adapter/BaileysConnection';
@@ -31,23 +32,28 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
   constructor(
     private readonly instance: WhatsAppInstanceAggregate,
     private readonly repository: IWhatsAppInstanceRepository,
-    private readonly eventHandlers: IBaileysEventHandlers // 👈 INYECTADO
+    private readonly eventHandlers: IBaileysEventHandlers,
+    private readonly connectionStore: IConnectionStateStore
   ) {}
 
   async start(phoneNumber?: string): Promise<void> {
     this._connection = new BaileysConnection(this.instance.instanceId, {
       onQR: async (qr, qrText) => {
-        this.instance.generateQRCode(qr, qrText);
-        await this.repository.update(this.instance);
+        await this.connectionStore.setQR(this.instance.instanceId, qr, qrText);
       },
       onConnected: async (phone) => {
         this.instance.connect(phone);
         await this.repository.update(this.instance);
+        await this.connectionStore.clear(this.instance.instanceId);
       },
       onDisconnected: async (event) => {
         this.instance.disconnect(event.reason);
         await this.repository.update(this.instance);
+        await this.connectionStore.clear(this.instance.instanceId);
         this._disconnectHandler?.(event);
+      },
+      onPairingCode: async (code) => {
+        await this.connectionStore.setPairingCode(this.instance.instanceId, code);
       },
     });
 
