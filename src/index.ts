@@ -2,7 +2,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
+
 import { getContainer } from '@infrastructure/container/Container';
 import { ExpressApp } from '@infrastructure/http/ExpressApp';
 import { ILogger } from '@infrastructure/loggers/Logger';
@@ -20,14 +21,15 @@ async function bootstrap(): Promise<void> {
     const mongoConnection = container.get<IDatabaseConnection>(
       'infrastructure.database.connection'
     );
-    const connectionManager = container.get<IConnectionManager>(
-      'infrastructure.baileys.connection_manager'
-    );
+    // const connectionManager = container.get<IConnectionManager>(
+    //   'infrastructure.baileys.connection_manager'
+    // );
+    const connectionManager = container.get<IRuntimeManager>('application.runtime.runtime_manager');
 
     await mongoConnection.connect();
 
     // Restore existing connections
-    await connectionManager.restoreConnections();
+    await connectionManager.restoreAll();
 
     // Create Express app
     const app = ExpressApp.create(config, logger, container);
@@ -58,15 +60,15 @@ async function bootstrap(): Promise<void> {
       // });
 
       // Disconnect all WhatsApp instances
-      const connections = connectionManager.getAllConnections();
-      for (const [instanceId, adapter] of connections) {
-        try {
-          adapter.disconnect();
-          logger.info(`Disconnected instance: ${instanceId}`);
-        } catch (error) {
-          logger.error(`Error disconnecting instance ${instanceId}:`, error);
-        }
-      }
+      // const connections = connectionManager.getAllConnections();
+      // for (const [instanceId, adapter] of connections) {
+      //   try {
+      //     adapter.disconnect();
+      //     logger.info(`Disconnected instance: ${instanceId}`);
+      //   } catch (error) {
+      //     logger.error(`Error disconnecting instance ${instanceId}:`, error);
+      //   }
+      // }
 
       process.exit(0);
     };

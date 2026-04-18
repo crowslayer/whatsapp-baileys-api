@@ -2,10 +2,9 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 import { WAMessage } from '@whiskeysockets/baileys';
 
+import { RuntimeRegistry } from '@application/runtime/RuntimeRegistry';
 import { HumanBehaviorService } from '@application/services/HumanBehaviorService';
 import { LimiterFactory } from '@application/services/LimiterFactory';
-
-import { RuntimeRegistry } from '@application/runtime/RuntimeRegistry';
 
 export class MessageOrchestrator {
   constructor(

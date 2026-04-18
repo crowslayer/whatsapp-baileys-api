@@ -53,3 +53,11 @@ services:
   infrastructure.metrics.message_metric:
     class: '../../infrastructure/metrics/MessageMetrics'
     public: true
+
+  # =============================================
+  # Services
+  # =============================================
+  infrastructure.http.webhooks.webhook_service:
+    class: '../../infrastructure/http/webhooks/WebhookService'
+    arguments:
+      - '@shared.logger'

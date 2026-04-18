@@ -20,7 +20,9 @@ parameters:
             mkdir: 'true'
 
 services:
-  #Logger
+  # =============================================
+  # Services
+  # =============================================
   shared.logger:
     class: '../../infrastructure/loggers/pino-logger/PinoLogger'
     arguments:
@@ -38,27 +40,67 @@ services:
     arguments:
       - '@shared.logger'
     public: true
-
+  # =============================================
+  # Query Handler
+  # =============================================
   shared.query_handler:
     class: ../../shared/infrastructure/query-bus/QueryHandlers
     arguments:
       - '!tagged queryHandler'
     public: true
-
+  # =============================================
+  # Query Bus
+  # =============================================
   shared.query_bus:
     class: ../../shared/infrastructure/query-bus/in-memory/InMemoryQueryBus
     arguments:
       - '@shared.query_handler'
     public: true
-
+  # =============================================
+  # Command Handler
+  # =============================================
   shared.command_handler:
     class: ../../shared/infrastructure/command-bus/CommandHandlers
     arguments:
       - '!tagged commandHandler'
     public: true
 
+  # =============================================
+  # Command Bus
+  # =============================================
   shared.command_bus:
     class: ../../shared/infrastructure/command-bus/in-memory/InMemoryCommandBus
     arguments:
       - '@shared.command_handler'
     public: true
+
+  # =============================================
+  # Baileys - WhatsApp
+  # =============================================
+  application.runtime.runtime_manager:
+    class: '../../application/runtime/RuntimeManager'
+    arguments:
+      - '@application.runtime.runtime_registry'
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@application.runtime.whatsapp_runtime_factory'
+      - '@shared.logger'
+    public: true
+
+  application.runtime.runtime_registry:
+    class: '../../application/runtime/RuntimeRegistry'
+    arguments: []
+    public: true
+
+  application.chats.syncrhonize.chat_synchronize_service:
+    class: '../../application/chats/synchronize/ChatSynchronizeService'
+    arguments:
+      - '@infrastructure.repository.mongo.chat_repository'
+    public: true
+
+  application.runtime.whatsapp_runtime_factory:
+    class: '../../application/runtime/WhatsAppRuntimeFactory'
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@application.chats.syncrhonize.chat_synchronize_service'
+      - '@infrastructure.http.webhooks.webhook_service'
+      - '@shared.logger'

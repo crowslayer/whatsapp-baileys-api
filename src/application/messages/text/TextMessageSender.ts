@@ -1,8 +1,6 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
-import { SendMessageCommand } from '@application/messages/text/SendMessageCommand';
-
-import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
@@ -10,21 +8,23 @@ import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 export class TextMessageSender {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: IConnectionManager
+    private readonly connectionManager: IRuntimeManager
   ) {}
 
-  async execute(command: SendMessageCommand): Promise<void> {
-    const instance = await this.repository.findById(command.instanceId);
+  async execute(instanceId: string, jid: string, message: string): Promise<void> {
+    const instance = await this.repository.findById(instanceId);
     if (!instance) {
-      throw new NotFoundError(`Instance ${command.instanceId} not found`);
+      throw new NotFoundError(`Instance ${instanceId} not found`);
     }
 
     if (!instance.canSendMessages()) {
       throw new ValidationError([
-        { field: 'instance', message: `Instance ${command.instanceId} is not connected` },
+        { field: 'instance', message: `Instance ${instanceId} is not connected` },
       ]);
     }
 
-    await this.connectionManager.sendMessage(instance.id, command.to, command.message);
+    const runtime = this.connectionManager.get(instance.id);
+
+    await runtime.messaging.sendText(jid, message);
   }
 }
