@@ -1,3 +1,4 @@
+import { rm } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
 import path from 'path';
 
@@ -30,10 +31,24 @@ export interface IBaileysConnectionEvents {
 // ===============================
 // CLASS
 // ===============================
-
+const date = new Date();
+const trasport = {
+  transport: {
+    targets: [
+      {
+        target: 'pino/file',
+        level: 'trace',
+        options: {
+          destination: `./logs/bayileys/logs/baileys.connection-${'trace'}-${date.toJSON().slice(0, 10)}.log`,
+          mkdir: true,
+        },
+      },
+    ],
+  },
+};
 export class BaileysConnection {
   private _socket?: WASocket;
-  private _logger = pino({ level: 'info' });
+  private _logger = pino({ level: 'info', ...trasport });
 
   private _msgRetryCounterCache = new NodeCache({
     stdTTL: 3600,
@@ -127,9 +142,9 @@ export class BaileysConnection {
         }
 
         // auto-reconnect SOLO para errores transitorios
-        if (result.type === 'TRANSIENT') {
-          this.withTimeout(this.connect(), 2000);
-        }
+        // if (result.type === 'TRANSIENT') {
+        //   this.withTimeout(this.connect(), 2000);
+        // }
       }
     });
   }
@@ -148,7 +163,8 @@ export class BaileysConnection {
   // DISCONNECT
   // ===============================
   async disconnect(): Promise<void> {
-    await this._socket?.end(undefined);
+    await this._socket?.ws.close();
+    this._socket?.end(undefined);
   }
 
   // ===============================
@@ -183,8 +199,8 @@ export class BaileysConnection {
   // ===============================
   private async clearAuthFolder(): Promise<void> {
     try {
-      const fs = await import('fs/promises');
-      await fs.rm(this.getAuthPath(), { recursive: true, force: true });
+      // const fs = await import('fs/promises');
+      await rm(this.getAuthPath(), { recursive: true, force: true });
 
       this._logger.warn({
         instanceId: this.instanceId,

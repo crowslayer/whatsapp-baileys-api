@@ -16,7 +16,7 @@ export class BaileysEventRouter {
   bind() {
     this.socket.ev.process(async (events) => {
       // ─────────────────────────────────────────────
-      // 📩 Messages
+      // Messages
       // ─────────────────────────────────────────────
       if (events['messages.upsert']) {
         const { messages, type } = events['messages.upsert'];
@@ -33,7 +33,7 @@ export class BaileysEventRouter {
       }
 
       // ─────────────────────────────────────────────
-      // 🧠 History Sync
+      // History Sync
       // ─────────────────────────────────────────────
       if (events['messaging-history.set']) {
         const { chats } = events['messaging-history.set'];
@@ -45,7 +45,7 @@ export class BaileysEventRouter {
       }
 
       // ─────────────────────────────────────────────
-      // 💬 Chats
+      // Chats
       // ─────────────────────────────────────────────
       if (events['chats.upsert']) {
         const mapped = events['chats.upsert'].map((c) => this.mapChat(c)).filter((c) => c !== null);
@@ -71,7 +71,7 @@ export class BaileysEventRouter {
       }
 
       // ─────────────────────────────────────────────
-      // 👤 Contacts
+      // Contacts
       // ─────────────────────────────────────────────
       if (events['contacts.upsert']) {
         await this.handlers.onContactsUpsert?.(events['contacts.upsert']);
@@ -82,14 +82,14 @@ export class BaileysEventRouter {
       }
 
       // ─────────────────────────────────────────────
-      // 🟢 Presence
+      // Presence
       // ─────────────────────────────────────────────
       if (events['presence.update']) {
         await this.handlers.onPresenceUpdate?.(events['presence.update']);
       }
 
       // ─────────────────────────────────────────────
-      // 👥 Groups
+      // Groups
       // ─────────────────────────────────────────────
       if (events['groups.upsert']) {
         await this.handlers.onGroupsUpsert?.(events['groups.upsert']);
@@ -104,14 +104,14 @@ export class BaileysEventRouter {
       }
 
       // ─────────────────────────────────────────────
-      // 📞 Calls
+      // Calls
       // ─────────────────────────────────────────────
       if (events['call']) {
         await this.handlers.onCall?.(events['call']);
       }
 
       // ─────────────────────────────────────────────
-      // 🏷️ Labels
+      // Labels
       // ─────────────────────────────────────────────
       if (events['labels.association']) {
         await this.handlers.onLabelsAssociation?.(events['labels.association']);
