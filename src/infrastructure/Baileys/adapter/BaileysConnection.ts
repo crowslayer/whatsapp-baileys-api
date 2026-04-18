@@ -49,6 +49,7 @@ const trasport = {
 export class BaileysConnection {
   private _socket?: WASocket;
   private _logger = pino({ level: 'info', ...trasport });
+  private _intentionalClose = false;
 
   private _msgRetryCounterCache = new NodeCache({
     stdTTL: 3600,
@@ -163,8 +164,9 @@ export class BaileysConnection {
   // DISCONNECT
   // ===============================
   async disconnect(): Promise<void> {
-    await this._socket?.ws.close();
-    this._socket?.end(undefined);
+    this._intentionalClose = true;
+    if (!this._socket) return;
+    this._socket.end(new Boom('Manual disconnect'));
   }
 
   // ===============================
@@ -174,11 +176,11 @@ export class BaileysConnection {
     type: DisconnectType;
     reason?: string;
   } {
-    if (!error) {
-      return { type: 'TRANSIENT', reason: 'unknown' };
+    const boom = error as Boom;
+    if (!boom?.output) {
+      return { type: 'INVALID_SESSION', reason: 'unknown' };
     }
 
-    const boom = error as Boom;
     const code = boom?.output?.statusCode;
 
     switch (code) {

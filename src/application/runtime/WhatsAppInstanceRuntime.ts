@@ -60,11 +60,7 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
     this._presence = new BaileysPresenceService(socket);
     this._profile = new BaileysProfileService(socket);
 
-    const router = new BaileysEventRouter(
-      socket,
-      this.instance,
-      this.eventHandlers // 👈 AQUÍ
-    );
+    const router = new BaileysEventRouter(socket, this.instance, this.eventHandlers);
 
     router.bind();
   }
