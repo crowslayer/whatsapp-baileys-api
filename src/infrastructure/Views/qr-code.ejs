@@ -235,7 +235,7 @@
                     <h3> ¡Conectado Exitosamente!</h3>
                     <p class="phone-number"><%= phoneNumber %></p>
                 </div>
-            <% } else if (qrCode && status === 'qr_ready') { %>
+            <% } else if (qrCode && status === 'ready') { %>
                 <img src="<%= qrCode %>" alt="QR Code" class="qr-code" id="qr-image">
             <% } else { %>
                 <div class="spinner"></div>

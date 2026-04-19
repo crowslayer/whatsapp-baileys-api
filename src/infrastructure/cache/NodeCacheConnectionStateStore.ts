@@ -45,7 +45,7 @@ export class NodeCacheConnectionStateStore implements IConnectionStateStore {
       status: 'qr',
     };
 
-    this._cache.set(this.key(instanceId), next);
+    this._cache.set(this.key(instanceId), next, 60);
   }
 
   async setStatus(instanceId: string, status: ConnectionState['status']): Promise<void> {

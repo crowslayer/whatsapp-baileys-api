@@ -3,6 +3,7 @@ import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInsta
 
 import { IChatSynchronizer } from '@application/chats/synchronize/IChatSynchronizer';
 import { BaileysEventHandlers } from '@application/events/BaileysEventHandlers';
+import { IConnectionStateStore } from '@application/runtime/IConnectionStateStore';
 import { WhatsAppInstanceRuntime } from '@application/runtime/WhatsAppInstanceRuntime';
 
 import { WebhookService } from '@infrastructure/http/webhooks/WebhookService';
@@ -13,7 +14,8 @@ export class WhatsAppRuntimeFactory {
     private readonly repository: IWhatsAppInstanceRepository,
     private readonly syncService: IChatSynchronizer,
     private readonly webhookService: WebhookService,
-    private readonly logger: ILogger
+    private readonly logger: ILogger,
+    private readonly connectionStore: IConnectionStateStore
   ) {}
 
   create(instance: WhatsAppInstanceAggregate): WhatsAppInstanceRuntime {
@@ -24,6 +26,11 @@ export class WhatsAppRuntimeFactory {
       this.logger
     );
 
-    return new WhatsAppInstanceRuntime(instance, this.repository, eventHandlers);
+    return new WhatsAppInstanceRuntime(
+      instance,
+      this.repository,
+      eventHandlers,
+      this.connectionStore
+    );
   }
 }

@@ -52,7 +52,7 @@ export class GetQRController {
         instanceName: instance.name,
         qrCode: instance.qrCode,
         qrText: instance.qrText,
-        status: instance.status,
+        status: instance.qrStatus,
         phoneNumber: instance.phoneNumber,
       });
       return;

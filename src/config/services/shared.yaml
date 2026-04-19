@@ -75,7 +75,7 @@ services:
     public: true
 
   # =============================================
-  # Baileys - WhatsApp
+  # Runtime Managers
   # =============================================
   application.runtime.runtime_manager:
     class: '../../application/runtime/RuntimeManager'
@@ -91,12 +91,6 @@ services:
     arguments: []
     public: true
 
-  application.chats.syncrhonize.chat_synchronize_service:
-    class: '../../application/chats/synchronize/ChatSynchronizeService'
-    arguments:
-      - '@infrastructure.repository.mongo.chat_repository'
-    public: true
-
   application.runtime.whatsapp_runtime_factory:
     class: '../../application/runtime/WhatsAppRuntimeFactory'
     arguments:
@@ -104,3 +98,14 @@ services:
       - '@application.chats.syncrhonize.chat_synchronize_service'
       - '@infrastructure.http.webhooks.webhook_service'
       - '@shared.logger'
+      - '@infrastructure.cache.nodecache_connection_store'
+
+  # =============================================
+  # Runtime Managers
+  # =============================================
+
+  application.chats.syncrhonize.chat_synchronize_service:
+    class: '../../application/chats/synchronize/ChatSynchronizeService'
+    arguments:
+      - '@infrastructure.repository.mongo.chat_repository'
+    public: true

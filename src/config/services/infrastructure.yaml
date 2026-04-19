@@ -61,3 +61,7 @@ services:
     class: '../../infrastructure/http/webhooks/WebhookService'
     arguments:
       - '@shared.logger'
+
+  infrastructure.cache.nodecache_connection_store:
+    class: '../../infrastructure/cache/NodeCacheConnectionStateStore'
+    public: true
