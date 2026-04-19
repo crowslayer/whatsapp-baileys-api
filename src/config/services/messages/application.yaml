@@ -56,6 +56,7 @@ services:
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
       - '@application.runtime.runtime_manager'
+      - '@application.service.message_orchestrator'
     public: true
 
   application.messages.video.video_sender:
@@ -141,5 +142,20 @@ services:
     public: true
 
   # =============================================
-  # Controllers
+  # Orchestrator
   # =============================================
+  application.service.human_behavior:
+    class: '../../../application/services/HumanBehaviorService'
+    public: true
+
+  application.service.limiter_factory:
+    class: '../../../application/services/LimiterFactory'
+    public: true
+
+  application.service.message_orchestrator:
+    class: '../../../application/services/MessageOrchestrator'
+    arguments:
+      - '@application.runtime.runtime_manager'
+      - '@application.service.limiter_factory'
+      - '@application.service.human_behavior'
+    public: true
