@@ -41,7 +41,7 @@ services:
     class: ../../../application/instances/delete/InstancesEraser
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.instances.connect.instances_connect:
@@ -53,7 +53,7 @@ services:
   application.instances.disconnect.instances_disconnect:
     class: ../../../application/instances/disconnect/InstancesDisconnect
     arguments:
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   # =============================================

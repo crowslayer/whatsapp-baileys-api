@@ -10,7 +10,7 @@ import { ConflictError } from '@shared/infrastructure/errors/ConflictError';
 export class InstancesCreator {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: IRuntimeManager
+    private readonly runtimeManager: IRuntimeManager
   ) {}
 
   async execute(command: CreateInstanceCommand): Promise<WhatsAppInstanceAggregate> {
@@ -25,9 +25,9 @@ export class InstancesCreator {
     await this.repository.save(instance);
 
     if (command.usePairingCode && command.phoneNumber) {
-      await this.connectionManager.start(instance.instanceId, command.phoneNumber);
+      await this.runtimeManager.start(instance.instanceId, command.phoneNumber);
     } else {
-      await this.connectionManager.start(instance.instanceId);
+      await this.runtimeManager.start(instance.instanceId);
     }
 
     return instance;

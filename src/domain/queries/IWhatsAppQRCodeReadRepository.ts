@@ -12,10 +12,11 @@ export type WhatsAppInstanceQRCode = IWhatsAppQRCodeReadProjection;
 
 export type WhatsAppQRCodeStatus = {
   status: string;
-  qrCode?: string;
-  qrText?: string;
+  qrCode: string | null;
+  qrText: string | null;
   phoneNumber?: string;
   connected: boolean;
+  qrStatus: string;
 };
 
 export interface IWhatsAppQRCodeReadRepository {

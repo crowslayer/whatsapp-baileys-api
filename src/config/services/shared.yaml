@@ -109,9 +109,3 @@ services:
   # =============================================
   # Runtime Managers
   # =============================================
-
-  application.chats.syncrhonize.chat_synchronize_service:
-    class: '../../application/chats/synchronize/ChatSynchronizeService'
-    arguments:
-      - '@infrastructure.repository.mongo.chat_repository'
-    public: true

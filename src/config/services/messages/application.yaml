@@ -6,49 +6,49 @@ services:
     class: '../../../application/messages/audio/AudioSender'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.messages.conctact.contact_sender:
     class: '../../../application/messages/contact/ContactSender'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.messages.document.document_sender:
     class: '../../../application/messages/document/DocumentSender'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.messages.image.image_sender:
     class: '../../../application/messages/image/ImageSender'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.messages.location.location_sender:
     class: '../../../application/messages/location/LocationSender'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.messages.reaction.reaction_sender:
     class: '../../../application/messages/reaction/ReactionSender'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.messages.sticker.sticker_sender:
     class: '../../../application/messages/sticker/StickerSender'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.messages.text.text_sender:
@@ -62,7 +62,7 @@ services:
     class: '../../../application/messages/video/VideoSender'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   # =============================================

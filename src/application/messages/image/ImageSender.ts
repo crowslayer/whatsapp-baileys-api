@@ -1,8 +1,7 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
 import { SendImageCommand } from '@application/messages/image/SendImageCommand';
-
-import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
@@ -10,7 +9,7 @@ import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 export class ImageSender {
   constructor(
     private repository: IWhatsAppInstanceRepository,
-    private connectionManager: IConnectionManager
+    private runtimeManager: IRuntimeManager
   ) {}
 
   async execute(command: SendImageCommand): Promise<void> {
@@ -25,13 +24,13 @@ export class ImageSender {
       ]);
     }
 
-    const adapter = this.connectionManager.getConnection(command.instanceId);
+    const adapter = this.runtimeManager.get(command.instanceId);
     if (!adapter) {
       throw new ValidationError([
         { field: 'instance', message: `Instance ${command.instanceId} adapter not found` },
       ]);
     }
 
-    await adapter.sendImage(command.to, command.image, command.caption);
+    await adapter.messaging.sendImage(command.to, command.image, command.caption);
   }
 }

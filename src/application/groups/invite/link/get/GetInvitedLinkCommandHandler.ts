@@ -12,7 +12,7 @@ export class GetInvitedLinkCommandHandler implements ICommandHandler<GetInvitedL
     return GetInvitedLinkCommand;
   }
 
-  async handle(command: GetInvitedLinkCommand): Promise<string> {
+  async handle(command: GetInvitedLinkCommand): Promise<string | undefined> {
     const instanceId = InstanceId.fromString(command.instanceId);
     return await this.linkGetter.execute(instanceId, command.groupId);
   }

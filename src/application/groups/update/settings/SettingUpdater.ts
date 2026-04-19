@@ -1,14 +1,14 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 import { InstanceId } from '@domain/value-objects/InstanceId';
 
-import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 
 export class SettingUpdater {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: IConnectionManager
+    private readonly runtimeManager: IRuntimeManager
   ) {}
 
   async execute(
@@ -22,12 +22,12 @@ export class SettingUpdater {
       throw new WhatsAppConnectionError('WhatsApp Instance not found or not connected');
     }
 
-    const adapter = this.connectionManager.getConnection(instanceId.value);
+    const adapter = this.runtimeManager.get(instanceId.value);
 
     if (!adapter) {
       throw new WhatsAppConnectionError('WhatsApp Instance not connected or not found');
     }
 
-    return await adapter.updateGroupSettings(groupId, setting);
+    return await adapter.groups.updateGroupSettings(groupId, setting);
   }
 }
