@@ -5,15 +5,19 @@ import { IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers
 import { IConnectionStateStore } from '@application/runtime/IConnectionStateStore';
 import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
 
+import { BaileysChatStateService } from '@infrastructure/baileys/adapter/BaileysChatStateService';
 import { BaileysConnection } from '@infrastructure/baileys/adapter/BaileysConnection';
 import { BaileysEventRouter } from '@infrastructure/baileys/adapter/BaileysEventRouter';
 import { BaileysGroupsService } from '@infrastructure/baileys/adapter/BaileysGroupsService';
 import { BaileysMessageService } from '@infrastructure/baileys/adapter/BaileysMessageService';
 import { BaileysPresenceService } from '@infrastructure/baileys/adapter/BaileysPresenceService';
+import { BaileysPrivacyService } from '@infrastructure/baileys/adapter/BaileysPrivacyService';
 import { BaileysProfileService } from '@infrastructure/baileys/adapter/BaileysProfileService';
+import { IChatStateService } from '@infrastructure/baileys/adapter/IChatStateService';
 import { IGroupService } from '@infrastructure/baileys/adapter/IGroupService';
 import { IMessageService } from '@infrastructure/baileys/adapter/IMessageService';
 import { IPresenceService } from '@infrastructure/baileys/adapter/IPresenceService';
+import { IPrivacyService } from '@infrastructure/baileys/adapter/IPrivacyService';
 import { IProfileService } from '@infrastructure/baileys/adapter/IProfileService';
 
 type DisconnectEvent = {
@@ -27,6 +31,8 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
   private _groups!: IGroupService;
   private _presence!: IPresenceService;
   private _profile!: IProfileService;
+  private _privacy!: IPrivacyService;
+  private _chatState!: IChatStateService;
   private _disconnectHandler?: (event: DisconnectEvent) => void;
 
   constructor(
@@ -74,6 +80,8 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
     this._groups = new BaileysGroupsService(socket);
     this._presence = new BaileysPresenceService(socket);
     this._profile = new BaileysProfileService(socket);
+    this._chatState = new BaileysChatStateService(socket);
+    this._privacy = new BaileysPrivacyService(socket);
 
     const router = new BaileysEventRouter(socket, this.instance, this.eventHandlers);
 
