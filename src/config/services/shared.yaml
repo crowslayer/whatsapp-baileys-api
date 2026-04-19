@@ -57,6 +57,12 @@ services:
       - '@shared.query_handler'
     public: true
   # =============================================
+  # Event Bus
+  # =============================================
+  shared.event_bus:
+    class: ../../shared/infrastructure/event-bus/in-memory/NodeEventBus
+    public: true
+  # =============================================
   # Command Handler
   # =============================================
   shared.command_handler:
