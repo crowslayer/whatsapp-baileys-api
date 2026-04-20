@@ -1,36 +1,46 @@
-import { BotInput } from '@application/services/bot/IBotService';
+import { FlowEngine } from '@application/services/bot/FlowEngine';
+import { FlowRegistry } from '@application/services/bot/FlowRegistry';
 import { IConversationStore } from '@application/services/bot/IConversationStore';
 
 import { IMessageService } from '@infrastructure/baileys/adapter/IMessageService';
 
-type ConversationState = {
-  step?: 'ask_name' | 'done';
-  name?: string;
-};
-
 export class BotService {
   constructor(
-    private readonly messaging: IMessageService,
-    private readonly store: IConversationStore<ConversationState>
+    private readonly flowRegistry: FlowRegistry,
+    private readonly flowEngine: FlowEngine,
+    private readonly store: IConversationStore,
+    private readonly messaging: IMessageService
   ) {}
 
-  async handleMessage(input: BotInput): Promise<void> {
-    const ctx = await this.store.get(input.instanceId, input.from);
+  async handleMessage(instanceId: string, chatId: string, text: string): Promise<void> {
+    let state = await this.store.get(instanceId, chatId);
 
-    if (!ctx?.step) {
-      await this.messaging.sendText(input.from, '¿Cómo te llamas?');
+    // 👉 iniciar flujo si no existe
+    if (!state?.currentFlowId) {
+      const flow = this.flowRegistry.get('welcome'); // ejemplo
 
-      await this.store.set(input.instanceId, input.from, {
-        step: 'ask_name',
-      });
-
-      return;
+      state = {
+        instanceId,
+        chatId,
+        currentFlowId: flow.id,
+        currentNodeId: flow.start,
+        variables: {},
+      };
     }
 
-    if (ctx.step === 'ask_name') {
-      await this.messaging.sendText(input.from, `Mucho gusto ${input.message} 👋`);
+    const flow = this.flowRegistry.get(state.currentFlowId);
 
-      await this.store.clear(input.instanceId, input.from);
+    const result = this.flowEngine.execute(flow, state, text);
+
+    // actualizar estado
+    state.currentNodeId = result.nextNodeId;
+    state.variables = result.updatedVariables ?? state.variables;
+
+    await this.store.set(instanceId, chatId, state);
+
+    // responder si hay mensaje
+    if (result.reply) {
+      await this.messaging.sendText(chatId, result.reply);
     }
   }
 }
