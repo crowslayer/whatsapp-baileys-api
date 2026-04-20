@@ -15,17 +15,6 @@ export class BotService {
   async handleMessage(instanceId: string, chatId: string, text: string): Promise<void> {
     const state = await this.store.get(instanceId, chatId);
 
-    const flow = this.flowRegistry.get(state.currentFlowId);
-
-    const result = this.flowEngine.execute(flow, state, text);
-
-    if (!result.nextNodeId || result.isEnd) {
-      state.currentFlowId = undefined;
-      state.currentNodeId = undefined;
-    } else {
-      state.currentNodeId = result.nextNodeId;
-    }
-
     // if (!state) {
     //   const flow = this.flowRegistry.get('welcome');
 
@@ -37,6 +26,18 @@ export class BotService {
     //     variables: {},
     //   };
     // }
+    const flow = this.flowRegistry.get(state.currentFlowId);
+
+    if (!flow) return;
+
+    const result = this.flowEngine.execute(flow, state, text);
+
+    if (!result.nextNodeId || result.isEnd) {
+      state.currentFlowId = undefined;
+      state.currentNodeId = undefined;
+    } else {
+      state.currentNodeId = result.nextNodeId;
+    }
 
     // actualizar estado
     state.variables = result.variables ?? state.variables;

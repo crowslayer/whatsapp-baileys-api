@@ -29,10 +29,20 @@ export interface IConditionNode extends IBaseNode {
   ifFalse: NodeId;
 }
 
+type Trigger = {
+  type: 'keyword' | 'contains';
+  value: string;
+};
+
 export interface IFlow {
   id: string;
+  instanceId: string;
+  name: string;
+  version: string;
+  isActive: boolean;
   start: NodeId;
   nodes: Record<NodeId, FlowNode>;
+  triggers?: Trigger[];
 }
 
 export interface INodeExecutionResult {
