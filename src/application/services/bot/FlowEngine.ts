@@ -1,16 +1,11 @@
-import { IFlow } from '@application/services/bot/FlowTypes';
+import { IFlow, INodeExecutionResult } from '@application/services/bot/FlowTypes';
 import { IConversationState } from '@application/services/bot/IConversationState';
+import { INodeExecutor } from '@application/services/bot/INodeExecutor';
 
 export class FlowEngine {
-  execute(
-    flow: IFlow,
-    state: IConversationState,
-    input?: string
-  ): {
-    reply?: string;
-    nextNodeId?: string;
-    updatedVariables?: Record<string, any>;
-  } {
+  constructor(private executors: INodeExecutor[]) {}
+
+  execute(flow: IFlow, state: IConversationState, input?: string): INodeExecutionResult {
     if (state.currentNodeId === undefined) {
       throw new Error('Flow is undefined');
     }
@@ -21,36 +16,12 @@ export class FlowEngine {
       throw new Error('Node not found');
     }
 
-    const type = node.type;
-    switch (type) {
-      case 'message':
-        return {
-          reply: this.interpolate(node.text, state.variables),
-          nextNodeId: node.next,
-        };
+    const executor = this.executors.find((e) => e.supports(node.type));
 
-      case 'input':
-        return {
-          updatedVariables: {
-            ...state.variables,
-            [node.variable]: input,
-          },
-          nextNodeId: node.next,
-        };
-
-      case 'condition':
-        return {
-          nextNodeId: state.variables[node.variable] === node.equals ? node.ifTrue : node.ifFalse,
-        };
-
-      default:
-        throw new Error(`Unknown node type: ${type}`);
+    if (!executor) {
+      throw new Error(`No executor for node type: ${node.type}`);
     }
-  }
 
-  private interpolate(text: string, vars: Record<string, any>): string {
-    return text.replace(/\{\{(.*?)\}\}/g, (_, key) => {
-      return vars[key.trim()] ?? '';
-    });
+    return executor.execute({ node, state, input });
   }
 }

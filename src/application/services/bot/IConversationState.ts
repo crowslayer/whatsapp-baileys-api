@@ -1,4 +1,4 @@
-export interface ConversationState {
+export interface IConversationState {
   instanceId: string;
   chatId: string;
 

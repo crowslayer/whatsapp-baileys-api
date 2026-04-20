@@ -13,28 +13,33 @@ export class BotService {
   ) {}
 
   async handleMessage(instanceId: string, chatId: string, text: string): Promise<void> {
-    let state = await this.store.get(instanceId, chatId);
-
-    // 👉 iniciar flujo si no existe
-    if (!state?.currentFlowId) {
-      const flow = this.flowRegistry.get('welcome'); // ejemplo
-
-      state = {
-        instanceId,
-        chatId,
-        currentFlowId: flow.id,
-        currentNodeId: flow.start,
-        variables: {},
-      };
-    }
+    const state = await this.store.get(instanceId, chatId);
 
     const flow = this.flowRegistry.get(state.currentFlowId);
 
     const result = this.flowEngine.execute(flow, state, text);
 
+    if (!result.nextNodeId || result.isEnd) {
+      state.currentFlowId = undefined;
+      state.currentNodeId = undefined;
+    } else {
+      state.currentNodeId = result.nextNodeId;
+    }
+
+    // if (!state) {
+    //   const flow = this.flowRegistry.get('welcome');
+
+    //   state = {
+    //     instanceId,
+    //     chatId,
+    //     currentFlowId: flow.id,
+    //     currentNodeId: flow.start,
+    //     variables: {},
+    //   };
+    // }
+
     // actualizar estado
-    state.currentNodeId = result.nextNodeId;
-    state.variables = result.updatedVariables ?? state.variables;
+    state.variables = result.variables ?? state.variables;
 
     await this.store.set(instanceId, chatId, state);
 
