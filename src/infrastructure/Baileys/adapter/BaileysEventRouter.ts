@@ -25,6 +25,10 @@ export class BaileysEventRouter {
           await Promise.all(
             messages.map((msg) => {
               if (!msg.key.fromMe && msg.message) {
+                // this.eventBus.emit('message', {
+                //   instanceId: this.instanceId,
+                //   message: msg,
+                // });
                 return this.handlers.onMessage?.(msg);
               }
             })

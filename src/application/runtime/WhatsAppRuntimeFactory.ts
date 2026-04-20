@@ -16,6 +16,7 @@ export class WhatsAppRuntimeFactory {
     private readonly webhookService: WebhookService,
     private readonly logger: ILogger,
     private readonly connectionStore: IConnectionStateStore
+    // private readonly eventBus: IConnectionEventBus, //
   ) {}
 
   create(instance: WhatsAppInstanceAggregate): WhatsAppInstanceRuntime {
@@ -31,6 +32,7 @@ export class WhatsAppRuntimeFactory {
       this.repository,
       eventHandlers,
       this.connectionStore
+      // this.eventBus, //usando eventbus
     );
   }
 }

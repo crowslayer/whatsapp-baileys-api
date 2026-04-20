@@ -20,6 +20,7 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
     private readonly syncService: IChatSynchronizer,
     private readonly webhookService: WebhookService,
     private readonly logger: ILogger
+    // Private readonly botService: IBotService
   ) {}
 
   // ─────────────────────────────────────────────
@@ -27,7 +28,14 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
   // ─────────────────────────────────────────────
   async onMessage(message: WAMessage): Promise<void> {
     try {
-      this.logger.info('Message recieved', message);
+      const text = this.extractText(message);
+      const chatId = message.key.remoteJid;
+
+      if (!text) return;
+
+      // await this.botService.handleMessage(this.instance.instanceId, chatId, text);
+
+      // opcional: seguir enviando webhook
       await this.webhookService.send(this.instance.instanceId, 'message', {
         message,
       });
@@ -175,5 +183,14 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
     } catch (error) {
       this.logger.error('Error labels edit', error);
     }
+  }
+  // Helper
+  private extractText(msg: WAMessage): string | null {
+    return (
+      msg.message?.conversation ||
+      msg.message?.extendedTextMessage?.text ||
+      msg.message?.imageMessage?.caption ||
+      null
+    );
   }
 }

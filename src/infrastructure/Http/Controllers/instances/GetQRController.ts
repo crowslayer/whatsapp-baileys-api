@@ -4,8 +4,6 @@ import { GetQRCodeQuery } from '@application/instances/qr-code/get/GetQRCodeQuer
 import { QRCodeResponse } from '@application/instances/qr-code/get/QRCodeResponse';
 
 import { IQueryBus } from '@shared/domain/query/QueryBus';
-import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
-import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class GetQRController {
@@ -17,12 +15,10 @@ export class GetQRController {
 
       const query = new GetQRCodeQuery(instanceId);
       const instance = await this.queryBus.ask<QRCodeResponse>(query);
-      if (!instance) {
-        throw new NotFoundError('Instance not Found');
-      }
+
       const content = instance.content;
       if (!content.qrCode) {
-        throw new WhatsAppConnectionError('QR Code not available yet');
+        return ResponseHandler.success(res, content, 'QR Code not available yet');
       }
 
       ResponseHandler.success(res, content, 'QR Code retrieved successfully');
