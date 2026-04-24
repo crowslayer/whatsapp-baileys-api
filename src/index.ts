@@ -1,3 +1,5 @@
+import http from 'http';
+
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -8,6 +10,7 @@ import { getContainer } from '@infrastructure/container/Container';
 import { ExpressApp } from '@infrastructure/http/ExpressApp';
 import { ILogger } from '@infrastructure/loggers/Logger';
 import { IDatabaseConnection } from '@infrastructure/persistence';
+import { SocketGateway } from '@infrastructure/realtime/SocketGateway';
 
 import { IConfig } from './config';
 
@@ -38,34 +41,17 @@ async function bootstrap(): Promise<void> {
     //  Server win Socket
     // =============================================
 
-    // const server = http.createServer(app);
+    const server = http.createServer(app);
 
-    // const socketGateway = new SocketGateway(
-    //   server,
-    //   container.get('shared.event_bus') // NodeEventBus
-    // );
+    const socketGateway = new SocketGateway(
+      server,
+      container.get('shared.event_bus') // NodeEventBus
+    );
 
-    // socketGateway.init();
+    socketGateway.init();
 
-    // server.listen(config.api.port, () => {
-    //   logger.info('Server + WebSocket running');
-    //   logger.info('Whatsapp api-rest baileys');
-    //   logger.info(`Version: ${config.api.version}`);
-    //   logger.info(`Environment: ${config.environment}`);
-    //   logger.info(`Port: ${config.api.port}`);
-    //   logger.info(
-    //     `API: http://localhost:${config.api.port}/${config.api.path}/${config.api.version}`
-    //   );
-    // });
-    // =============================================
-    //  Server with Socket
-    // =============================================
-
-    // =============================================
-    //  Server
-    // =============================================
-    // Start server
-    const server = app.listen(config.api.port, () => {
+    server.listen(config.api.port, () => {
+      logger.info('Server + WebSocket running');
       logger.info('Whatsapp api-rest baileys');
       logger.info(`Version: ${config.api.version}`);
       logger.info(`Environment: ${config.environment}`);
@@ -74,6 +60,23 @@ async function bootstrap(): Promise<void> {
         `API: http://localhost:${config.api.port}/${config.api.path}/${config.api.version}`
       );
     });
+    // =============================================
+    //  Server with Socket
+    // =============================================
+
+    // =============================================
+    //  Server
+    // =============================================
+    // Start server
+    // const server = app.listen(config.api.port, () => {
+    //   logger.info('Whatsapp api-rest baileys');
+    //   logger.info(`Version: ${config.api.version}`);
+    //   logger.info(`Environment: ${config.environment}`);
+    //   logger.info(`Port: ${config.api.port}`);
+    //   logger.info(
+    //     `API: http://localhost:${config.api.port}/${config.api.path}/${config.api.version}`
+    //   );
+    // });
     // =============================================
     //  Server
     // =============================================

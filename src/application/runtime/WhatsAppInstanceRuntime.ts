@@ -2,6 +2,7 @@ import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAg
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
 import { IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers';
+import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
 import { IConnectionStateStore } from '@application/runtime/IConnectionStateStore';
 import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
 
@@ -39,38 +40,38 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
     private readonly instance: WhatsAppInstanceAggregate,
     private readonly repository: IWhatsAppInstanceRepository,
     private readonly eventHandlers: IBaileysEventHandlers,
-    private readonly connectionStore: IConnectionStateStore
-    // private readonly eventBus: IConnectionEventBus
+    private readonly connectionStore: IConnectionStateStore,
+    private readonly eventBus: IConnectionEventBus
   ) {}
 
   async start(phoneNumber?: string): Promise<void> {
-    this._connection = new BaileysConnection(this.instance.instanceId, {
-      onQR: async (qr, qrText) => {
-        await this.connectionStore.setQR(this.instance.instanceId, qr, qrText);
-      },
-      onConnected: async (phone) => {
-        this.instance.connect(phone);
-        await this.repository.update(this.instance);
-        await this.connectionStore.clear(this.instance.instanceId);
-      },
-      onDisconnected: async (event) => {
-        this.instance.disconnect(event.reason);
-        await this.repository.update(this.instance);
-        await this.connectionStore.clear(this.instance.instanceId);
-        this._disconnectHandler?.(event);
-      },
-      onPairingCode: async (code) => {
-        await this.connectionStore.setPairingCode(this.instance.instanceId, code);
-      },
-    });
+    // this._connection = new BaileysConnection(this.instance.instanceId, {
+    //   onQR: async (qr, qrText) => {
+    //     await this.connectionStore.setQR(this.instance.instanceId, qr, qrText);
+    //   },
+    //   onConnected: async (phone) => {
+    //     this.instance.connect(phone);
+    //     await this.repository.update(this.instance);
+    //     await this.connectionStore.clear(this.instance.instanceId);
+    //   },
+    //   onDisconnected: async (event) => {
+    //     this.instance.disconnect(event.reason);
+    //     await this.repository.update(this.instance);
+    //     await this.connectionStore.clear(this.instance.instanceId);
+    //     this._disconnectHandler?.(event);
+    //   },
+    //   onPairingCode: async (code) => {
+    //     await this.connectionStore.setPairingCode(this.instance.instanceId, code);
+    //   },
+    // });
     // opcion con eventbuss
-    // this._connection = new BaileysConnection(
-    //   this.instance.instanceId,
-    //   {}, // 👈 ya no necesitas callbacks aquí
-    //   this.eventBus
-    // );
+    this._connection = new BaileysConnection(
+      this.instance.instanceId,
+      // {}, // 👈 ya no necesitas callbacks aquí
+      this.eventBus
+    );
 
-    // this.bindEvents();
+    this.bindEvents();
 
     await this._connection.connect(phoneNumber);
 
@@ -114,22 +115,24 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
 
   // Metdo para usar eventos en lugar de callback
   private bindEvents(): void {
-    // this.eventBus.on('qr', async (data) => {
-    //   if (data.instanceId !== this.instance.instanceId) return;
-    //   // store efímero
-    //   await this.connectionStore.setQR(data.instanceId, data.qrCode, data.qrText);
-    // });
-    // this.eventBus.on('connected', async (data) => {
-    //   if (data.instanceId !== this.instance.instanceId) return;
-    //   this.instance.connect(data.phone);
-    //   await this.repository.update(this.instance);
-    //   await this.connectionStore.clear(data.instanceId);
-    // });
-    // this.eventBus.on('disconnected', async (data) => {
-    //   if (data.instanceId !== this.instance.instanceId) return;
-    //   this.instance.disconnect(data.reason);
-    //   await this.repository.update(this.instance);
-    //   this._disconnectHandler?.(data);
-    // });
+    this.eventBus.on('qr', async (data) => {
+      if (data.instanceId !== this.instance.instanceId) return;
+      // store efímero
+      await this.connectionStore.setQR(data.instanceId, data.qrCode, data.qrText);
+    });
+
+    this.eventBus.on('connected', async (data) => {
+      if (data.instanceId !== this.instance.instanceId) return;
+      this.instance.connect(data.phone);
+      await this.repository.update(this.instance);
+      await this.connectionStore.clear(data.instanceId);
+    });
+
+    this.eventBus.on('disconnected', async (data) => {
+      if (data.instanceId !== this.instance.instanceId) return;
+      this.instance.disconnect(data.reason);
+      await this.repository.update(this.instance);
+      // this._disconnectHandler?.(data.reason);
+    });
   }
 }

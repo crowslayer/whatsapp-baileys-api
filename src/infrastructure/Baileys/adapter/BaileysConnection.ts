@@ -15,6 +15,8 @@ import makeWASocket, {
 import pino from 'pino';
 import QRCode from 'qrcode';
 
+import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
+
 // ===============================
 // TYPES
 // ===============================
@@ -60,8 +62,8 @@ export class BaileysConnection {
 
   constructor(
     private readonly instanceId: string,
-    private readonly events: IBaileysConnectionEvents
-    // private readonly eventBus: IConnectionEventBus
+    // private readonly events: IBaileysConnectionEvents
+    private readonly eventBus: IConnectionEventBus
   ) {}
 
   // ===============================
@@ -101,7 +103,7 @@ export class BaileysConnection {
     // ===============================
     if (!this._socket.authState.creds.registered && phoneNumber) {
       const code = await this._socket.requestPairingCode(phoneNumber);
-      this.events.onPairingCode?.(code);
+      // this.events.onPairingCode?.(code);
     }
 
     // ===============================
@@ -118,13 +120,13 @@ export class BaileysConnection {
       // QR
       if (qr) {
         const qrCodeBase64 = await QRCode.toDataURL(qr);
-        // this.eventBus.emit('qr', {
-        //   instanceId: this.instanceId,
-        //   qrCode: qrCodeBase64,
-        //   qrText: qr,
-        // });
+        this.eventBus.emit('qr', {
+          instanceId: this.instanceId,
+          qrCode: qrCodeBase64,
+          qrText: qr,
+        });
 
-        this.events.onQR?.(qrCodeBase64, qr);
+        // this.events.onQR?.(qrCodeBase64, qr);
       }
 
       // CONNECTED
@@ -133,12 +135,12 @@ export class BaileysConnection {
 
         const phone = this._socket?.user?.id?.split(':')[0] || '';
 
-        // this.eventBus.emit('connected', {
-        //   instanceId: this.instanceId,
-        //   phone,
-        // });
+        this.eventBus.emit('connected', {
+          instanceId: this.instanceId,
+          phone,
+        });
 
-        this.events.onConnected?.(phone);
+        // this.events.onConnected?.(phone);
       }
 
       // CLOSED
@@ -146,11 +148,11 @@ export class BaileysConnection {
         this._isConnecting = false;
 
         const result = this.classifyDisconnect(lastDisconnect?.error);
-        // this.eventBus.emit('disconnected', {
-        //   instanceId: this.instanceId,
-        //   reason: result.reason,
-        // });
-        this.events.onDisconnected?.(result);
+        this.eventBus.emit('disconnected', {
+          instanceId: this.instanceId,
+          reason: result.reason,
+        });
+        // this.events.onDisconnected?.(result);
 
         // limpieza técnica mínima
         if (result.type === 'INVALID_SESSION' || result.type === 'LOGGED_OUT') {

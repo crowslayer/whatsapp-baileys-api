@@ -101,10 +101,11 @@ services:
     class: '../../application/runtime/WhatsAppRuntimeFactory'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@application.chats.syncrhonize.chat_synchronize_service'
+      - '@application.chats.sincronizer'
       - '@infrastructure.http.webhooks.webhook_service'
       - '@shared.logger'
       - '@infrastructure.cache.nodecache_connection_store'
+      - '@shared.event_bus'
 
   # =============================================
   # Runtime Managers
