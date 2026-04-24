@@ -132,7 +132,7 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
       if (data.instanceId !== this.instance.instanceId) return;
       this.instance.disconnect(data.reason);
       await this.repository.update(this.instance);
-      // this._disconnectHandler?.(data.reason);
+      this._disconnectHandler?.(data);
     });
   }
 }

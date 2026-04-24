@@ -151,6 +151,7 @@ export class BaileysConnection {
         this.eventBus.emit('disconnected', {
           instanceId: this.instanceId,
           reason: result.reason,
+          type: result.type,
         });
         // this.events.onDisconnected?.(result);
 

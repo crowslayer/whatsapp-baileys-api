@@ -1,3 +1,5 @@
+import { DisconnectType } from '@infrastructure/baileys/adapter/BaileysConnection';
+
 export type ConnectionEvents = {
   qr: {
     instanceId: string;
@@ -10,6 +12,7 @@ export type ConnectionEvents = {
   };
   disconnected: {
     instanceId: string;
+    type: DisconnectType;
     reason?: string;
   };
 };
