@@ -104,6 +104,10 @@ export class BaileysConnection {
     if (!this._socket.authState.creds.registered && phoneNumber) {
       const code = await this._socket.requestPairingCode(phoneNumber);
       // this.events.onPairingCode?.(code);
+      this.eventBus.emit('pairingCode', {
+        instanceId: this.instanceId,
+        pairingCode: code,
+      });
     }
 
     // ===============================

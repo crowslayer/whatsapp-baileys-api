@@ -65,11 +65,7 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
     //   },
     // });
     // opcion con eventbuss
-    this._connection = new BaileysConnection(
-      this.instance.instanceId,
-      // {}, // 👈 ya no necesitas callbacks aquí
-      this.eventBus
-    );
+    this._connection = new BaileysConnection(this.instance.instanceId, this.eventBus);
 
     this.bindEvents();
 
@@ -123,16 +119,26 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
 
     this.eventBus.on('connected', async (data) => {
       if (data.instanceId !== this.instance.instanceId) return;
+
       this.instance.connect(data.phone);
       await this.repository.update(this.instance);
+
       await this.connectionStore.clear(data.instanceId);
     });
 
     this.eventBus.on('disconnected', async (data) => {
       if (data.instanceId !== this.instance.instanceId) return;
+
       this.instance.disconnect(data.reason);
       await this.repository.update(this.instance);
+
       this._disconnectHandler?.(data);
+    });
+
+    this.eventBus.on('pairingCode', async (data) => {
+      if (data.instanceId !== this.instance.instanceId) return;
+
+      await this.connectionStore.setPairingCode(data.instanceId, data.pairingCode);
     });
   }
 }

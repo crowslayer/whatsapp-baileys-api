@@ -15,6 +15,10 @@ export type ConnectionEvents = {
     type: DisconnectType;
     reason?: string;
   };
+  pairingCode: {
+    instanceId: string;
+    pairingCode: string;
+  };
 };
 
 export interface IConnectionEventBus {
