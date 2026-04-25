@@ -23,13 +23,6 @@ import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
 
 export type DisconnectType = 'TRANSIENT' | 'INVALID_SESSION' | 'LOGGED_OUT';
 
-export interface IBaileysConnectionEvents {
-  onQR?: (qrBase64: string, qrText: string) => void;
-  onConnected?: (phone: string) => void;
-  onDisconnected?: (event: { type: DisconnectType; reason?: string }) => void;
-  onPairingCode?: (code: string) => void;
-}
-
 // ===============================
 // CLASS
 // ===============================
@@ -62,7 +55,6 @@ export class BaileysConnection {
 
   constructor(
     private readonly instanceId: string,
-    // private readonly events: IBaileysConnectionEvents
     private readonly eventBus: IConnectionEventBus
   ) {}
 
@@ -103,7 +95,7 @@ export class BaileysConnection {
     // ===============================
     if (!this._socket.authState.creds.registered && phoneNumber) {
       const code = await this._socket.requestPairingCode(phoneNumber);
-      // this.events.onPairingCode?.(code);
+
       this.eventBus.emit('pairingCode', {
         instanceId: this.instanceId,
         pairingCode: code,
@@ -129,8 +121,6 @@ export class BaileysConnection {
           qrCode: qrCodeBase64,
           qrText: qr,
         });
-
-        // this.events.onQR?.(qrCodeBase64, qr);
       }
 
       // CONNECTED
@@ -143,8 +133,6 @@ export class BaileysConnection {
           instanceId: this.instanceId,
           phone,
         });
-
-        // this.events.onConnected?.(phone);
       }
 
       // CLOSED
@@ -157,7 +145,6 @@ export class BaileysConnection {
           reason: result.reason,
           type: result.type,
         });
-        // this.events.onDisconnected?.(result);
 
         // limpieza técnica mínima
         if (result.type === 'INVALID_SESSION' || result.type === 'LOGGED_OUT') {

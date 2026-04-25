@@ -45,26 +45,6 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
   ) {}
 
   async start(phoneNumber?: string): Promise<void> {
-    // this._connection = new BaileysConnection(this.instance.instanceId, {
-    //   onQR: async (qr, qrText) => {
-    //     await this.connectionStore.setQR(this.instance.instanceId, qr, qrText);
-    //   },
-    //   onConnected: async (phone) => {
-    //     this.instance.connect(phone);
-    //     await this.repository.update(this.instance);
-    //     await this.connectionStore.clear(this.instance.instanceId);
-    //   },
-    //   onDisconnected: async (event) => {
-    //     this.instance.disconnect(event.reason);
-    //     await this.repository.update(this.instance);
-    //     await this.connectionStore.clear(this.instance.instanceId);
-    //     this._disconnectHandler?.(event);
-    //   },
-    //   onPairingCode: async (code) => {
-    //     await this.connectionStore.setPairingCode(this.instance.instanceId, code);
-    //   },
-    // });
-    // opcion con eventbuss
     this._connection = new BaileysConnection(this.instance.instanceId, this.eventBus);
 
     this.bindEvents();
