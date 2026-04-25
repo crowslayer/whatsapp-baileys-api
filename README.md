@@ -2,6 +2,11 @@
 
 API REST profesional para interactuar con WhatsApp usando la librería Baileys, construida con Node.js, TypeScript y siguiendo principios de arquitectura hexagonal, DDD, CQRS y patrones de diseño empresariales.
 
+## 📌 Versionado y cambios
+
+- **Releases (tags)**: `v1.0.1`, `v1.1.0`
+- **Historial de cambios**: ver `CHANGELOG.md`
+
 ## 🚀 Características
 
 - ✅ **Multi-instancia**: Soporte para múltiples sesiones de WhatsApp simultáneas
@@ -101,16 +106,16 @@ Notas:
 
 ### Scripts útiles (`package.json`)
 
-| Script | Descripción |
-|--------|-------------|
-| `npm run dev` | Servidor en caliente con `tsx watch` |
-| `npm run build` | Compila TypeScript, `tsc-alias` y copia assets (`build:di` vía pnpm) |
-| `npm start` | Ejecuta `dist/index.js` (tras `build`) |
-| `npm run type-check` | `tsc --noEmit` |
-| `npm run lint` / `lint:fix` | ESLint |
-| `npm run format` / `format:check` | Prettier sobre `src/**` |
-| `npm run validate` | `type-check` + `lint` + `format:check` (usa pnpm) |
-| `npm run clean` | Borra `dist/` con `rm -rf` (en Windows, si falla, elimina la carpeta `dist` manualmente o usa un shell tipo Git Bash) |
+| Script                            | Descripción                                                                                                           |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                     | Servidor en caliente con `tsx watch`                                                                                  |
+| `npm run build`                   | Compila TypeScript, `tsc-alias` y copia assets (`build:di` vía pnpm)                                                  |
+| `npm start`                       | Ejecuta `dist/index.js` (tras `build`)                                                                                |
+| `npm run type-check`              | `tsc --noEmit`                                                                                                        |
+| `npm run lint` / `lint:fix`       | ESLint                                                                                                                |
+| `npm run format` / `format:check` | Prettier sobre `src/**`                                                                                               |
+| `npm run validate`                | `type-check` + `lint` + `format:check` (usa pnpm)                                                                     |
+| `npm run clean`                   | Borra `dist/` con `rm -rf` (en Windows, si falla, elimina la carpeta `dist` manualmente o usa un shell tipo Git Bash) |
 
 ### 4. Compilar TypeScript
 
