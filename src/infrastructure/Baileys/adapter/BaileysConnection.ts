@@ -51,7 +51,7 @@ const trasport = {
 export class BaileysConnection {
   private _socket?: WASocket;
   private _logger = pino({ level: 'info', ...trasport });
-  private _intentionalClose = false;
+  private _intentionalClose: boolean = false;
 
   private _msgRetryCounterCache = new NodeCache({
     stdTTL: 3600,
