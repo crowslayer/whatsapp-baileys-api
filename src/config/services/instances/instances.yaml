@@ -21,6 +21,7 @@ services:
     class: '../../../application/instances/qr-code/status/QRCodeStatus'
     arguments:
       - '@infrastructure.repository.mongo.instance_read_repository'
+      - '@infrastructure.cache.nodecache_connection_store'
     public: true
 
   application.instances.qr_code.searcher:

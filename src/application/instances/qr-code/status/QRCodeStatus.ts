@@ -1,13 +1,11 @@
-import {
-  IWhatsAppQRCodeReadRepository,
-  WhatsAppQRCodeStatus,
-} from '@domain/queries/IWhatsAppQRCodeReadRepository';
+import { IWhatsAppInstanceReadRepository } from '@domain/queries/IWhatsAppInstanceReadRepository';
+import { WhatsAppQRCodeStatus } from '@domain/queries/IWhatsAppQRCodeReadRepository';
 
 import { IConnectionStateStore } from '@application/runtime/IConnectionStateStore';
 
 export class QRCodeStatus {
   constructor(
-    private readonly repository: IWhatsAppQRCodeReadRepository,
+    private readonly repository: IWhatsAppInstanceReadRepository,
     private readonly connectionStore: IConnectionStateStore
   ) {}
 
