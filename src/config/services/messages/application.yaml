@@ -55,7 +55,6 @@ services:
     class: '../../../application/messages/text/TextMessageSender'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@application.runtime.runtime_manager'
       - '@application.service.message_orchestrator'
     public: true
 
