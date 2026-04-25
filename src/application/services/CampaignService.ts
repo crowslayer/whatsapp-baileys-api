@@ -1,10 +1,11 @@
 import { setTimeout as delay } from 'node:timers/promises';
 
+import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 import { ICampaignRequest, ICampaignResult } from '@application/services/ICampaignRequest';
+import { MessageOrchestrator } from '@application/services/MessageOrchestrator';
+
 import { ILogger } from '@infrastructure/loggers/Logger';
 
-import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
-import { MessageOrchestrator } from '@application/services/MessageOrchestrator';
 import { normalizeBulk } from '@shared/infrastructure/utils/normalizeBulk';
 import { PhoneNormalizer } from '@shared/infrastructure/utils/PhoneNormalizer';
 
