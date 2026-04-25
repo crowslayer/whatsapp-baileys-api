@@ -1,9 +1,10 @@
 import { setTimeout as delay } from 'node:timers/promises';
 
-import { BaileysConnectionManager } from '@infrastructure/baileys/BaileysConnectionManager';
-import { ICampaignRequest, ICampaignResult } from '@infrastructure/campaign/ICampaignRequest';
+import { ICampaignRequest, ICampaignResult } from '@application/services/ICampaignRequest';
 import { ILogger } from '@infrastructure/loggers/Logger';
 
+import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
+import { MessageOrchestrator } from '@application/services/MessageOrchestrator';
 import { normalizeBulk } from '@shared/infrastructure/utils/normalizeBulk';
 import { PhoneNormalizer } from '@shared/infrastructure/utils/PhoneNormalizer';
 
@@ -11,7 +12,8 @@ export class CampaignService {
   private _normalizer = new PhoneNormalizer('MX');
 
   constructor(
-    private readonly manager: BaileysConnectionManager,
+    private readonly runtimeManager: IRuntimeManager,
+    private readonly orchestrator: MessageOrchestrator,
     private readonly logger: ILogger
   ) {}
 
@@ -29,10 +31,10 @@ export class CampaignService {
 
     // 2️ Validar contra WhatsApp (opcional)
     if (validateWhatsApp) {
-      const adapter = this.manager.getConnection(instanceId);
+      const adapter = this.runtimeManager.get(instanceId);
       if (!adapter) throw new Error('Instance not connected');
 
-      const check = await adapter.checkWhatsAppNumber(valid);
+      const check = await adapter.profile.checkWhatsAppNumber(valid);
 
       finalList = check.filter((r) => r.exists).map((r) => r.jid);
 
@@ -55,7 +57,7 @@ export class CampaignService {
       const jid = list[i];
 
       try {
-        await this.manager.sendMessage(instanceId, jid, message);
+        await this.orchestrator.send(instanceId, jid, message);
         success++;
       } catch (error) {
         failed++;
