@@ -3,15 +3,14 @@ import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInsta
 import { Name } from '@domain/value-objects/Name';
 
 import { CreateInstanceCommand } from '@application/instances/create/CreateInstanceCommand';
-
-import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 
 import { ConflictError } from '@shared/infrastructure/errors/ConflictError';
 
 export class InstancesCreator {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: IConnectionManager
+    private readonly runtimeManager: IRuntimeManager
   ) {}
 
   async execute(command: CreateInstanceCommand): Promise<WhatsAppInstanceAggregate> {
@@ -26,9 +25,9 @@ export class InstancesCreator {
     await this.repository.save(instance);
 
     if (command.usePairingCode && command.phoneNumber) {
-      await this.connectionManager.createConnection(instance.instanceId, true, command.phoneNumber);
+      await this.runtimeManager.start(instance.instanceId, command.phoneNumber);
     } else {
-      await this.connectionManager.createConnection(instance.instanceId, false);
+      await this.runtimeManager.start(instance.instanceId);
     }
 
     return instance;

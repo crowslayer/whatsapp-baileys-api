@@ -2,13 +2,12 @@ import { IChatReadRepository } from '@domain/queries/IChatReadRepository';
 
 import { IChatSynchronizer } from '@application/chats/synchronize/IChatSynchronizer';
 import { IGroupsResult } from '@application/groups/list/GroupsResponse';
-
-import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 
 export class GroupsFinder {
   constructor(
     private readonly repository: IChatReadRepository,
-    private readonly connectionManager: IConnectionManager,
+    private readonly runtimeManager: IRuntimeManager,
     private readonly chatSync: IChatSynchronizer
   ) {}
 
@@ -16,12 +15,12 @@ export class GroupsFinder {
     let groups = await this.repository.findGroupsByInstance(instanceId);
 
     if (groups.length === 0) {
-      const adapter = this.connectionManager.getConnection(instanceId);
+      const adapter = this.runtimeManager.get(instanceId);
 
       if (!adapter) {
         throw new Error('Instances Not Found');
       }
-      const freshGroups = await adapter.syncGroupsMetadata();
+      const freshGroups = await adapter.groups.syncGroupsMetadata();
       this.chatSync.syncChats(instanceId, freshGroups, false);
 
       groups = await this.repository.findGroupsByInstance(instanceId);

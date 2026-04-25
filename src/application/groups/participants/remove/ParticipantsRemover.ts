@@ -1,15 +1,14 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
 import { RemoveParticipantsGroupCommand } from '@application/groups/participants/remove/RemoveParticipantsGroupCommand';
-
-import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 
 export class ParticipantsRemover {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: IConnectionManager
+    private readonly runtimeManager: IRuntimeManager
   ) {}
 
   async execute(command: RemoveParticipantsGroupCommand): Promise<void> {
@@ -17,11 +16,11 @@ export class ParticipantsRemover {
     if (!instance) {
       throw new NotFoundError(`Instance ${command.instanceId} not found`);
     }
-    const adapter = this.connectionManager.getConnection(command.instanceId);
+    const adapter = this.runtimeManager.get(command.instanceId);
     if (!adapter) {
       throw new NotFoundError('Instance not found');
     }
 
-    await adapter.removeParticipantsFromGroup(command.groupId, command.participants);
+    await adapter.groups.removeParticipantsFromGroup(command.groupId, command.participants);
   }
 }

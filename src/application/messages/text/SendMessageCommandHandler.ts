@@ -2,6 +2,7 @@ import { SendMessageCommand } from '@application/messages/text/SendMessageComman
 import { TextMessageSender } from '@application/messages/text/TextMessageSender';
 
 import { ICommandHandler } from '@shared/domain/commands/CommandHandler';
+import { PhoneNormalizer } from '@shared/infrastructure/utils/PhoneNormalizer';
 
 export class SendMessageCommandHandler implements ICommandHandler<SendMessageCommand> {
   constructor(private readonly sender: TextMessageSender) {}
@@ -11,6 +12,11 @@ export class SendMessageCommandHandler implements ICommandHandler<SendMessageCom
   }
 
   async handle(command: SendMessageCommand): Promise<void> {
-    await this.sender.execute(command);
+    const normalizer = new PhoneNormalizer();
+    const jid = normalizer.toJid(command.to);
+    if (!jid) {
+      throw new Error('Phone invalid');
+    }
+    await this.sender.execute(command.instanceId, jid, command.message);
   }
 }

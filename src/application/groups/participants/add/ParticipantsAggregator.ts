@@ -1,15 +1,14 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
 import { AddParticipantGroupCommand } from '@application/groups/participants/add/AddParticipantGroupCommand';
-
-import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 
 export class ParticipantsAggregator {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
-    private readonly connectionManager: IConnectionManager
+    private readonly runtimeManager: IRuntimeManager
   ) {}
 
   async execute(command: AddParticipantGroupCommand): Promise<void> {
@@ -17,11 +16,11 @@ export class ParticipantsAggregator {
     if (!instance) {
       throw new NotFoundError(`Instance ${command.instanceId} not found`);
     }
-    const adapter = this.connectionManager.getConnection(command.instanceId);
+    const adapter = this.runtimeManager.get(command.instanceId);
     if (!adapter) {
       throw new NotFoundError('Instance not found');
     }
 
-    await adapter.addParticipantsToGroup(command.groupId, command.participants);
+    await adapter.groups.addParticipantsToGroup(command.groupId, command.participants);
   }
 }

@@ -17,8 +17,8 @@ export class GetQRCodeQueryHandler implements IQueryHandler<GetQRCodeQuery, QRCo
       const instance = await this.searcher.execute(query.instanceId);
       return QRCodeResponse.create(instance);
     } catch (error) {
-      if (error instanceof Error) {
-        throw new NotFoundError('instance not found');
+      if (error instanceof NotFoundError) {
+        throw error;
       }
       throw error;
     }

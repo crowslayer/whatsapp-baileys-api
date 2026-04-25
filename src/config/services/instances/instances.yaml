@@ -27,32 +27,33 @@ services:
     class: '../../../application/instances/qr-code/get/QRCodeSearcher'
     arguments:
       - '@infrastructure.repository.mongo.instance_read_repository'
+      - '@infrastructure.cache.nodecache_connection_store'
     public: true
 
   application.instances.create.instances_creator:
     class: ../../../application/instances/create/InstancesCreator
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.instances.delete.instances_eraser:
     class: ../../../application/instances/delete/InstancesEraser
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.instances.connect.instances_connect:
     class: ../../../application/instances/connect/InstancesConnect
     arguments:
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.instances.disconnect.instances_disconnect:
     class: ../../../application/instances/disconnect/InstancesDisconnect
     arguments:
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   # =============================================

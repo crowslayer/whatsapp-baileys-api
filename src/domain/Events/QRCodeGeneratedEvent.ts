@@ -8,6 +8,7 @@ export class QRCodeGeneratedEvent implements IDomainEvent {
     public readonly aggregateId: string,
     public readonly payload: {
       qrCode: string;
+      qrText: string;
     }
   ) {
     this.occurredOn = new Date();

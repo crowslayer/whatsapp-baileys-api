@@ -1,8 +1,7 @@
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
 import { SendReactionCommand } from '@application/messages/reaction/SendReactionCommand';
-
-import { IConnectionManager } from '@infrastructure/baileys/IConnectionManager';
+import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
@@ -10,7 +9,7 @@ import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 export class ReactionSender {
   constructor(
     private repository: IWhatsAppInstanceRepository,
-    private connectionManager: IConnectionManager
+    private runtimeManager: IRuntimeManager
   ) {}
 
   async execute(command: SendReactionCommand): Promise<void> {
@@ -25,13 +24,13 @@ export class ReactionSender {
       ]);
     }
 
-    const adapter = this.connectionManager.getConnection(command.instanceId);
+    const adapter = this.runtimeManager.get(command.instanceId);
     if (!adapter) {
       throw new ValidationError([
         { field: 'instance', message: `Instance ${command.instanceId} adapter not found` },
       ]);
     }
 
-    await adapter.sendReaction(command.chatId, command.messageId, command.emoji);
+    await adapter.messaging.sendReaction(command.chatId, command.messageId, command.emoji);
   }
 }

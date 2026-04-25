@@ -6,28 +6,28 @@ services:
     class: '../../../application/groups/create/GroupCreator'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.groups.participants.participants_aggregator:
     class: '../../../application/groups/participants/add/ParticipantsAggregator'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.groups.participants.participants_remover:
     class: '../../../application/groups/participants/remove/ParticipantsRemover'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
     public: true
 
   application.groups.list.groups_finder:
     class: '../../../application/groups/list/GroupsFinder'
     arguments:
       - '@infrastructure.repository.mongo.chat_read_repository'
-      - '@infrastructure.baileys.connection_manager'
+      - '@application.runtime.runtime_manager'
       - '@application.chats.sincronizer'
     public: true
 
