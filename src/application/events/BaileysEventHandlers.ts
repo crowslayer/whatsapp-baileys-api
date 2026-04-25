@@ -4,13 +4,14 @@ import { Label } from '@whiskeysockets/baileys/lib/Types/Label';
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
 
 import { IChatSynchronizer } from '@application/chats/synchronize/IChatSynchronizer';
-import { Asociacion, IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers';
-
-import { IBaileysChat, IBaileysChatUpdate } from '@infrastructure/baileys/IBaileysChat';
 import {
+  Asociacion,
+  IBaileysEventHandlers,
   IGroupParticipantsUpdate,
   IPresenceUpdate,
-} from '@infrastructure/baileys/IBaileysConnectionOptions';
+} from '@application/events/IBaileysEventHandlers';
+
+import { IBaileysChat, IBaileysChatUpdate } from '@infrastructure/baileys/IBaileysChat';
 import { WebhookService } from '@infrastructure/http/webhooks/WebhookService';
 import { ILogger } from '@infrastructure/loggers/Logger';
 

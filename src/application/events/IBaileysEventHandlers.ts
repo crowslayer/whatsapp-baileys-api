@@ -1,6 +1,7 @@
 import {
   Contact,
   GroupMetadata,
+  GroupParticipant,
   PresenceData,
   WACallEvent,
   WAMessage,
@@ -9,11 +10,18 @@ import { Label } from '@whiskeysockets/baileys/lib/Types/Label';
 import { LabelAssociation } from '@whiskeysockets/baileys/lib/Types/LabelAssociation';
 
 import { IBaileysChat, IBaileysChatUpdate } from '@infrastructure/baileys/IBaileysChat';
-import { IGroupParticipantsUpdate } from '@infrastructure/baileys/IBaileysConnectionOptions';
 
-interface IPresenceUpdate {
+/** Presencia por JID — tipado del evento presence.update de Baileys */
+export interface IPresenceUpdate {
   id: string;
   presences: Record<string, PresenceData>;
+}
+
+/** Actualización de participantes de grupo — tipado del evento group-participants.update */
+export interface IGroupParticipantsUpdate {
+  id: string;
+  participants: GroupParticipant[];
+  action: 'add' | 'remove' | 'promote' | 'demote' | 'modify';
 }
 
 export type Asociacion =
