@@ -1,15 +1,15 @@
-import mongoose, { Document, Mixed, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IWhatsAppInstanceDocument extends Document {
   instanceId: string;
   name: string;
   status: string;
   phoneNumber?: string;
-  qrCode?: string;
-  qrText?: string;
-  pairingCode?: string;
+  // qrCode?: string;
+  // qrText?: string;
+  // pairingCode?: string;
   webhookUrl?: string;
-  sessionData?: Mixed;
+  // sessionData?: Mixed;
   lastConnectedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -40,11 +40,11 @@ const WhatsAppInstanceSchema = new Schema<IWhatsAppInstanceDocument>(
       sparse: true,
       index: true,
     },
-    qrCode: String,
-    qrText: String,
-    pairingCode: String,
+    // qrCode: String,
+    // qrText: String,
+    // pairingCode: String,
     webhookUrl: String,
-    sessionData: Schema.Types.Mixed,
+    // sessionData: Schema.Types.Mixed,
     lastConnectedAt: Date,
   },
   {

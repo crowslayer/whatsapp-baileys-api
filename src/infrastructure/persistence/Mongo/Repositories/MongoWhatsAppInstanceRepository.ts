@@ -1,11 +1,14 @@
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
-import { ConnectionStatus } from '@domain/value-objects/ConnectionStatus';
+import { ConnectionStatus, ConnectionStatusEnum } from '@domain/value-objects/ConnectionStatus';
 import { InstanceId } from '@domain/value-objects/InstanceId';
 import { Name } from '@domain/value-objects/Name';
 import { PhoneNumber } from '@domain/value-objects/PhoneNumber';
 
-import { WhatsAppInstanceModel } from '@infrastructure/persistence/mongo/models/WhatsAppInstanceModel';
+import {
+  IWhatsAppInstanceDocument,
+  WhatsAppInstanceModel,
+} from '@infrastructure/persistence/mongo/models/WhatsAppInstanceModel';
 
 import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
 
@@ -17,11 +20,11 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
         name: instance.name.value,
         status: instance.status.value,
         phoneNumber: instance.phoneNumber?.value,
-        qrCode: instance.qrCode,
-        qrText: instance.qrText,
-        pairingCode: instance.pairingCode,
+        // qrCode: instance.qrCode,
+        // qrText: instance.qrText,
+        // pairingCode: instance.pairingCode,
         webhookUrl: instance.webhookUrl,
-        sessionData: instance.sessionData,
+        // sessionData: instance.sessionData,
         lastConnectedAt: instance.lastConnectedAt,
       });
 
@@ -83,11 +86,11 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
             name: instance.name.value,
             status: instance.status.value,
             phoneNumber: instance.phoneNumber?.value,
-            qrCode: instance.qrCode,
-            qrText: instance.qrText,
-            pairingCode: instance.pairingCode,
+            // qrCode: instance.qrCode,
+            // qrText: instance.qrText,
+            // pairingCode: instance.pairingCode,
             webhookUrl: instance.webhookUrl,
-            sessionData: instance.sessionData,
+            // sessionData: instance.sessionData,
             lastConnectedAt: instance.lastConnectedAt,
             updatedAt: new Date(),
           },
@@ -127,17 +130,17 @@ export class MongoWhatsAppInstanceRepository implements IWhatsAppInstanceReposit
     }
   }
 
-  private toDomain(document: any): WhatsAppInstanceAggregate {
+  private toDomain(document: IWhatsAppInstanceDocument): WhatsAppInstanceAggregate {
     return WhatsAppInstanceAggregate.restore({
       instanceId: InstanceId.fromString(document.instanceId),
       name: Name.create(document.name),
-      status: ConnectionStatus.create(document.status),
+      status: ConnectionStatus.create(document.status as ConnectionStatusEnum),
       phoneNumber: document.phoneNumber ? PhoneNumber.create(document.phoneNumber) : undefined,
-      qrCode: document.qrCode,
-      qrText: document.qrText,
-      pairingCode: document.pairingCode,
+      // qrCode: document.qrCode,
+      // qrText: document.qrText,
+      // pairingCode: document.pairingCode,
       webhookUrl: document.webhookUrl,
-      sessionData: document.sessionData,
+      // sessionData: document.sessionData,
       lastConnectedAt: document.lastConnectedAt,
       createdAt: document.createdAt,
       updatedAt: document.updatedAt,
