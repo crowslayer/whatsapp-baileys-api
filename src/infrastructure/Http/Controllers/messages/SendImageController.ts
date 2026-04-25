@@ -8,6 +8,7 @@ import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
+import { PhoneNormalizer } from '@shared/infrastructure/utils/PhoneNormalizer';
 
 export class SendImageController {
   constructor(private readonly commandBus: ICommandBus) {}
@@ -27,7 +28,13 @@ export class SendImageController {
         .withDetails({ to, fileSize: req.file.size })
         .build();
 
-      const command = new SendImageCommand(instanceId, to, req.file.buffer, caption, fileName);
+      const normalizer = new PhoneNormalizer();
+      const jid = normalizer.toJid(to);
+      if (!jid) {
+        throw new Error('Phone invalid');
+      }
+
+      const command = new SendImageCommand(instanceId, jid, req.file.buffer, caption, fileName);
       await this.commandBus.dispatch(command);
 
       ResponseHandler.success(

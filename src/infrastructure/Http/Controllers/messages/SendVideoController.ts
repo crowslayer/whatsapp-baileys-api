@@ -6,6 +6,7 @@ import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
+import { PhoneNormalizer } from '@shared/infrastructure/utils/PhoneNormalizer';
 
 export class SendVideoController {
   constructor(private readonly commandBus: ICommandBus) {}
@@ -25,9 +26,15 @@ export class SendVideoController {
         .withDetails({ to, gifPlayback: gifPlayback === 'true', fileSize: req.file.size })
         .build();
 
+      const normalizer = new PhoneNormalizer();
+      const jid = normalizer.toJid(to);
+      if (!jid) {
+        throw new Error('Phone invalid');
+      }
+
       const command = new SendVideoCommand(
         instanceId,
-        to,
+        jid,
         req.file.buffer,
         caption,
         gifPlayback === 'true',

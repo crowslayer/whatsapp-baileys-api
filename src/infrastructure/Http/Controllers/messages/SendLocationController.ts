@@ -7,6 +7,7 @@ import { StatusCode } from '@infrastructure/http/StatusCode';
 import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
+import { PhoneNormalizer } from '@shared/infrastructure/utils/PhoneNormalizer';
 
 export class SendLocationController {
   constructor(private readonly commandBus: ICommandBus) {}
@@ -22,9 +23,15 @@ export class SendLocationController {
         .withDetails({ to, latitude, longitude })
         .build();
 
+      const normalizer = new PhoneNormalizer();
+      const jid = normalizer.toJid(to);
+      if (!jid) {
+        throw new Error('Phone invalid');
+      }
+
       const command = new SendLocationCommand(
         instanceId,
-        to,
+        jid,
         parseFloat(latitude),
         parseFloat(longitude),
         name,

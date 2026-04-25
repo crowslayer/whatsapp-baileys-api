@@ -8,6 +8,7 @@ import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
+import { PhoneNormalizer } from '@shared/infrastructure/utils/PhoneNormalizer';
 
 export class SendContactController {
   constructor(private readonly commandBus: ICommandBus) {}
@@ -32,7 +33,13 @@ export class SendContactController {
         .withDetails({ to, contactCount: validContacts.length })
         .build();
 
-      const command = new SendContactCommand(instanceId, to, validContacts);
+      const normalizer = new PhoneNormalizer();
+      const jid = normalizer.toJid(to);
+      if (!jid) {
+        throw new Error('Phone invalid');
+      }
+
+      const command = new SendContactCommand(instanceId, jid, validContacts);
       await this.commandBus.dispatch(command);
 
       ResponseHandler.success(

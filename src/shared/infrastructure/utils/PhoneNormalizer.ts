@@ -25,9 +25,16 @@ export class PhoneNormalizer {
   }
 
   toJid(raw: string): string | null {
+    if (this.iJid(raw)) return raw;
+
     const normalized = this.normalize(raw);
+
     if (!normalized) return null;
 
     return `${normalized}@s.whatsapp.net`;
+  }
+
+  private iJid(jid: string): boolean {
+    return jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
   }
 }

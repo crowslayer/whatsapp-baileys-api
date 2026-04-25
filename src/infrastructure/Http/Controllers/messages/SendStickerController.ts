@@ -8,6 +8,7 @@ import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
+import { PhoneNormalizer } from '@shared/infrastructure/utils/PhoneNormalizer';
 
 export class SendStickerController {
   constructor(private readonly commandBus: ICommandBus) {}
@@ -27,7 +28,13 @@ export class SendStickerController {
         .withDetails({ to, fileSize: req.file.size })
         .build();
 
-      const command = new SendStickerCommand(instanceId, to, req.file.buffer);
+      const normalizer = new PhoneNormalizer();
+      const jid = normalizer.toJid(to);
+      if (!jid) {
+        throw new Error('Phone invalid');
+      }
+
+      const command = new SendStickerCommand(instanceId, jid, req.file.buffer);
       await this.commandBus.dispatch(command);
 
       ResponseHandler.success(

@@ -8,6 +8,7 @@ import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
+import { PhoneNormalizer } from '@shared/infrastructure/utils/PhoneNormalizer';
 
 export class SendAudioController {
   constructor(private readonly commandBus: ICommandBus) {}
@@ -27,9 +28,15 @@ export class SendAudioController {
         .withDetails({ to, ptt: ptt === 'true', fileSize: req.file.size })
         .build();
 
+      const normalizer = new PhoneNormalizer();
+      const jid = normalizer.toJid(to);
+      if (!jid) {
+        throw new Error('Phone invalid');
+      }
+
       const command = new SendAudioCommand(
         instanceId,
-        to,
+        jid,
         req.file.buffer,
         ptt === 'true',
         req.file.mimetype

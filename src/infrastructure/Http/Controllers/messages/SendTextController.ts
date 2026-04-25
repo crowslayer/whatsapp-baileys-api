@@ -7,6 +7,7 @@ import { StatusCode } from '@infrastructure/http/StatusCode';
 import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
+import { PhoneNormalizer } from '@shared/infrastructure/utils/PhoneNormalizer';
 
 export class SendTextController {
   constructor(private readonly commandBus: ICommandBus) {}
@@ -22,7 +23,13 @@ export class SendTextController {
         .withDetails({ to, messageLength: message.length })
         .build();
 
-      const command = new SendMessageCommand(instanceId, to, message);
+      const normalizer = new PhoneNormalizer();
+      const jid = normalizer.toJid(to);
+      if (!jid) {
+        throw new Error('Phone invalid');
+      }
+
+      const command = new SendMessageCommand(instanceId, jid, message);
       await this.commandBus.dispatch(command);
 
       ResponseHandler.success(
