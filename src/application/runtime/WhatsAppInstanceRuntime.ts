@@ -109,6 +109,14 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
     return this._presence;
   }
 
+  get privacy(): IPrivacyService {
+    return this._privacy;
+  }
+
+  get chatState(): IChatStateService {
+    return this._chatState;
+  }
+
   // Metdo para usar eventos en lugar de callback
   private bindEvents(): void {
     this.eventBus.on('qr', async (data) => {

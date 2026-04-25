@@ -24,16 +24,16 @@ export class HumanBehaviorService {
   async simulateTyping(runtime: IWhatsAppRuntime, to: string, text: string): Promise<void> {
     try {
       await runtime.presence.sendPresence(to, 'composing');
-    } catch {
-      console.error('Error actualiando presencia a composing');
+    } catch (error) {
+      console.error('Error actualiando presencia a composing', error);
     }
 
     await delay(this.getTypingDelay(text));
 
     try {
       await runtime.presence.sendPresence(to, 'paused');
-    } catch {
-      console.error('Error actualiando estado');
+    } catch (error) {
+      console.error('Error actualiando estado', error);
     }
   }
 
@@ -44,8 +44,8 @@ export class HumanBehaviorService {
       await delay(500 + Math.random() * 1500);
       try {
         await runtime.presence.sendPresence(to, 'unavailable');
-      } catch {
-        console.error('Error actualiando a unavailable');
+      } catch (error) {
+        console.error('Error actualiando a unavailable', error);
       }
     }
   }

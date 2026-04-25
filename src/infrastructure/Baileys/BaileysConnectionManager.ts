@@ -123,12 +123,12 @@ export class BaileysConnectionManager {
       const adapter = new BaileysAdapter({
         instanceId,
         onQRCode: async (qrBase64, qrText) => {
-          instance.generateQRCode(qrBase64, qrText);
+          // instance.generateQRCode(qrBase64, qrText);
           await this.repository.update(instance);
           this._logger.info(`QR Code generated for instance ${instanceId}`);
         },
         onPairingCode: async (code) => {
-          instance.generatePairingCode(code);
+          // instance.generatePairingCode(code);
           await this.repository.update(instance);
           this._logger.info(`Pairing code generated for instance ${instanceId}: ${code}`);
         },

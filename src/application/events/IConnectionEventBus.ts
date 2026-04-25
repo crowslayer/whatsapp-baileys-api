@@ -1,4 +1,4 @@
-import { DisconnectType } from '@infrastructure/baileys/adapter/BaileysConnection';
+type DisconnectType = 'TRANSIENT' | 'INVALID_SESSION' | 'LOGGED_OUT';
 
 export type ConnectionEvents = {
   qr: {
