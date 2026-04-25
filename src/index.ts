@@ -24,9 +24,7 @@ async function bootstrap(): Promise<void> {
     const mongoConnection = container.get<IDatabaseConnection>(
       'infrastructure.database.connection'
     );
-    // const connectionManager = container.get<IConnectionManager>(
-    //   'infrastructure.baileys.connection_manager'
-    // );
+
     const connectionManager = container.get<IRuntimeManager>('application.runtime.runtime_manager');
 
     await mongoConnection.connect();
@@ -91,20 +89,6 @@ async function bootstrap(): Promise<void> {
           resolve();
         });
       });
-      // server.close(() => {
-      //   logger.info('HTTP server closed');
-      // });
-
-      // Disconnect all WhatsApp instances
-      // const connections = connectionManager.getAllConnections();
-      // for (const [instanceId, adapter] of connections) {
-      //   try {
-      //     adapter.disconnect();
-      //     logger.info(`Disconnected instance: ${instanceId}`);
-      //   } catch (error) {
-      //     logger.error(`Error disconnecting instance ${instanceId}:`, error);
-      //   }
-      // }
 
       process.exit(0);
     };
