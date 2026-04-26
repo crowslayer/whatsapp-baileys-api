@@ -1,4 +1,4 @@
-import { CampaignAggregate, ICampaignRecipient } from '@domain/campaign/CampaignAggregate';
+import { CampaignAggregate } from '@domain/campaign/CampaignAggregate';
 import { Description } from '@domain/campaign/Description';
 import { ICampaignRepository } from '@domain/campaign/ICampaignRepository';
 import { InstanceId } from '@domain/value-objects/InstanceId';
@@ -9,14 +9,21 @@ type CampaignProps = {
   name: Name;
   description: Description;
   message: string;
-  recipients: ICampaignRecipient[];
+  numbers: string[];
 };
 
 export class CampaignCreator {
   constructor(private readonly repository: ICampaignRepository) {}
 
   async execute(props: CampaignProps): Promise<void> {
-    const aggregate = CampaignAggregate.create(props);
+    const aggregate = CampaignAggregate.create({
+      ...props,
+      recipients: props.numbers.map((jid) => ({
+        jid,
+        status: 'pending',
+        attempts: 0,
+      })),
+    });
 
     await this.repository.save(aggregate);
   }
