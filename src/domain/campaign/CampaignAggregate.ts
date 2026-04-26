@@ -5,7 +5,7 @@ import { Name } from '@domain/value-objects/Name';
 
 import { AggregateRoot } from '@shared/domain/AggregateRoot';
 
-export type CampaignStatus = 'draft' | 'running' | 'paused' | 'completed';
+export type CampaignStatus = 'draft' | 'scheduled' | 'running' | 'paused' | 'completed';
 
 export type RecipientStatus = 'pending' | 'sent' | 'failed';
 
@@ -30,6 +30,10 @@ export interface ICampaignProps {
   lockExpiresAt?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
+  scheduledAt?: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  cronExpression?: string;
 }
 
 type CampaignCreateProps = Omit<ICampaignProps, 'campaignId' | 'status' | 'currentIndex'>;
@@ -46,6 +50,10 @@ export class CampaignAggregate extends AggregateRoot<string> {
   private _lockedBy: string | null = null;
   private _lockedAt: Date | null = null;
   private _lockExpiresAt: Date | null = null;
+  private _scheduledAt?: Date;
+  private _startedAt?: Date;
+  private _completedAt?: Date;
+  private _cronExpression?: string;
 
   private constructor(props: ICampaignProps) {
     super(props.campaignId.value, props.createdAt, props.updatedAt);
@@ -60,6 +68,10 @@ export class CampaignAggregate extends AggregateRoot<string> {
     this._lockedBy = props.lockedBy ?? null;
     this._lockedAt = props.lockedAt ?? null;
     this._lockExpiresAt = props.lockExpiresAt ?? null;
+    this._scheduledAt = props.scheduledAt;
+    this._startedAt = props.startedAt;
+    this._completedAt = props.completedAt;
+    this._cronExpression = props.cronExpression ?? '';
   }
 
   static create(props: CampaignCreateProps): CampaignAggregate {
@@ -112,6 +124,15 @@ export class CampaignAggregate extends AggregateRoot<string> {
 
   isFinished(): boolean {
     return this._currentIndex >= this._recipients.length;
+  }
+
+  schedule(date: Date): void {
+    if (this._status !== 'draft') {
+      throw new Error('Only draft campaigns can be scheduled');
+    }
+
+    this._status = 'scheduled';
+    this._scheduledAt = date;
   }
 
   updated(props: Partial<CampaignCreateProps>): void {
@@ -178,6 +199,22 @@ export class CampaignAggregate extends AggregateRoot<string> {
 
   get lockExpiresAt(): Date | null {
     return this._lockExpiresAt;
+  }
+
+  get scheduledAt(): Date | undefined {
+    return this._scheduledAt;
+  }
+
+  get startedAt(): Date | undefined {
+    return this._startedAt;
+  }
+
+  get completedAt(): Date | undefined {
+    return this._completedAt;
+  }
+
+  get cronExpression(): string | undefined {
+    return this._cronExpression;
   }
 
   protected validate(): void {
