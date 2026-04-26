@@ -21,6 +21,10 @@ export interface ICampaignDocument extends Document {
   lockExpiresAt: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
+  scheduledAt?: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  cronExpression?: string; // opcional
 }
 
 const CampaignSchema = new Schema<ICampaignDocument>(
@@ -57,7 +61,7 @@ const CampaignSchema = new Schema<ICampaignDocument>(
     status: {
       type: String,
       required: true,
-      enum: ['draft', 'running', 'paused', 'completed'],
+      enum: ['draft', 'scheduled', 'running', 'paused', 'completed'],
       default: 'draft',
     },
 
@@ -89,11 +93,16 @@ const CampaignSchema = new Schema<ICampaignDocument>(
     lockedBy: { type: String, default: null },
     lockedAt: { type: Date, default: null },
     lockExpiresAt: { type: Date, default: null },
+    scheduledAt: { type: Date, default: null },
+    startedAt: { type: Date, default: null },
+    completedAt: { type: Date, default: null },
+    cronExpression: { type: String, default: null },
   },
   { timestamps: true, collection: 'campaign_instances' }
 );
 // indicess
 CampaignSchema.index({ status: 1, updatedAt: 1 });
+CampaignSchema.index({ status: 1, scheduledAt: 1 });
 CampaignSchema.index(
   { instanceId: 1, status: 1 },
   { unique: true, partialFilterExpression: { status: 'running' } }
