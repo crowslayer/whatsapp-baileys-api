@@ -44,6 +44,10 @@ export class MongoCampaignRepository implements ICampaignRepository {
             lockedBy: instance.lockedBy ?? null,
             lockExpiresAt: instance.lockExpiresAt ?? null,
             updatedAt: new Date(),
+            scheduledAt: instance.scheduledAt ?? null,
+            startedAt: instance.startedAt ?? null,
+            completedAt: instance,
+            cronExpression: instance.cronExpression ?? null,
           },
           $setOnInsert: {
             createdAt: instance.createdAt ?? new Date(),
@@ -73,7 +77,7 @@ export class MongoCampaignRepository implements ICampaignRepository {
         $set: {
           lockedBy: workerId,
           lockedAt: now,
-          lockExpiresAt: new Date(now.getTime() + 60000),
+          lockExpiresAt: new Date(now.getTime() + 120000),
         },
       },
       {
@@ -94,7 +98,7 @@ export class MongoCampaignRepository implements ICampaignRepository {
       },
       {
         $set: {
-          lockExpiresAt: new Date(Date.now() + 60000),
+          lockExpiresAt: new Date(Date.now() + 120000),
         },
       }
     );
@@ -111,6 +115,28 @@ export class MongoCampaignRepository implements ICampaignRepository {
         },
       }
     );
+  }
+
+  async startScheduled(now: Date): Promise<CampaignAggregate | null> {
+    const doc = await CampaignModel.findOneAndUpdate(
+      {
+        status: 'scheduled',
+        scheduledAt: { $lte: now },
+        lockedBy: null,
+      },
+      {
+        $set: {
+          status: 'running',
+          startedAt: now,
+        },
+      },
+      {
+        sort: { scheduledAt: 1 },
+        new: true,
+      }
+    );
+
+    return doc ? this.toDomain(doc) : null;
   }
 
   // ===============================
@@ -184,6 +210,10 @@ export class MongoCampaignRepository implements ICampaignRepository {
       lockExpiresAt: document.lockExpiresAt,
       createdAt: document.createdAt,
       updatedAt: document.updatedAt,
+      scheduledAt: document.scheduledAt ?? undefined,
+      startedAt: document.startedAt ?? undefined,
+      completedAt: document.completedAt ?? undefined,
+      cronExpression: document.cronExpression ?? undefined,
     });
   }
 }
