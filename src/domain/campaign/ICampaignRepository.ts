@@ -4,6 +4,7 @@ import { CampaignId } from '@domain/campaign/CampaignId';
 export interface ICampaignRepository {
   findById(campaignId: CampaignId): Promise<CampaignAggregate>;
   save(campaign: CampaignAggregate): Promise<void>;
+  startScheduled(now: Date): Promise<CampaignAggregate | null>;
   updateProgress(
     campaignId: CampaignId,
     index: number,
