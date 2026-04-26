@@ -1,4 +1,3 @@
-import { ICampaignRecipient } from '@domain/campaign/CampaignAggregate';
 import { Description } from '@domain/campaign/Description';
 import { InstanceId } from '@domain/value-objects/InstanceId';
 import { Name } from '@domain/value-objects/Name';
@@ -10,7 +9,7 @@ type CampaignProps = {
   name: Name;
   description: Description;
   message: string;
-  recipients: ICampaignRecipient[];
+  numbers: string[];
 };
 
 export class CreateCampaignCommand extends Command<void> {
@@ -18,7 +17,7 @@ export class CreateCampaignCommand extends Command<void> {
   readonly name: Name;
   readonly description: Description;
   readonly message: string;
-  readonly recipients: ICampaignRecipient[];
+  readonly numbers: string[];
 
   constructor(props: CampaignProps) {
     super();
@@ -26,6 +25,6 @@ export class CreateCampaignCommand extends Command<void> {
     this.name = props.name;
     this.description = props.description;
     this.message = props.message;
-    this.recipients = props.recipients;
+    this.numbers = props.numbers;
   }
 }
