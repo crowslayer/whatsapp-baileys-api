@@ -1,21 +1,16 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+import { ICampaignRecipient } from '@domain/campaign/CampaignAggregate';
+
 export interface ICampaignDocument extends Document {
   campaignId: string;
   instanceId: string;
   name: string;
   description: string;
   message: string;
-  recipients: [
-    {
-      jid: string;
-      status: string;
-      attempts: number;
-      lastError: string;
-    },
-  ];
+  recipients: ICampaignRecipient[];
   status: string;
-  currentIndex: number;
+
   lockedBy: string | null;
   lockedAt: Date | null;
   lockExpiresAt: Date | null;
@@ -73,23 +68,22 @@ const CampaignSchema = new Schema<ICampaignDocument>(
       maxlength: 1000,
     },
 
-    recipients: [
-      {
-        jid: { type: String, required: true },
-        status: {
-          type: String,
-          enum: ['pending', 'sent', 'failed'],
-          default: 'pending',
+    recipients: {
+      type: [
+        {
+          jid: String,
+          status: {
+            type: String,
+            enum: ['pending', 'sent', 'failed'],
+          },
+          attempts: { type: Number, default: 0 },
+          lastError: String,
+          retryAt: Date,
         },
-        attempts: { type: Number, default: 0 },
-        lastError: { type: String },
-      },
-    ],
-    currentIndex: {
-      type: Number,
-      required: true,
-      default: 0,
+      ],
+      default: [],
     },
+
     lockedBy: { type: String, default: null },
     lockedAt: { type: Date, default: null },
     lockExpiresAt: { type: Date, default: null },
@@ -100,13 +94,14 @@ const CampaignSchema = new Schema<ICampaignDocument>(
   },
   { timestamps: true, collection: 'campaign_instances' }
 );
+
 // indicess
 CampaignSchema.index({ status: 1, updatedAt: 1 });
 CampaignSchema.index({ status: 1, scheduledAt: 1 });
-CampaignSchema.index(
-  { instanceId: 1, status: 1 },
-  { unique: true, partialFilterExpression: { status: 'running' } }
-);
+CampaignSchema.index({ instanceId: 1, status: 1 });
+CampaignSchema.index({ 'recipients.retryAt': 1 });
+CampaignSchema.index({ status: 1, 'recipients.retryAt': 1 });
+CampaignSchema.index({ status: 1, 'recipients.status': 1, 'recipients.retryAt': 1 });
 CampaignSchema.index({ instanceId: 1, createdAt: -1 });
 
 export const CampaignModel = mongoose.model<ICampaignDocument>('CampaignInstance', CampaignSchema);
