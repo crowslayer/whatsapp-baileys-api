@@ -16,7 +16,7 @@ import {
 
 import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
 
-type LeanCampaign = Pick<ICampaignDocument, 'recipients'>;
+// type LeanCampaign = Pick<ICampaignDocument, 'recipients'>;
 
 export class MongoCampaignRepository implements ICampaignRepository {
   async findById(campaignId: CampaignId): Promise<CampaignAggregate> {
@@ -67,6 +67,7 @@ export class MongoCampaignRepository implements ICampaignRepository {
       throw error;
     }
   }
+
   async lockNext(workerId: string): Promise<CampaignAggregate | null> {
     const now = new Date();
 
