@@ -16,6 +16,8 @@ import {
 
 import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
 
+type LeanCampaign = Pick<ICampaignDocument, 'recipients'>;
+
 export class MongoCampaignRepository implements ICampaignRepository {
   async findById(campaignId: CampaignId): Promise<CampaignAggregate> {
     const document = await CampaignModel.findOne({ campaignId: campaignId.value });
@@ -39,15 +41,18 @@ export class MongoCampaignRepository implements ICampaignRepository {
             status: instance.status,
             message: instance.message,
             recipients: instance.recipients,
-            currentIndex: instance.currentIndex,
+
             lockedAt: instance.lockedAt ?? null,
             lockedBy: instance.lockedBy ?? null,
             lockExpiresAt: instance.lockExpiresAt ?? null,
-            updatedAt: new Date(),
+
             scheduledAt: instance.scheduledAt ?? null,
             startedAt: instance.startedAt ?? null,
-            completedAt: instance,
+            completedAt: instance.completedAt ?? null,
+
             cronExpression: instance.cronExpression ?? null,
+
+            updatedAt: new Date(),
           },
           $setOnInsert: {
             createdAt: instance.createdAt ?? new Date(),
@@ -68,9 +73,13 @@ export class MongoCampaignRepository implements ICampaignRepository {
     const model = await CampaignModel.findOneAndUpdate(
       {
         status: 'running',
-        $expr: {
-          $lt: ['$currentIndex', { $size: '$recipients' }],
+        recipients: {
+          $elemMatch: {
+            status: 'pending',
+            retryAt: null,
+          },
         },
+
         $or: [{ lockedBy: null }, { lockExpiresAt: { $lt: now } }],
       },
       {
@@ -87,6 +96,118 @@ export class MongoCampaignRepository implements ICampaignRepository {
     );
 
     return model ? this.toDomain(model) : null;
+  }
+
+  async findOneAndLock(
+    filter: any,
+    lockData: {
+      lockedBy: string;
+      lockedAt: Date;
+      lockExpiresAt: Date;
+    }
+  ): Promise<CampaignAggregate | null> {
+    const doc = await CampaignModel.findOneAndUpdate(
+      filter,
+      {
+        $set: {
+          lockedBy: lockData.lockedBy,
+          lockedAt: lockData.lockedAt,
+          lockExpiresAt: lockData.lockExpiresAt,
+        },
+      },
+      {
+        sort: { updatedAt: 1 }, // fairness
+        new: true,
+      }
+    );
+
+    return doc ? this.toDomain(doc) : null;
+  }
+
+  async findRetryCandidate(workerId: string): Promise<CampaignAggregate | null> {
+    const now = new Date();
+
+    const doc = await CampaignModel.findOneAndUpdate(
+      {
+        status: 'running',
+
+        // SOLO campañas con retries listos
+        recipients: {
+          $elemMatch: {
+            status: 'pending',
+            retryAt: { $lte: now },
+          },
+        },
+
+        // lock distribuido
+        $or: [{ lockedBy: null }, { lockExpiresAt: { $lt: now } }],
+      },
+      {
+        $set: {
+          lockedBy: workerId,
+          lockedAt: now,
+          lockExpiresAt: new Date(now.getTime() + 60000),
+        },
+      },
+      {
+        sort: { updatedAt: 1 }, // fairness
+        new: true,
+      }
+    );
+
+    return doc ? this.toDomain(doc) : null;
+  }
+
+  async activateNextScheduled(): Promise<CampaignAggregate | null> {
+    const now = new Date();
+
+    const doc = await CampaignModel.findOneAndUpdate(
+      {
+        status: 'scheduled',
+        scheduledAt: { $lte: now },
+        lockedBy: null,
+      },
+      {
+        $set: {
+          status: 'running',
+          startedAt: now,
+        },
+      },
+      {
+        sort: { scheduledAt: 1 },
+        new: true,
+      }
+    );
+
+    return doc ? this.toDomain(doc) : null;
+  }
+
+  async lockNextRetry(workerId: string): Promise<CampaignAggregate | null> {
+    const now = new Date();
+
+    const document = await CampaignModel.findOneAndUpdate(
+      {
+        status: 'running',
+        recipients: {
+          $elemMatch: {
+            status: 'pending',
+            retryAt: { $lte: now },
+          },
+        },
+        $or: [{ lockedBy: null }, { lockExpiresAt: { $lt: now } }],
+      },
+      {
+        $set: {
+          lockedBy: workerId,
+          lockedAt: now,
+          lockExpiresAt: new Date(now.getTime() + 120000),
+        },
+      },
+
+      { sort: { updatedAt: 1 }, new: true }
+    );
+
+    return document ? this.toDomain(document) : null;
   }
 
   async extendLock(campaignId: CampaignId, workerId: string): Promise<void> {
@@ -147,15 +268,21 @@ export class MongoCampaignRepository implements ICampaignRepository {
     index: number,
     recipient: Partial<ICampaignRecipient>
   ): Promise<void> {
+    const update: any = {
+      [`recipients.${index}.status`]: recipient.status,
+      [`recipients.${index}.attempts`]: recipient.attempts,
+      [`recipients.${index}.lastError`]: recipient.lastError,
+      [`recipients.${index}.retryAt`]: recipient.retryAt,
+      updatedAt: new Date(),
+    };
+
     await CampaignModel.updateOne(
-      { campaignId: campaignId.value },
       {
-        $set: {
-          [`recipients.${index}`]: recipient,
-          currentIndex: index + 1,
-          updatedAt: new Date(),
-        },
-      }
+        campaignId: campaignId.value,
+        // seguridad extra anti race condition
+        [`recipients.${index}.jid`]: recipient.jid,
+      },
+      { $set: update }
     );
   }
 
@@ -171,6 +298,7 @@ export class MongoCampaignRepository implements ICampaignRepository {
           lockedBy: null,
           lockedAt: null,
           lockExpiresAt: null,
+          completedAt: new Date(),
           updatedAt: new Date(),
         },
       }
@@ -203,8 +331,8 @@ export class MongoCampaignRepository implements ICampaignRepository {
       description: Description.create(document.description),
       status: document.status as CampaignStatus,
       message: document.message,
-      recipients: document.recipients.map((r) => ({ ...r }) as ICampaignRecipient),
-      currentIndex: document.currentIndex,
+      recipients: document.recipients.map((r) => ({ ...r })),
+
       lockedAt: document.lockedAt,
       lockedBy: document.lockedBy,
       lockExpiresAt: document.lockExpiresAt,
