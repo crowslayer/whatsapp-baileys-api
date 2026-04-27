@@ -19,6 +19,19 @@ export type ConnectionEvents = {
     instanceId: string;
     pairingCode: string;
   };
+  campaignProgress: {
+    campaignId: string;
+    sent: number;
+    failed: number;
+    total: number;
+  };
+  campaignCompleted: {
+    campaignId: string;
+  };
+  campaignMessageSent: {
+    campaignId: string;
+    jid: string;
+  };
 };
 
 export interface IConnectionEventBus {
