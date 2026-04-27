@@ -14,6 +14,7 @@ export interface ICampaignRecipient {
   status: RecipientStatus;
   attempts: number;
   lastError?: string;
+  retryAt?: Date | null;
 }
 
 export interface ICampaignProps {
@@ -24,7 +25,6 @@ export interface ICampaignProps {
   message: string;
   recipients: ICampaignRecipient[];
   status: CampaignStatus;
-  currentIndex: number;
   lockedBy?: string | null;
   lockedAt?: Date | null;
   lockExpiresAt?: Date | null;
@@ -46,7 +46,6 @@ export class CampaignAggregate extends AggregateRoot<string> {
   private _message: string;
   private _recipients: ICampaignRecipient[];
   private _status: CampaignStatus;
-  private _currentIndex: number;
   private _lockedBy: string | null = null;
   private _lockedAt: Date | null = null;
   private _lockExpiresAt: Date | null = null;
@@ -64,14 +63,13 @@ export class CampaignAggregate extends AggregateRoot<string> {
     this._message = props.message;
     this._recipients = props.recipients;
     this._status = props.status;
-    this._currentIndex = props.currentIndex;
     this._lockedBy = props.lockedBy ?? null;
     this._lockedAt = props.lockedAt ?? null;
     this._lockExpiresAt = props.lockExpiresAt ?? null;
     this._scheduledAt = props.scheduledAt;
     this._startedAt = props.startedAt;
     this._completedAt = props.completedAt;
-    this._cronExpression = props.cronExpression ?? '';
+    this._cronExpression = props.cronExpression ?? undefined;
   }
 
   static create(props: CampaignCreateProps): CampaignAggregate {
@@ -83,7 +81,6 @@ export class CampaignAggregate extends AggregateRoot<string> {
       message: props.message,
       recipients: props.recipients,
       status: 'draft',
-      currentIndex: 0,
     });
   }
 
@@ -107,23 +104,6 @@ export class CampaignAggregate extends AggregateRoot<string> {
   complete(): void {
     if (this._status !== 'running') return;
     this._status = 'completed';
-  }
-
-  markSent(index: number): void {
-    this._recipients[index].status = 'sent';
-    this._currentIndex = index + 1;
-  }
-
-  markFailed(index: number, error: string): void {
-    const r = this._recipients[index];
-    r.status = 'failed';
-    r.attempts++;
-    r.lastError = error;
-    this._currentIndex = index + 1;
-  }
-
-  isFinished(): boolean {
-    return this._currentIndex >= this._recipients.length;
   }
 
   schedule(date: Date): void {
@@ -183,10 +163,6 @@ export class CampaignAggregate extends AggregateRoot<string> {
 
   get recipients(): ICampaignRecipient[] {
     return this._recipients;
-  }
-
-  get currentIndex(): number {
-    return this._currentIndex;
   }
 
   get lockedBy(): string | null {
