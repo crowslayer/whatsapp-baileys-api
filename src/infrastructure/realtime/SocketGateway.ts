@@ -22,10 +22,10 @@ export class SocketGateway {
     this._io.on('connection', (socket) => {
       // socket.on('subscribe', (instanceId: string) => {
       //   socket.join(instanceId);
-        // prepare namespace
-        socket.on('subscribe', (room: string) => {
-          if (!room.startsWith('instance:') && !room.startsWith('campaign:')) return;
-          socket.join(room);
+      // prepare namespace
+      socket.on('subscribe', (room: string) => {
+        if (!room.startsWith('instance:') && !room.startsWith('campaign:')) return;
+        socket.join(room);
         // });
       });
 
@@ -54,11 +54,9 @@ export class SocketGateway {
       // this._io.to(data.instanceId).emit('pairingCode', data);
       this._io.to(`instance:${data.instanceId}`).emit('pairingCode', data);
     });
-    
+
     this.eventBus.on('campaignProgress', (data) => {
-      this._io
-        .to(`campaign:${data.campaignId}`)
-        .emit('campaign:progress', data);
+      this._io.to(`campaign:${data.campaignId}`).emit('campaign:progress', data);
     });
   }
 }
