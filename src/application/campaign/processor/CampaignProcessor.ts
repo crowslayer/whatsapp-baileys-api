@@ -45,6 +45,7 @@ export class CampaignProcessor {
 
     let success = 0;
     let failed = 0;
+    const total = campaign.recipients.length;
 
     while (true) {
       const fresh = await this.repo.findById(campaign.campaignId);
@@ -117,7 +118,7 @@ export class CampaignProcessor {
         campaignId: campaign.id,
         sent: success,
         failed,
-        total: success + failed,
+        total,
       });
       // heartbeat del lock
       await this.repo.extendLock(fresh.campaignId, workerId);
@@ -142,7 +143,7 @@ export class CampaignProcessor {
       campaignId: campaign.id,
       success,
       failed,
-      total: campaign.recipients.length,
+      total,
     });
   }
 
