@@ -28,8 +28,8 @@ export class BaileysRateLimiter {
   private readonly _retryDelayMs: number;
 
   constructor(options?: IRateLimiterOptions) {
-    this._concurrency = options?.concurrency ?? 3;
-    this._minDelayMs = options?.minDelayMs ?? 300;
+    this._concurrency = options?.concurrency ?? 1;
+    this._minDelayMs = options?.minDelayMs ?? 400;
     this._maxRetries = options?.maxRetries ?? 2;
     this._retryDelayMs = options?.retryDelayMs ?? 500;
   }
@@ -57,14 +57,14 @@ export class BaileysRateLimiter {
 
     if (timeSinceLast < this._minDelayMs) {
       await delay(this._minDelayMs - timeSinceLast);
-      return;
+      return this.processQueue();
     }
 
     const item = this._queue.shift();
     if (!item) return;
 
     this._running++;
-    this._lastExecution = Date.now();
+    this._lastExecution = now;
 
     try {
       const result = await item.task();
