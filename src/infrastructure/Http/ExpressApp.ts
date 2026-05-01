@@ -136,6 +136,13 @@ export class ExpressApp {
       express.json({ limit: '50mb' }), // límite alto solo donde se necesita
       createMultimediaRouter(this.container)
     );
+    // Initialize flows admin routes (Mongo-backed flows) after base routes
+    try {
+      const { installFlowsRoutes } = require('@infrastructure/http/routes/flows.routes');
+      installFlowsRoutes(this._app);
+    } catch {
+      // If flows admin wiring is not available in this environment, skip gracefully
+    }
   }
 
   static create(config: IConfig, logger: ILogger, container: ContainerBuilder): Application {
