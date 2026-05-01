@@ -18,6 +18,7 @@ build/
 .prettierrc
 eslint.config.js
 pnpm-lock.yaml
+AGENTS.md
 
 # WhatsApp Sessions
 sessions/

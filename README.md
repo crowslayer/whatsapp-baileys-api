@@ -2,9 +2,9 @@
 
 API REST profesional para interactuar con WhatsApp usando la librería Baileys, construida con Node.js, TypeScript y siguiendo principios de arquitectura hexagonal, DDD, CQRS y patrones de diseño empresariales.
 
-## 📌 Versionado y cambios
-
 - **Releases (tags)**: `v1.0.1`, `v1.1.0`
+- **Current version**: 1.1.0
+- **Tags**: use v1.1.0 formato para publicar releases
 - **Historial de cambios**: ver `CHANGELOG.md`
 
 ## 🚀 Características
