@@ -1,0 +1,46 @@
+# =============================================
+# Infrastructure Services
+# =============================================
+services:
+  # =============================================
+  #  Repositories
+  # =============================================
+  infrastructure.persistence.mongo.repository.campaign_repository:
+    class: '../../infrastructure/persistence/mongo/repositories/MongoCampaignRepository'
+    public: true
+
+  infrastructure.persistence.mongo.repository.campaign_read_repository:
+    class: '../../infrastructure/persistence/mongo/repositories/MongoCampaignReadRepository'
+    public: true
+
+  # =============================================
+  # Http
+  # =============================================
+  infrastructure.http.controller.campaign.create_campaign:
+    class: ../../../infrastructure/http/controllers/campaign/create/CreateCampaignController
+    arguments:
+      - '@shared.command_bus'
+
+  infrastructure.http.controller.campaign.delete_campaign:
+    class: ../../../infrastructure/http/controllers/campaign/DeleteCampaignController
+    arguments:
+      - '@shared.command_bus'
+
+  infrastructure.http.controller.campaign.update_campaign:
+    class: ../../../infrastructure/http/controllers/campaign/UpdateCampaignController
+    arguments:
+      - '@shared.command_bus'
+
+  infrastructure.http.controller.campaign.list_campaign:
+    class: ../../../infrastructure/http/controllers/campaign/ListCampaignController
+    arguments:
+      - '@shared.query_bus'
+
+  infrastructure.http.controller.campaign.progress_campaign:
+    class: ../../../infrastructure/http/controllers/campaign/ProgressCampaignController
+    arguments:
+      - '@shared.query_bus'
+
+  # =============================================
+  #
+  # =============================================
