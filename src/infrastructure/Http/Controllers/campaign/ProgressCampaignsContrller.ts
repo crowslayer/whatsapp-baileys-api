@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { ICampaignStats } from '@domain/campaign/ICampaignReadRepository';
 
 import { CampaignResponse } from '@application/campaign/CampaignResponse';
-import { FindProgressQuery } from '@application/campaign/find/progress/CampaignProgressQuery';
+import { CampaignProgressQuery } from '@application/campaign/find/progress/CampaignProgressQuery';
 
 import { StatusCode } from '@infrastructure/http/StatusCode';
 
@@ -23,7 +23,7 @@ export class ProgressCampaignsContrller {
         .withDetails({ campaign: 'GET' })
         .build();
 
-      const query = new FindProgressQuery(id);
+      const query = new CampaignProgressQuery(id);
 
       const result = await this.queryBus.ask<CampaignResponse<ICampaignStats>>(query);
 
