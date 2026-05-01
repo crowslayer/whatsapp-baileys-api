@@ -8,3 +8,4 @@ imports:
   - { resource: ./messages/http.yaml }
   - { resource: ./groups/http.yaml }
   - { resource: ./chats/http.yaml }
+  - { resource: ./campaigns/infrastructure.yaml }

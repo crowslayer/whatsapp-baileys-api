@@ -35,19 +35,6 @@ services:
     public: true
 
   # =============================================
-  # Baileys - WhatsApp
-  # =============================================
-
-  # infrastructure.baileys.connection_manager:
-  #   class: '../../infrastructure/baileys/BaileysConnectionManager'
-  #   arguments:
-  #     - '@infrastructure.repository.whatsapp_instance'
-  #     - '@application.chats.sincronizer'
-  #     - '@shared.logger'
-  #     - '@infrastructure.metrics.message_metric'
-  #   public: true
-
-  # =============================================
   # Metrics
   # =============================================
   infrastructure.metrics.message_metric:
