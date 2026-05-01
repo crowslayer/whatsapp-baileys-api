@@ -33,6 +33,10 @@ API REST profesional para interactuar con WhatsApp usando la librería Baileys, 
 - ✅ **Seguridad HTTP**: Helmet con CSP estricta, CORS configurable y rate limiting global opcional (`ENABLED_RATE_LIMITS=true`)
 - ✅ **Health check**: `GET /health` para supervisión (estado, timestamp, uptime)
 - ✅ **TypeScript estricto**: Tipado fuerte en todo el proyecto
+- 🚀 **Campaigns management**: Soporte para crear, planificar y monitorizar campañas de mensajes. Incluye un dominio CampaignAggregate con orchestración basada en CQRS (CampaignDispatcher, CampaignProcessor, CampaignScheduler y CampaignRetryWorker) y repositorios para lectura/escritura de campañas.
+- 🔄 **Sprint/campaigns infra**: Servicios de campaña (CampaignService) y repositorios Mongo (MongoCampaignReadRepository, MongoCampaignRepository) acompañados de controladores y rutas HTTP para gestionar campañas desde la API.
+- 🧭 **Dominio de campañas**: Nuevos aggregates y value objects para flujos de campañas (FlowDefinitionAggregate, FlowId, CampaignAggregate, etc.).
+- 🧩 **Extensibilidad futura**: Estructura preparada para añadir métricas, estado de progreso y reportes de campañas.
 
 ## 📋 Requisitos Previos
 
