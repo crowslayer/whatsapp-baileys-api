@@ -6,13 +6,18 @@ export class BotListener {
   private _initialized = false;
   private _botService?: BotServiceMongo;
   private _botInstance?: string;
-
-  constructor(private readonly botService: BotServiceMongo, private readonly instanceId: string) {}
+  constructor(private readonly botService: BotServiceMongo, private readonly instanceId: string) {
+    this._botService = botService;
+  }
+  // Allow setting bot service after construction to support dynamic wiring
+  setBotService(service: BotServiceMongo) {
+    this._botService = service;
+  }
 
   attachSocket(socket: WASocket): void {
     if (this._initialized) return;
     this._socket = socket;
-    // Wire bot service externally; initialize listener after bot service is provided
+    // Initialize listeners; the BotService is expected to be injected via setBotService
     this.setupListeners();
     this._initialized = true;
   }
@@ -31,8 +36,8 @@ export class BotListener {
           const text = msg.message?.conversation ?? msg.message?.extendedTextMessage?.text ?? '';
           if (chatId && text) {
             try {
-              // Invoke bot service; the BotListener expects botService to be wired earlier
-              await this.botService.handleMessage(this.instanceId, chatId, text);
+              // Use the potentially injected bot service
+              await (this._botService ?? this.botService).handleMessage(this.instanceId, chatId, text);
             } catch {
               // swallow errors to avoid crashing the listener
             }

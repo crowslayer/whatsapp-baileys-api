@@ -16,6 +16,9 @@ import pino from 'pino';
 import QRCode from 'qrcode';
 
 import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
+import { createBotMongoEngine, createBotListenerForInstance } from '../../../application/bot/InitializerMongo';
+import { InMemoryConversationStore } from '../../../application/bot/InMemoryConversationStore';
+import { InMemoryMessageService } from '../../Baileys/adapter/InMemoryMessageService';
 import { FlowTriggerResolver } from '../../../../application/services/bot/FlowTriggerResolver';
 import { FlowEngine } from '../../../../application/services/bot/FlowEngine';
 import { InputNodeExecutor } from '../../../../application/services/bot/InputNodeExecutor';
@@ -101,18 +104,18 @@ export class BaileysConnection {
     });
 
     // ===============================
-    // BOt wiring (local MVP): if a bot service is available, attach a listener after socket creation
+    // Bot wiring (local MVP) using Mongo-backed bot initializer
     try {
-      const botBotService = new BotServiceMongo(
-        new FlowTriggerResolver(),
-        new FlowEngine([new InputNodeExecutor(), new MessageNodeExecutor()]),
-        new InMemoryConversationStore(),
-        new InMemoryMessageService(),
-        new MongoFlowRepository(),
-        new FlowStore(new MongoFlowRepository())
-      );
-      const botListener = new BotListener(botBotService, this.instanceId);
-      botListener.attachSocket(this._socket);
+      const { createBotMongoEngine, createBotListenerForInstance } = await import('../../../application/bot/InitializerMongo');
+      const store = new (await import('../../../application/bot/InMemoryConversationStore')).InMemoryConversationStore();
+      const messaging = new (await import('../../../infrastructure/Baileys/adapter/InMemoryMessageService')).InMemoryMessageService();
+      const botService = createBotMongoEngine(store, messaging);
+      const listener = createBotListenerForInstance(botService, this.instanceId);
+      // Wire bot service into listener explicitly (in case of dynamic wiring later)
+      if (typeof listener.setBotService === 'function') {
+        listener.setBotService(botService);
+      }
+      listener.attachSocket(this._socket);
     } catch {
       // ignore bot wiring in MVP if dependencies not ready
     }
