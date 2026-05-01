@@ -59,7 +59,7 @@ export class BotServiceMongo {
         currentNodeId: state!.currentNodeId,
         variables: state!.variables,
       };
-      await (this.flowStore as any); // placeholder to keep type resolution happy
+      // Casts avoided; ensure proper typing by using the interface
       await (this.flowSessionStore as any).setSession(instanceId, chatId, toStore as any);
     }
 

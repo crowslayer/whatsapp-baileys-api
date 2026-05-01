@@ -15,6 +15,7 @@ import { createCampaignRouter } from '@infrastructure/http/routes/campaign.route
 import { createChatsRouter } from '@infrastructure/http/routes/chats.routes';
 import { createGroupRouter } from '@infrastructure/http/routes/group.routes';
 import { createInstanceRouter } from '@infrastructure/http/routes/instance.routes';
+import { installFlowsRoutes } from '@infrastructure/http/routes/flows.routes';
 import { createMessageRouter } from '@infrastructure/http/routes/message.routes';
 import { createMultimediaRouter } from '@infrastructure/http/routes/multimedia.routes';
 import { ILogger } from '@infrastructure/loggers/Logger';

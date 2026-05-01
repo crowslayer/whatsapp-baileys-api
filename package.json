@@ -15,7 +15,8 @@
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist",
     "validate": "pnpm run type-check && pnpm run lint && pnpm run format:check",
-    "build:di": "copyfiles -u 1 \"src/**/*.{json,yaml,html,png}\" dist/"
+    "build:di": "copyfiles -u 1 \"src/**/*.{json,yaml,html,png}\" dist/",
+    "seed:flows": "ts-node ./scripts/seed_flows.ts"
   },
   "keywords": [
     "whatsapp",
