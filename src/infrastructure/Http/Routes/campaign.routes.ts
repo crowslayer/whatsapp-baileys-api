@@ -26,8 +26,19 @@ export const createCampaignRouter = (container: ContainerBuilder): Router => {
     'infrastructure.http.controller.campaign.progress_campaign'
   );
 
+  const campaignByIdController = container.get(
+    'infrastructure.http.controller.campaign.get_campaign_by_id'
+  );
+
   router.get('/', (req: Request, res: Response, next: NextFunction) =>
     listCampaignController.handle(req, res, next)
+  );
+
+  router.get(
+    '/:campaignId',
+    validate(campaignIdSchema),
+    (req: Request, res: Response, next: NextFunction) =>
+      campaignByIdController.handle(req, res, next)
   );
 
   router.post(

@@ -41,6 +41,11 @@ services:
     arguments:
       - '@shared.query_bus'
 
+  infrastructure.http.controller.campaign.get_campaign_by_id:
+    class: ../../../infrastructure/http/controllers/campaign/FindCampaignByIdController
+    arguments:
+      - '@shared.query_bus'
+
   # =============================================
   #
   # =============================================
