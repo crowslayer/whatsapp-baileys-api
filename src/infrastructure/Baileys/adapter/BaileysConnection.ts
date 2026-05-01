@@ -16,6 +16,16 @@ import pino from 'pino';
 import QRCode from 'qrcode';
 
 import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
+import { FlowTriggerResolver } from '../../../../application/services/bot/FlowTriggerResolver';
+import { FlowEngine } from '../../../../application/services/bot/FlowEngine';
+import { InputNodeExecutor } from '../../../../application/services/bot/InputNodeExecutor';
+import { MessageNodeExecutor } from '../../../../application/services/bot/MessageNodeExecutor';
+import { MongoFlowRepository } from '../../../../infrastructure/persistence/Mongo/Repositories/MongoFlowRepository';
+import { FlowStore } from '../../../../infrastructure/persistence/Mongo/Repositories/FlowStore';
+import { InMemoryConversationStore } from '../../../../application/bot/InMemoryConversationStore';
+import { InMemoryMessageService } from './InMemoryMessageService';
+import { BotListener } from './BotListener';
+import { BotServiceMongo } from '../../../../application/bot/BotServiceMongo';
 
 // ===============================
 // TYPES
@@ -91,6 +101,22 @@ export class BaileysConnection {
     });
 
     // ===============================
+    // BOt wiring (local MVP): if a bot service is available, attach a listener after socket creation
+    try {
+      const botBotService = new BotServiceMongo(
+        new FlowTriggerResolver(),
+        new FlowEngine([new InputNodeExecutor(), new MessageNodeExecutor()]),
+        new InMemoryConversationStore(),
+        new InMemoryMessageService(),
+        new MongoFlowRepository(),
+        new FlowStore(new MongoFlowRepository())
+      );
+      const botListener = new BotListener(botBotService, this.instanceId);
+      botListener.attachSocket(this._socket);
+    } catch {
+      // ignore bot wiring in MVP if dependencies not ready
+    }
+
     // PAIRING CODE
     // ===============================
     if (!this._socket.authState.creds.registered && phoneNumber) {
