@@ -1,4 +1,5 @@
 import {
+  ICampaignItem,
   ICampaignListItem,
   ICampaignReadRepository,
   ICampaignStats,
@@ -6,7 +7,18 @@ import {
 
 import { CampaignModel } from '@infrastructure/persistence/mongo/models/CampaignModel';
 
+import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
+
 export class MongoCampaignReadRepository implements ICampaignReadRepository {
+  async getById(campaignId: string): Promise<ICampaignItem | null> {
+    try {
+      const document = await CampaignModel.findOne({ campaignId }).lean<ICampaignItem>().exec();
+
+      return document ?? null;
+    } catch (error: unknown) {
+      throw new InfrastructureError(`Failed to find WhatsApp instance by id`, error);
+    }
+  }
   // ===============================
   // LIST (dashboard principal)
   // ===============================
