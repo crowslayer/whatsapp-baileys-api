@@ -1,3 +1,4 @@
+## [1.2.0] - 2026-05-01\n### Added\n- Campaigns and adapters present in this release.\n- Integrations with runtime and observability scaffolding.\n\n### Changed\n- Minor improvements to deployment and wiring.\n\n### Fixed\n- No breaking fixes yet.\n\n
 # Change Log
 
 All notable changes to this project will be documented in this file.
