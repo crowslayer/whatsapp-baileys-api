@@ -8,7 +8,7 @@ import {
   updateCampaignSchema,
 } from '@infrastructure/http/validators/express/schemas/campaignSchema';
 
-export const createChatsRouter = (container: ContainerBuilder): Router => {
+export const createCampaignRouter = (container: ContainerBuilder): Router => {
   const router = Router();
   const CreateCampaignController = container.get(
     'infrastructure.http.controller.campaign.create_campaign'

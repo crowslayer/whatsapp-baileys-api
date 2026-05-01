@@ -9,7 +9,7 @@ import { IQueryBus } from '@shared/domain/query/QueryBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-export class ListCampaignsContrller {
+export class ListCampaignsController {
   constructor(private readonly queryBus: IQueryBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -21,7 +21,10 @@ export class ListCampaignsContrller {
         .withDetails({ campaign: 'LIST' })
         .build();
 
-      const query = new ListCampaignQuery(parseInt(limit), parseInt(skip));
+      const limitQuery = limit ? parseInt(limit) : undefined;
+      const skipQuery = limit ? parseInt(skip) : undefined;
+
+      const query = new ListCampaignQuery(limitQuery, skipQuery);
 
       const result = await this.queryBus.ask<CampaignsResponse>(query);
 

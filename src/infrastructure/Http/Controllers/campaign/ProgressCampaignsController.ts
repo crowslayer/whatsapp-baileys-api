@@ -11,7 +11,7 @@ import { IQueryBus } from '@shared/domain/query/QueryBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
-export class ProgressCampaignsContrller {
+export class ProgressCampaignsController {
   constructor(private readonly queryBus: IQueryBus) {}
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
