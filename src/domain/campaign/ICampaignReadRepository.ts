@@ -12,6 +12,15 @@ export interface ICampaignListItem {
   createdAt?: Date;
 }
 
+export interface ICampaignItem {
+  campaignId: string;
+  name: string;
+  description: string;
+  instanceId: string;
+  message: string;
+  status: string;
+}
+
 export interface ICampaignStats {
   total: number;
   running: number;
@@ -24,4 +33,5 @@ export interface ICampaignReadRepository {
   getSummary(campaignId: string): Promise<ICampaignListItem | null>;
   getStats(): Promise<ICampaignStats>;
   getProgress(campaignId: string): Promise<number>;
+  getById(campaignId: string): Promise<ICampaignItem | null>;
 }
