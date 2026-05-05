@@ -1,24 +1,60 @@
-import { FlowModel } from '../Models/FlowModel';
-import { IFlowRepository } from '../../../../domain/repositories/IFlowRepository';
-import { IFlow } from '../../../../application/services/bot/FlowTypes';
+import { FlowAggregate } from '@domain/aggregates/FlowAggregate';
+import { IFlowRepository } from '@domain/repositories/IFlowRepository';
+import { FlowId } from '@domain/value-objects/FlowId';
+import { InstanceId } from '@domain/value-objects/InstanceId';
+import { Name } from '@domain/value-objects/Name';
+
+import { IFlow } from '@application/bot/types/FlowTypes';
+
+import { FlowModel, IFlowDocument } from '@infrastructure/persistence/mongo/models/FlowModel';
+
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 
 export class MongoFlowRepository implements IFlowRepository {
-  async findActiveByInstance(instanceId: string): Promise<IFlow[]> {
-    const docs = await FlowModel.find({ instanceId, isActive: true }).exec();
-    // Simple mapping; assuming FlowTypes matches schema
-    return docs.map((d) => d.toObject() as any as IFlow);
+  async findById(flowId: FlowId): Promise<FlowAggregate> {
+    const doc = await FlowModel.findOne({ flowId: flowId.value }).exec();
+    if (!doc || doc === null) {
+      throw new NotFoundError('Flow not found');
+    }
+    return this.toDomain(doc);
   }
 
-  async findById(flowId: string): Promise<IFlow | null> {
-    const doc = await FlowModel.findOne({ flowId }).exec();
-    return doc ? (doc.toObject() as any as IFlow) : null;
+  async save(flow: FlowAggregate): Promise<void> {
+    const doc = this.toDcument(flow);
+    await FlowModel.updateOne({ flowId: flow.flowId.value }, { ...doc }, { upsert: true }).exec();
   }
 
-  async saveFlow(flow: IFlow): Promise<void> {
-    await FlowModel.updateOne({ flowId: flow.id }, { ...flow }, { upsert: true }).exec();
+  async delete(flowId: FlowId): Promise<void> {
+    await FlowModel.deleteOne({ flowId: flowId.value }).exec();
   }
 
-  async deleteFlow(flowId: string): Promise<void> {
-    await FlowModel.deleteOne({ flowId }).exec();
+  private toDomain(doc: IFlowDocument): FlowAggregate {
+    return FlowAggregate.restore({
+      flowId: FlowId.fromString(doc.flowId),
+      instanceId: InstanceId.fromString(doc.instanceId),
+      name: Name.create(doc.name),
+      version: doc.version,
+      start: doc.start,
+      nodes: doc.nodes,
+      isActive: doc.isActive,
+      triggers: doc.triggers,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    });
+  }
+
+  private toDcument(aggregate: FlowAggregate): IFlow {
+    return {
+      flowId: aggregate.flowId.value,
+      instanceId: aggregate.instanceId.value,
+      version: aggregate.version,
+      name: aggregate.name.value,
+      start: aggregate.start,
+      nodes: aggregate.nodes,
+      triggers: aggregate.triggers,
+      isActive: aggregate.isActive,
+      createdAt: aggregate.createdAt ?? new Date(),
+      updatedAt: aggregate.updatedAt ?? new Date(),
+    };
   }
 }
