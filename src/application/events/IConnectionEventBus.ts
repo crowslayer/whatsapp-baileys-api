@@ -1,3 +1,5 @@
+import { WAMessage } from '@whiskeysockets/baileys';
+
 type DisconnectType = 'TRANSIENT' | 'INVALID_SESSION' | 'LOGGED_OUT';
 
 export type ConnectionEvents = {
@@ -31,6 +33,10 @@ export type ConnectionEvents = {
   campaignMessageSent: {
     campaignId: string;
     jid: string;
+  };
+  message: {
+    instanceId: string;
+    message: WAMessage;
   };
 };
 
