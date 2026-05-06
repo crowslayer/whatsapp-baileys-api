@@ -7,20 +7,42 @@ async function main() {
   await mongoose.connect(uri);
   try {
     const flow = {
-      flowId: 'sales',
+      flowId: crypto.randomUUID(),
       instanceId: 'default',
       name: 'Sales Flow',
       version: 1,
       isActive: true,
       start: 'start',
       nodes: {
-        start: { id: 'start', type: 'message', text: 'Hola 👋 ¿Qué deseas hacer?\n1. Comprar\n2. Soporte', next: 'option' },
+        start: {
+          id: 'start',
+          type: 'message',
+          text: 'Hola 👋 ¿Qué deseas hacer?\n1. Comprar\n2. Soporte',
+          next: 'option',
+        },
         option: { id: 'option', type: 'input', variable: 'option', next: 'condition' },
-        condition: { id: 'condition', type: 'condition', variable: 'option', equals: '1', ifTrue: 'buy', ifFalse: 'support' },
-        buy: { id: 'buy', type: 'message', text: 'Perfecto 🛒 ¿Qué producto te interesa?', next: null },
-        support: { id: 'support', type: 'message', text: 'Te ayudo con soporte 🛠️ ¿Cuál es tu problema?', next: null }
+        condition: {
+          id: 'condition',
+          type: 'condition',
+          variable: 'option',
+          equals: '1',
+          ifTrue: 'buy',
+          ifFalse: 'support',
+        },
+        buy: {
+          id: 'buy',
+          type: 'message',
+          text: 'Perfecto 🛒 ¿Qué producto te interesa?',
+          next: null,
+        },
+        support: {
+          id: 'support',
+          type: 'message',
+          text: 'Te ayudo con soporte 🛠️ ¿Cuál es tu problema?',
+          next: null,
+        },
       },
-      triggers: [{ type: 'keyword', value: 'sales' }]
+      triggers: [{ type: 'contains', value: 'sales' }],
     } as any;
 
     await FlowModel.create(flow);
