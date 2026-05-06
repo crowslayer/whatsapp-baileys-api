@@ -13,9 +13,9 @@ import { loggerMiddleware } from '@infrastructure/http/middlewares/LoggerMiddlew
 import { requestIdMiddleware } from '@infrastructure/http/middlewares/RequestIdMiddleware';
 import { createCampaignRouter } from '@infrastructure/http/routes/campaign.routes';
 import { createChatsRouter } from '@infrastructure/http/routes/chats.routes';
+import { createFlowsRouter } from '@infrastructure/http/routes/flows.routes';
 import { createGroupRouter } from '@infrastructure/http/routes/group.routes';
 import { createInstanceRouter } from '@infrastructure/http/routes/instance.routes';
-import { installFlowsRoutes } from '@infrastructure/http/routes/flows.routes';
 import { createMessageRouter } from '@infrastructure/http/routes/message.routes';
 import { createMultimediaRouter } from '@infrastructure/http/routes/multimedia.routes';
 import { ILogger } from '@infrastructure/loggers/Logger';
@@ -131,18 +131,12 @@ export class ExpressApp {
     this._app.use(`${base}/instances`, createChatsRouter(this.container));
     this._app.use(`${base}/campaigns`, createCampaignRouter(this.container));
     this._app.use(`${base}/messages`, createMessageRouter(this.container));
+    this._app.use(`${base}/flows`, createFlowsRouter(this.container));
     this._app.use(
       `${base}/multimedia`,
       express.json({ limit: '50mb' }), // límite alto solo donde se necesita
       createMultimediaRouter(this.container)
     );
-    // Initialize flows admin routes (Mongo-backed flows) after base routes
-    try {
-      const { installFlowsRoutes } = require('@infrastructure/http/routes/flows.routes');
-      installFlowsRoutes(this._app);
-    } catch {
-      // If flows admin wiring is not available in this environment, skip gracefully
-    }
   }
 
   static create(config: IConfig, logger: ILogger, container: ContainerBuilder): Application {
