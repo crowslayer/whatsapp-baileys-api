@@ -60,7 +60,7 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
     this._chatState = new BaileysChatStateService(socket);
     this._privacy = new BaileysPrivacyService(socket);
 
-    const router = new BaileysEventRouter(socket, this.instance, this.eventHandlers);
+    const router = new BaileysEventRouter(socket, this.instance, this.eventHandlers, this.eventBus);
 
     router.bind();
   }
