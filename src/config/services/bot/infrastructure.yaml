@@ -1,0 +1,55 @@
+# =============================================
+# Infrastructure Services
+# =============================================
+services:
+  # =============================================
+  #  Repositories
+  # =============================================
+  infrastructure.persistence.mongo.repository.mongo_flow_repository:
+    class: '../../../infrastructure/persistence/mongo/repositories/MongoFlowRepository'
+    public: true
+
+  infrastructure.persistence.mongo.repository.mongo_flow_read_repository:
+    class: '../../../infrastructure/persistence/mongo/repositories/MongoFlowReadRepository'
+    public: true
+
+  infrastructure.cache.node_cache_conversation_store:
+    class: '../../../infrastructure/cache/NodeCacheConversationStore'
+    public: true
+  # =============================================
+  #  Controllers
+  # =============================================
+  infrastructure.http.controllers.flows.create_flow:
+    class: '../../../infrastructure/http/controllers/flows/CreateFlowController'
+    arguments:
+      - '@shared.command_bus'
+
+  infrastructure.http.controllers.flows.update_flow:
+    class: '../../../infrastructure/http/controllers/flows/UpdateFlowController'
+    arguments:
+      - '@shared.command_bus'
+
+  infrastructure.http.controllers.flows.delete_flow:
+    class: '../../../infrastructure/http/controllers/flows/DeleteFlowController'
+    arguments:
+      - '@shared.command_bus'
+
+  infrastructure.http.controllers.flows.create_nodes:
+    class: '../../../infrastructure/http/controllers/flows/CreateNodesController'
+    arguments:
+      - '@shared.command_bus'
+
+  infrastructure.http.controllers.flows.delete_nodes:
+    class: '../../../infrastructure/http/controllers/flows/DeleteNodesController'
+    arguments:
+      - '@shared.command_bus'
+
+  infrastructure.http.controllers.flows.get_flow:
+    class: '../../../infrastructure/http/controllers/flows/GetFlowController'
+    arguments:
+      - '@shared.query_bus'
+
+  infrastructure.http.controllers.flows.list_flows:
+    class: '../../../infrastructure/http/controllers/flows/ListFlowsController'
+    arguments:
+      - '@shared.query_bus'
