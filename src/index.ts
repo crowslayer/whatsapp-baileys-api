@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+import { IBotService } from '@application/bot/types/IBotService';
+import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
 import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 
 import { getContainer } from '@infrastructure/container/Container';
@@ -26,6 +28,10 @@ async function bootstrap(): Promise<void> {
     );
 
     const connectionManager = container.get<IRuntimeManager>('application.runtime.runtime_manager');
+    const botService = container.get<IBotService>('application.bot.bot_service');
+    const eventBus = container.get<IConnectionEventBus>('shared.event_bus');
+    // activando bot
+    botService.subscribe(eventBus);
 
     await mongoConnection.connect();
 
