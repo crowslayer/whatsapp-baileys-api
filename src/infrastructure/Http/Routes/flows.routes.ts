@@ -1,24 +1,65 @@
-import express from 'express';
-import { CreateFlowController } from '../../Controllers/flows/CreateFlowController';
-import { ListFlowsController } from '../../Controllers/flows/ListFlowsController';
-import { GetFlowController } from '../../Controllers/flows/GetFlowController';
-import { UpdateFlowController } from '../../Controllers/flows/UpdateFlowController';
-import { DeleteFlowController } from '../../Controllers/flows/DeleteFlowController';
-import { FlowAdminService } from '../../../../application/bot/FlowAdminService';
-import { MongoFlowRepository } from '../../../../infrastructure/persistence/Mongo/Repositories/MongoFlowRepository';
-import { FlowStore } from '../../../../infrastructure/persistence/Mongo/Repositories/FlowStore';
+import { NextFunction, Request, Response, Router } from 'express';
+import { ContainerBuilder } from 'node-dependency-injection';
 
-export function installFlowsRoutes(app: any) {
-  const repo = new MongoFlowRepository();
-  const flowStore = new FlowStore(repo);
-  const admin = new FlowAdminService(repo as any, flowStore as any);
+import { validate } from '@infrastructure/http/middlewares/ValidationMiddleware';
+import {
+  createFlowSchema,
+  createNodesSchema,
+  flowIdSchema,
+  updateFlowSchema,
+} from '@infrastructure/http/validators/express/schemas/flowSchema';
+import { instanceIdSchema } from '@infrastructure/http/validators/express/schemas/instanceSchema';
 
-  const router = express.Router();
-  router.post('/flows', (req: any, res: any) => new CreateFlowController(admin).handle(req, res));
-  router.get('/flows', (req: any, res: any) => new ListFlowsController(admin).handle(req, res));
-  router.get('/flows/:flowId', (req: any, res: any) => new GetFlowController(admin).handle(req, res));
-  router.put('/flows/:flowId', (req: any, res: any) => new UpdateFlowController(admin).handle(req, res));
-  router.delete('/flows/:flowId', (req: any, res: any) => new DeleteFlowController(admin).handle(req, res));
+export const createFlowsRouter = (container: ContainerBuilder): Router => {
+  const router = Router();
+  const qetListFlowsController = container.get('infrastructure.http.controllers.flows.list_flows');
+  const createFlowController = container.get('infrastructure.http.controllers.flows.create_flow');
+  const updateFlowController = container.get('infrastructure.http.controllers.flows.update_flow');
+  const deleteFlowController = container.get('infrastructure.http.controllers.flows.delete_flow');
+  const getFlowcontroller = container.get('infrastructure.http.controllers.flows.get_flow');
+  const createNodesController = container.get('infrastructure.http.controllers.flows.create_nodes');
+  const deleteNodesController = container.get('infrastructure.http.controllers.flows.delete_nodes');
 
-  app.use('/api/v1', router);
-}
+  router.get(
+    '/:instanceId/flows',
+    validate(instanceIdSchema),
+    (req: Request, res: Response, next: NextFunction) =>
+      qetListFlowsController.handle(req, res, next)
+  );
+
+  router.get(
+    '/:flowId',
+    validate(flowIdSchema),
+    (req: Request, res: Response, next: NextFunction) => getFlowcontroller.handle(req, res, next)
+  );
+
+  router.post('/', validate(createFlowSchema), (req: Request, res: Response, next: NextFunction) =>
+    createFlowController.handle(req, res, next)
+  );
+
+  router.post(
+    '/nodes',
+    validate(createNodesSchema),
+    (req: Request, res: Response, next: NextFunction) =>
+      createNodesController.handle(req, res, next)
+  );
+
+  router.put('/', validate(updateFlowSchema), (req: Request, res: Response, next: NextFunction) =>
+    updateFlowController.handle(req, res, next)
+  );
+
+  router.delete(
+    '/:flowId',
+    validate(flowIdSchema),
+    (req: Request, res: Response, next: NextFunction) => deleteFlowController.handle(req, res, next)
+  );
+
+  router.delete(
+    '/:flowId/nodes',
+    validate(flowIdSchema),
+    (req: Request, res: Response, next: NextFunction) =>
+      deleteNodesController.handle(req, res, next)
+  );
+
+  return router;
+};
