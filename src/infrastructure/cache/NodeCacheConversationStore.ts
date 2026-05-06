@@ -1,14 +1,14 @@
 import NodeCache from '@cacheable/node-cache';
 
-// import { IConversationStore } from '@application/services/bot/IConversationStore';
+import { IConversationState } from '@application/bot/types/IConversationState';
+import { IConversationStore } from '@application/bot/types/IConversationStore';
 
 type StoreValue<T> = {
   data: T;
   updatedAt: number;
 };
 
-export class NodeCacheConversationStore<T = any> {
-  // implements IConversationStore<T> {
+export class NodeCacheConversationStore<T = IConversationState> implements IConversationStore<T> {
   private _cache: NodeCache<StoreValue<T>>;
   private _defaultTTL: number;
 

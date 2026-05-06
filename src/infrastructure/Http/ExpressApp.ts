@@ -13,6 +13,7 @@ import { loggerMiddleware } from '@infrastructure/http/middlewares/LoggerMiddlew
 import { requestIdMiddleware } from '@infrastructure/http/middlewares/RequestIdMiddleware';
 import { createCampaignRouter } from '@infrastructure/http/routes/campaign.routes';
 import { createChatsRouter } from '@infrastructure/http/routes/chats.routes';
+import { createFlowsRouter } from '@infrastructure/http/routes/flows.routes';
 import { createGroupRouter } from '@infrastructure/http/routes/group.routes';
 import { createInstanceRouter } from '@infrastructure/http/routes/instance.routes';
 import { createMessageRouter } from '@infrastructure/http/routes/message.routes';
@@ -130,6 +131,7 @@ export class ExpressApp {
     this._app.use(`${base}/instances`, createChatsRouter(this.container));
     this._app.use(`${base}/campaigns`, createCampaignRouter(this.container));
     this._app.use(`${base}/messages`, createMessageRouter(this.container));
+    this._app.use(`${base}/flows`, createFlowsRouter(this.container));
     this._app.use(
       `${base}/multimedia`,
       express.json({ limit: '50mb' }), // límite alto solo donde se necesita

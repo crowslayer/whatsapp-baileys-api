@@ -69,6 +69,7 @@ export class BaileysConnection {
   // ===============================
   // CONNECT
   // ===============================
+  // eslint-disable-next-line
   async connect(phoneNumber?: string): Promise<void> {
     if (this._isConnecting) return;
     this._isConnecting = true;
@@ -90,7 +91,6 @@ export class BaileysConnection {
       msgRetryCounterCache: this._msgRetryCounterCache,
     });
 
-    // ===============================
     // PAIRING CODE
     // ===============================
     if (!this._socket.authState.creds.registered && phoneNumber) {

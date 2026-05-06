@@ -9,3 +9,4 @@ imports:
   - { resource: ./groups/http.yaml }
   - { resource: ./chats/http.yaml }
   - { resource: ./campaigns/infrastructure.yaml }
+  - { resource: ./bot/infrastructure.yaml }

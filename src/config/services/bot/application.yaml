@@ -1,0 +1,156 @@
+# =============================================
+# Services
+# =============================================
+services:
+  # =============================================
+  # Uses cases
+  # =============================================
+  application.flows.create.flow_creator:
+    class: ../../../application/flows/create/FlowCreator
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_repository'
+    public: true
+
+  application.flows.delete.flow_eraser:
+    class: ../../../application/flows/delete/FlowEraser
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_repository'
+    public: true
+
+  application.flows.update.flow_updater:
+    class: ../../../application/flows/update/FlowUpdater
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_repository'
+    public: true
+
+  application.flows.nodes.create.nodes_creator:
+    class: ../../../application/flows/nodes/create/NodesCreator
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_repository'
+    public: true
+
+  application.flows.nodes.delete.nodes_eraser:
+    class: ../../../application/flows/nodes/delete/NodesEraser
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_repository'
+    public: true
+
+  application.flows.list.list_flows:
+    class: ../../../application/flows/list/ListFlows
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_read_repository'
+    public: true
+
+  application.flows.get.get_flow:
+    class: ../../../application/flows/get/GetFlow
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_read_repository'
+    public: true
+
+  # =============================================
+  # CommandHandlers
+  # =============================================
+  application.flows.create.create_flow_command_handler:
+    class: ../../../application/flows/create/CreateFlowCommandHandler
+    arguments:
+      - '@application.flows.create.flow_creator'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.flows.delete.delete_flow_command_handler:
+    class: ../../../application/flows/delete/DeleteFlowCommandHandler
+    arguments:
+      - '@application.flows.delete.flow_eraser'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.flows.update.update_flow_command_handler:
+    class: ../../../application/flows/update/UpdateFlowCommandHandler
+    arguments:
+      - '@application.flows.update.flow_updater'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.flows.nodes.create.create_nodes_command_handler:
+    class: ../../../application/flows/nodes/create/CreateNodesCommandHandler
+    arguments:
+      - '@application.flows.nodes.create.nodes_creator'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.flows.nodes.delete.delete_nodes_command_handler:
+    class: ../../../application/flows/nodes/create/CreateNodesCommandHandler
+    arguments:
+      - '@application.flows.nodes.delete.nodes_eraser'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  # =============================================
+  # QueryHandlers
+  # =============================================
+  application.flows.list.list_flows_query_handler:
+    class: ../../../application/flows/list/ListFlowsQueryHandler
+    arguments:
+      - '@application.flows.list.list_flows'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  application.flows.get.get_flow_query_handler:
+    class: ../../../application/flows/get/GetFlowQueryHandler
+    arguments:
+      - '@application.flows.get.get_flow'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  # =============================================
+  # Ejecutors
+  # =============================================
+  application.bot.executors.condition_node_executor:
+    class: ../../../application/bot/executors/ConditionNodeExecutor
+    tags:
+      - { name: 'nodeExecutor' }
+    public: true
+
+  application.bot.executors.input_node_executor:
+    class: ../../../application/bot/executors/InputNodeExecutor
+    tags:
+      - { name: 'nodeExecutor' }
+    public: true
+
+  application.bot.executors.message_node_executor:
+    class: ../../../application/bot/executors/MessageNodeExecutor
+    tags:
+      - { name: 'nodeExecutor' }
+    public: true
+
+  # =============================================
+  # Services
+  # =============================================
+  application.bot.flow_engine:
+    class: '../../../application/bot/FlowEngine'
+    arguments:
+      - '!tagged nodeExecutor'
+      - '@shared.logger'
+    public: true
+
+  application.bot.flow_trigger_resolver:
+    class: ../../../application/bot/FlowTriggerResolver
+    public: true
+
+  application.bot.bot_service:
+    class: ../../../application/bot/BotService
+    arguments:
+      - '@application.bot.flow_engine'
+      - '@application.bot.flow_trigger_resolver'
+      - '@infrastructure.cache.node_cache_conversation_store'
+      - '@application.service.message_orchestrator'
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_read_repository'
+      - '@shared.logger'
+    public: true

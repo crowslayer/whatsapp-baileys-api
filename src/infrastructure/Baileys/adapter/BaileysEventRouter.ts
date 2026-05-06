@@ -3,6 +3,7 @@ import { Chat, WASocket } from '@whiskeysockets/baileys';
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
 
 import { IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers';
+import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
 
 import { IBaileysChat } from '@infrastructure/baileys/IBaileysChat';
 
@@ -10,10 +11,13 @@ export class BaileysEventRouter {
   constructor(
     private readonly socket: WASocket,
     private readonly instance: WhatsAppInstanceAggregate,
-    private readonly handlers: IBaileysEventHandlers
+    private readonly handlers: IBaileysEventHandlers,
+    private readonly eventBus: IConnectionEventBus
   ) {}
 
+  // eslint-disable-next-line
   bind() {
+    // eslint-disable-next-line
     this.socket.ev.process(async (events) => {
       // ─────────────────────────────────────────────
       // Messages
@@ -25,11 +29,11 @@ export class BaileysEventRouter {
           await Promise.all(
             messages.map((msg) => {
               if (!msg.key.fromMe && msg.message) {
-                // this.eventBus.emit('message', {
-                //   instanceId: this.instanceId,
-                //   message: msg,
-                // });
-                return this.handlers.onMessage?.(msg);
+                this.eventBus.emit('message', {
+                  instanceId: this.instance.instanceId,
+                  message: msg,
+                });
+                // return this.handlers.onMessage?.(msg);
               }
             })
           );
