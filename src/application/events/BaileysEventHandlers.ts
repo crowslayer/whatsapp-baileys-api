@@ -21,17 +21,18 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
     private readonly syncService: IChatSynchronizer,
     private readonly webhookService: WebhookService,
     private readonly logger: ILogger
-    // Private readonly botService: IBotService
   ) {}
 
   // ─────────────────────────────────────────────
   // Messages
   // ─────────────────────────────────────────────
+  // deprecated
   async onMessage(message: WAMessage): Promise<void> {
     try {
       const text = this.extractText(message);
       const chatId = message.key.remoteJid;
 
+      if (!chatId || chatId === undefined) return;
       if (!text) return;
 
       // await this.botService.handleMessage(this.instance.instanceId, chatId, text);
@@ -104,7 +105,7 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
       this.logger.info('Baileys Presence Update', presence);
       await this.webhookService.send(this.instance.instanceId, 'presence.update', { presence });
     } catch (error) {
-      this.logger.error('Error presence update', error);
+      this.logger.error('Error presence onPresenceUpdate handler', error);
     }
   }
 
