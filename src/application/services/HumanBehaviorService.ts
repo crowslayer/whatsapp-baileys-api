@@ -22,8 +22,12 @@ export class HumanBehaviorService {
   }
 
   async simulateTyping(runtime: IWhatsAppRuntime, to: string, text: string): Promise<void> {
+    const safeJid = this.sanitizeJid(to);
+    console.log(safeJid);
     try {
-      await runtime.presence.sendPresence(to, 'composing');
+      if (safeJid && safeJid.endsWith('s.whatsapp.net')) {
+        await runtime.presence.sendPresence(to, 'composing');
+      }
     } catch (error) {
       console.error('Error actualiando presencia a composing', error);
     }
@@ -31,22 +35,35 @@ export class HumanBehaviorService {
     await delay(this.getTypingDelay(text));
 
     try {
-      await runtime.presence.sendPresence(to, 'paused');
+      if (safeJid) {
+        await runtime.presence.sendPresence(safeJid, 'paused');
+      }
     } catch (error) {
       console.error('Error actualiando estado', error);
     }
   }
 
   async simulateAfterSend(runtime: IWhatsAppRuntime, to: string): Promise<void> {
+    const safeJid = this.sanitizeJid(to);
+
     await delay(this.getPostDelay());
 
     if (this.shouldGoOffline()) {
       await delay(500 + Math.random() * 1500);
       try {
-        await runtime.presence.sendPresence(to, 'unavailable');
+        if (safeJid) {
+          await runtime.presence.sendPresence(safeJid, 'unavailable');
+        }
       } catch (error) {
         console.error('Error actualiando a unavailable', error);
       }
     }
+  }
+
+  private sanitizeJid(jid: string): string | null {
+    if (!jid) return null;
+    if (!jid.includes('@')) return null; // no contiene dominio válido
+    if (!jid.endsWith('s.whatsapp.net') && !jid.endsWith('g.us')) return null;
+    return jid;
   }
 }
