@@ -16,19 +16,6 @@ import pino from 'pino';
 import QRCode from 'qrcode';
 
 import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
-import { createBotMongoEngine, createBotListenerForInstance } from '../../../application/bot/InitializerMongo';
-import { InMemoryConversationStore } from '../../../application/bot/InMemoryConversationStore';
-import { InMemoryMessageService } from '../../Baileys/adapter/InMemoryMessageService';
-import { FlowTriggerResolver } from '../../../../application/services/bot/FlowTriggerResolver';
-import { FlowEngine } from '../../../../application/services/bot/FlowEngine';
-import { InputNodeExecutor } from '../../../../application/services/bot/InputNodeExecutor';
-import { MessageNodeExecutor } from '../../../../application/services/bot/MessageNodeExecutor';
-import { MongoFlowRepository } from '../../../../infrastructure/persistence/Mongo/Repositories/MongoFlowRepository';
-import { FlowStore } from '../../../../infrastructure/persistence/Mongo/Repositories/FlowStore';
-import { InMemoryConversationStore } from '../../../../application/bot/InMemoryConversationStore';
-import { InMemoryMessageService } from './InMemoryMessageService';
-import { BotListener } from './BotListener';
-import { BotServiceMongo } from '../../../../application/bot/BotServiceMongo';
 
 // ===============================
 // TYPES
@@ -82,6 +69,7 @@ export class BaileysConnection {
   // ===============================
   // CONNECT
   // ===============================
+  // eslint-disable-next-line
   async connect(phoneNumber?: string): Promise<void> {
     if (this._isConnecting) return;
     this._isConnecting = true;
@@ -102,23 +90,6 @@ export class BaileysConnection {
       syncFullHistory: false,
       msgRetryCounterCache: this._msgRetryCounterCache,
     });
-
-    // ===============================
-    // Bot wiring (local MVP) using Mongo-backed bot initializer
-    try {
-      const { createBotMongoEngine, createBotListenerForInstance } = await import('../../../application/bot/InitializerMongo');
-      const store = new (await import('../../../application/bot/InMemoryConversationStore')).InMemoryConversationStore();
-      const messaging = new (await import('../../../infrastructure/Baileys/adapter/InMemoryMessageService')).InMemoryMessageService();
-      const botService = createBotMongoEngine(store, messaging);
-      const listener = createBotListenerForInstance(botService, this.instanceId);
-      // Wire bot service into listener explicitly (in case of dynamic wiring later)
-      if (typeof listener.setBotService === 'function') {
-        listener.setBotService(botService);
-      }
-      listener.attachSocket(this._socket);
-    } catch {
-      // ignore bot wiring in MVP if dependencies not ready
-    }
 
     // PAIRING CODE
     // ===============================
