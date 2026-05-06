@@ -23,3 +23,13 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 - Features and changes to be released.
 - Will include the campaigns module and Baileys adapters refactor.
+## [1.3.0] - 2026-05-05
+### Added
+- Seeds de flows: añadidos scripts/seed_flows.ts para inicializar flows del bot.
+- Arquitectura de bot/flows: nuevos módulos (BotService, FlowEngine, FlowMapper, FlowTriggerResolver, ConditionNodeExecutor, InputNodeExecutor, MessageNodeExecutor, FlowTypes, IBotService, IConversationState, IConversationStore, INodeExecutor).
+- Persistencia Mongo: nuevos modelos (FlowModel, FlowSessionModel), repositorios (MongoFlowReadRepository, MongoFlowRepository) y esquemas de datos actualizados.
+- Configuración de bot y flows: YAMLs en src/config/services/bot (application.yaml, infrastructure.yaml) y pipelines de despliegue.
+- Controladores y rutas HTTP para gestión de flows y nodos.
+- Dominio de flows: agregados y definiciones de FlowAggregate y FlowDefinitionAggregate.
+- Infraestructura: adaptadores y repositorios Mongo para flows.
+- Script de seed para flujos y pruebas locales.
