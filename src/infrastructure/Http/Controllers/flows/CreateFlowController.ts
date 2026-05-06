@@ -1,17 +1,38 @@
-import { Request, Response } from 'express';
-import { MongoFlowRepository } from '../../../persistence/Mongo/Repositories/MongoFlowRepository';
-import { FlowAdminService } from '../../../../application/bot/FlowAdminService';
+import { NextFunction, Request, Response } from 'express';
+
+import { InstanceId } from '@domain/value-objects/InstanceId';
+import { Name } from '@domain/value-objects/Name';
+
+import { CreateFlowCommand } from '@application/flows/create/CreateFlowCommand';
+
+import { ICommandBus } from '@shared/domain/commands/CommandBus';
+import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
+import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class CreateFlowController {
-  constructor(private readonly service: FlowAdminService) {}
+  constructor(private readonly commandBus: ICommandBus) {}
 
-  async handle(req: Request, res: Response) {
-    const { instanceId, flowId, name, version, start, nodes, triggers } = req.body;
-    if (!instanceId || !flowId || !name || start == null || !nodes) {
-      return res.status(400).json({ error: 'Missing required fields' });
+  async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { instanceId, name } = req.body;
+
+      const audit = new AuditDataBuilder('CREATE', 'FLOW')
+        .withRequest(req.ip, req.get('user-agent'))
+        .withDetails({ name })
+        .build();
+
+      const cmd = new CreateFlowCommand(InstanceId.fromString(instanceId), Name.create(name));
+
+      await this.commandBus.dispatch(cmd);
+
+      const content = {
+        instanceId,
+        name,
+      };
+
+      ResponseHandler.created(res, content, 'Nodes created successfully', audit);
+    } catch (error) {
+      next(error);
     }
-    const flow = { id: flowId, instanceId, name, version: version ?? 1, isActive: true, start, nodes, triggers: triggers ?? [] } as any;
-    await this.service.createFlow(flow);
-    res.status(201).json({ success: true, flowId, message: 'Flow created' });
   }
 }
