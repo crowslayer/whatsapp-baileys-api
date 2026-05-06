@@ -99,9 +99,9 @@ const CampaignSchema = new Schema<ICampaignDocument>(
 CampaignSchema.index({ status: 1, updatedAt: 1 });
 CampaignSchema.index({ status: 1, scheduledAt: 1 });
 CampaignSchema.index({ instanceId: 1, status: 1 });
+CampaignSchema.index({ instanceId: 1, createdAt: -1 });
 CampaignSchema.index({ 'recipients.retryAt': 1 });
 CampaignSchema.index({ status: 1, 'recipients.retryAt': 1 });
 CampaignSchema.index({ status: 1, 'recipients.status': 1, 'recipients.retryAt': 1 });
-CampaignSchema.index({ instanceId: 1, createdAt: -1 });
 
 export const CampaignModel = mongoose.model<ICampaignDocument>('CampaignInstance', CampaignSchema);
