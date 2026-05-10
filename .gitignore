@@ -17,7 +17,7 @@ build/
 .prettierignore
 .prettierrc
 eslint.config.js
-pnpm-lock.yaml
+#pnpm-lock.yaml
 AGENTS.md
 
 # WhatsApp Sessions
