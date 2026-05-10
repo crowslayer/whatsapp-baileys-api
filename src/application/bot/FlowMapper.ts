@@ -16,6 +16,10 @@ type UIEdge = {
 
 export class FlowMapper {
   static toDomain(nodes: UINode[], edges: UIEdge[]): Partial<IFlow> {
+    if (nodes.length === 0) {
+      return { flowId: FlowId.create().value, start: '', nodes: {} };
+    }
+
     const flowNodes: Record<string, FlowNode> = {};
 
     for (const node of nodes) {

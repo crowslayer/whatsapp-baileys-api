@@ -29,13 +29,14 @@ export class MongoFlowRepository implements IFlowRepository {
   }
 
   private toDomain(doc: IFlowDocument): FlowAggregate {
+    const nodes = doc.nodes instanceof Map ? Object.fromEntries(doc.nodes) : doc.nodes;
     return FlowAggregate.restore({
       flowId: FlowId.fromString(doc.flowId),
       instanceId: InstanceId.fromString(doc.instanceId),
       name: Name.create(doc.name),
       version: doc.version,
       start: doc.start,
-      nodes: doc.nodes,
+      nodes,
       isActive: doc.isActive,
       triggers: doc.triggers,
       createdAt: doc.createdAt,

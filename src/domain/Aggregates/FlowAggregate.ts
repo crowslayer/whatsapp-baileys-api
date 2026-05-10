@@ -167,7 +167,7 @@ export class FlowAggregate extends AggregateRoot<string> {
   }
 
   protected validate(): void {
-    if (!this._nodes[this._start]) {
+    if (Object.keys(this._nodes).length > 0 && !this._nodes[this._start]) {
       throw new Error('Start node not found in nodes');
     }
   }

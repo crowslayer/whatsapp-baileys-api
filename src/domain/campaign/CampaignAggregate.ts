@@ -73,7 +73,7 @@ export class CampaignAggregate extends AggregateRoot<string> {
   }
 
   static create(props: CampaignCreateProps): CampaignAggregate {
-    return new CampaignAggregate({
+    const aggregate = new CampaignAggregate({
       campaignId: CampaignId.create(),
       name: props.name,
       instanceId: props.instanceId,
@@ -82,6 +82,8 @@ export class CampaignAggregate extends AggregateRoot<string> {
       recipients: props.recipients,
       status: 'draft',
     });
+    aggregate.validate();
+    return aggregate;
   }
 
   static restore(props: ICampaignProps): CampaignAggregate {

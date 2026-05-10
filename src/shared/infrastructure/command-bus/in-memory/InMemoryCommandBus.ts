@@ -6,8 +6,11 @@ export class InMemoryCommandBus implements ICommandBus {
   constructor(private commandHandlers: CommandHandlers) {}
 
   dispatch<TResponse>(command: Command<TResponse>): Promise<TResponse> {
-    const handler = this.commandHandlers.get(command);
-
-    return handler.handle(command);
+    try {
+      const handler = this.commandHandlers.get(command);
+      return handler.handle(command);
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 }

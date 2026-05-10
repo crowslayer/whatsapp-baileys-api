@@ -7,8 +7,11 @@ export class InMemoryQueryBus implements IQueryBus {
   constructor(private readonly queryHandlersInformation: QueryHandlers) {}
 
   ask<TResponse extends IResponse>(query: Query<TResponse>): Promise<TResponse> {
-    const handler = this.queryHandlersInformation.get(query);
-
-    return handler.handle(query);
+    try {
+      const handler = this.queryHandlersInformation.get(query);
+      return handler.handle(query);
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 }
