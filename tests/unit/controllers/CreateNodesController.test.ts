@@ -1,18 +1,23 @@
 import type { Request, Response } from 'express';
-import { CreateFlowController } from '../../../src/infrastructure/http/controllers/flows/CreateFlowController';
+import { CreateNodesController } from '../../../src/infrastructure/http/controllers/flows/CreateNodesController';
 
-describe('CreateFlowController', () => {
+describe('CreateNodesController', () => {
   let mockCommandBus: { dispatch: ReturnType<typeof vi.fn> };
-  let controller: CreateFlowController;
+  let controller: CreateNodesController;
   let req: Partial<Request>;
   let res: Partial<Response>;
   let next: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     mockCommandBus = { dispatch: vi.fn().mockResolvedValue(undefined) };
-    controller = new CreateFlowController(mockCommandBus);
+    controller = new CreateNodesController(mockCommandBus);
     req = {
-      body: { instanceId: 'inst-1', name: 'Test Flow' },
+      body: {
+        flowId: 'flow-1',
+        nodes: [{ id: 'node-1', type: 'message', config: {} }],
+        start: 'node-1',
+        triggers: ['hello'],
+      },
       ip: '127.0.0.1',
       get: vi.fn().mockReturnValue('test-agent'),
     };
@@ -24,23 +29,37 @@ describe('CreateFlowController', () => {
     next = vi.fn();
   });
 
-  test('should dispatch CreateFlowCommand and return 201', async () => {
+  test('should dispatch CreateNodesCommand and return 201', async () => {
     await controller.handle(req as Request, res as Response, next);
 
     expect(mockCommandBus.dispatch).toHaveBeenCalledTimes(1);
     const dispatched = mockCommandBus.dispatch.mock.calls[0][0];
-    expect(dispatched.constructor.name).toBe('CreateFlowCommand');
-    expect(dispatched.instanceId.value).toBe('inst-1');
-    expect(dispatched.name.value).toBe('TEST FLOW');
+    expect(dispatched.constructor.name).toBe('CreateNodesCommand');
     expect(res.status).toHaveBeenCalledWith(201);
   });
 
   test('should call next with error when dispatch fails', async () => {
-    const error = new Error('DB Error');
+    const error = new Error('Creation failed');
     mockCommandBus.dispatch.mockRejectedValue(error);
 
     await controller.handle(req as Request, res as Response, next);
     expect(next).toHaveBeenCalledWith(error);
+  });
+
+  test('should handle missing triggers', async () => {
+    req.body = { flowId: 'flow-1', nodes: [], start: 'node-1' };
+
+    await controller.handle(req as Request, res as Response, next);
+
+    expect(mockCommandBus.dispatch).toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(201);
+  });
+
+  test('should call next with error when flowId is empty', async () => {
+    req.body = { flowId: '', nodes: [], start: 'node-1' };
+
+    await controller.handle(req as Request, res as Response, next);
+    expect(next).toHaveBeenCalled();
   });
 
   test('should call next with error when body is empty', async () => {
@@ -48,21 +67,5 @@ describe('CreateFlowController', () => {
 
     await controller.handle(req as Request, res as Response, next);
     expect(next).toHaveBeenCalled();
-  });
-
-  test('should call next with error when name is empty string', async () => {
-    req.body = { instanceId: 'inst-1', name: '' };
-
-    await controller.handle(req as Request, res as Response, next);
-    expect(next).toHaveBeenCalled();
-    expect(next.mock.calls[0][0].constructor.name).toBe('ValidationError');
-  });
-
-  test('should call next with error when instanceId is empty string', async () => {
-    req.body = { instanceId: '', name: 'Test' };
-
-    await controller.handle(req as Request, res as Response, next);
-    expect(next).toHaveBeenCalled();
-    expect(next.mock.calls[0][0].constructor.name).toBe('ValidationError');
   });
 });
