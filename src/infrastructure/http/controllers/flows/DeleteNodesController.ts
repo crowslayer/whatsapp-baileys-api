@@ -13,7 +13,7 @@ import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 export class DeleteNodesController {
   constructor(private readonly commandBus: ICommandBus) {}
 
-  async handlet(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { flowId } = req.params;
 
