@@ -16,7 +16,11 @@
     "clean": "rm -rf dist",
     "validate": "pnpm run type-check && pnpm run lint && pnpm run format:check",
     "build:di": "copyfiles -u 1 \"src/**/*.{json,yaml,html,png}\" dist/",
-    "seed:flows": "tsx watch ./scripts/seed_flows.ts"
+    "seed:flows": "tsx watch ./scripts/seed_flows.ts",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:integration": "vitest run tests/integration",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "whatsapp",
@@ -29,6 +33,7 @@
   "dependencies": {
     "@cacheable/node-cache": "^3.0.0",
     "@hapi/boom": "^10.0.1",
+    "@rolldown/binding-win32-x64-msvc": "^1.0.0",
     "@whiskeysockets/baileys": "7.0.0-rc.9",
     "axios": "^1.13.4",
     "copyfiles": "^2.4.1",
@@ -54,20 +59,24 @@
     "@express-rate-limit/tsconfig": "^1.0.2",
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.25",
+    "@types/jest": "^30.0.0",
     "@types/multer": "^2.0.0",
     "@types/node": "^20.19.32",
     "@types/qrcode": "^1.5.6",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
+    "@vitest/coverage-v8": "^4.1.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-sonarjs": "^3.0.6",
+    "mongodb-memory-server": "^11.0.0",
     "prettier": "^3.8.1",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.5"
   }
 }
