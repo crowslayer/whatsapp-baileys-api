@@ -19,7 +19,7 @@
     "build:di": "copyfiles -u 1 \"src/**/*.{json,yaml,html,png}\" dist/",
     "seed:flows": "tsx watch ./scripts/seed_flows.ts",
     "test": "vitest run",
-    "test:unit": "vitest run",
+    "test:unit": "vitest run --exclude tests/integration",
     "test:integration": "vitest run tests/integration",
     "test:coverage": "vitest run --coverage"
   },
