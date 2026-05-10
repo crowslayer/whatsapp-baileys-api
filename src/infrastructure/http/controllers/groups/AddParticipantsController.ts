@@ -7,6 +7,7 @@ import { StatusCode } from '@infrastructure/http/StatusCode';
 import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
+import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 
 export class AddParticipantsController {
   constructor(private readonly commandBus: ICommandBus) {}
@@ -15,6 +16,12 @@ export class AddParticipantsController {
     try {
       const { instanceId, groupId } = req.params;
       const { participants } = req.body;
+
+      if (!participants || !Array.isArray(participants) || participants.length === 0) {
+        throw new ValidationError([
+          { field: 'participants', message: 'Participants must be a non-empty array' },
+        ]);
+      }
 
       const audit = new AuditDataBuilder('ADD_PARTICIPANTS', 'GROUP')
         .withResourceId(groupId)
