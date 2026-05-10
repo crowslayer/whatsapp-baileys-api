@@ -50,7 +50,7 @@ export class ExpressApp {
       const filename = fileURLToPath(import.meta.url);
       const pathViews = dirname(filename);
       this._app.set('view engine', 'ejs');
-      this._app.set('views', path.join(pathViews, '../Views'));
+      this._app.set('views', path.join(pathViews, '../views'));
     }
 
     this.initRoutes();
