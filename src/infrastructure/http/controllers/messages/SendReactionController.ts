@@ -7,6 +7,7 @@ import { StatusCode } from '@infrastructure/http/StatusCode';
 import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
 import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
+import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 
 export class SendReactionController {
   constructor(private readonly commandBus: ICommandBus) {}
@@ -15,6 +16,13 @@ export class SendReactionController {
     try {
       const { instanceId } = req.params;
       const { messageId, emoji, chatId } = req.body;
+
+      if (!messageId) {
+        throw new ValidationError([{ field: 'messageId', message: 'messageId is required' }]);
+      }
+      if (!emoji) {
+        throw new ValidationError([{ field: 'emoji', message: 'emoji is required' }]);
+      }
 
       const audit = new AuditDataBuilder('SEND', 'REACTION')
         .withResourceId(instanceId)
