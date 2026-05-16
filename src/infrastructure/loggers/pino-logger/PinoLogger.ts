@@ -53,6 +53,7 @@ export class PinoLogger implements ILogger {
     }
     this._logger.trace(message, '', ...args);
   }
+
   info(message: string | Error | object, ...args: any[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.info(args[0], message);
@@ -60,6 +61,7 @@ export class PinoLogger implements ILogger {
     }
     this._logger.info(message, ...args);
   }
+
   warn(message: string | Error | object, ...args: any[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.warn(args[0], message);
@@ -67,6 +69,7 @@ export class PinoLogger implements ILogger {
     }
     this._logger.warn(message, ...args);
   }
+
   error(message: string | Error | object, ...args: any[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.error(args[0], message);
@@ -74,6 +77,7 @@ export class PinoLogger implements ILogger {
     }
     this._logger.error(message, ...args);
   }
+
   fatal(message: string | Error | object, ...args: any[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.fatal(args[0], message);
@@ -81,6 +85,7 @@ export class PinoLogger implements ILogger {
     }
     this._logger.fatal(message, ...args);
   }
+
   debug(message: string | Error | object, ...args: any[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.debug(args[0], message);
@@ -88,6 +93,7 @@ export class PinoLogger implements ILogger {
     }
     this._logger.debug(message, ...args);
   }
+
   log(message: string | Error | object, ...args: any[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.info(args[0], message);
@@ -96,16 +102,16 @@ export class PinoLogger implements ILogger {
     this._logger.info(message, ...args);
   }
 
-  getLogger() {
+  getLogger(): PinoLoggerType {
     return this._logger;
   }
 
-  child(childName: string) {
+  child(childName: string): PinoLoggerType {
     return this._logger.child({ service: childName });
   }
 }
 
-function deepMerge(target: any, source: any) {
+function deepMerge(target: any, source: any): LoggerOptions {
   for (const key of Object.keys(source)) {
     if (source[key] instanceof Object && key in target) {
       Object.assign(source[key], deepMerge(target[key], source[key]));
