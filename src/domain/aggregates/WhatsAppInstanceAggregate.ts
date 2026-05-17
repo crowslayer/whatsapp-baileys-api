@@ -14,11 +14,7 @@ export interface IWhatsAppInstanceProps {
   name: Name;
   status: ConnectionStatus;
   phoneNumber?: PhoneNumber;
-  // qrCode?: string;
-  // qrText?: string;
-  // pairingCode?: string;
   webhookUrl?: string;
-  // sessionData?: any;
   createdAt?: Date;
   updatedAt?: Date;
   lastConnectedAt?: Date;
@@ -28,11 +24,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
   private _name: Name;
   private _status: ConnectionStatus;
   private _phoneNumber?: PhoneNumber;
-  // private _qrCode?: string;
-  // private _qrText?: string;
-  // private _pairingCode?: string;
   private _webhookUrl?: string;
-  // private _sessionData?: any;
   private _lastConnectedAt?: Date;
 
   private constructor(props: IWhatsAppInstanceProps) {
@@ -40,11 +32,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     this._name = props.name;
     this._status = props.status;
     this._phoneNumber = props.phoneNumber;
-    // this._qrCode = props.qrCode;
-    // this._qrText = props.qrText;
-    // this._pairingCode = props.pairingCode;
     this._webhookUrl = props.webhookUrl;
-    // this._sessionData = props.sessionData;
     this._lastConnectedAt = props.lastConnectedAt;
     this.validate();
   }
@@ -91,25 +79,9 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     return this._phoneNumber;
   }
 
-  // get qrCode(): string | undefined {
-  //   return this._qrCode;
-  // }
-
-  // get qrText(): string | undefined {
-  //   return this._qrText;
-  // }
-
-  // get pairingCode(): string | undefined {
-  //   return this._pairingCode;
-  // }
-
   get webhookUrl(): string | undefined {
     return this._webhookUrl;
   }
-
-  // get sessionData(): any {
-  //   return this._sessionData;
-  // }
 
   get lastConnectedAt(): Date | undefined {
     return this._lastConnectedAt;
