@@ -1,13 +1,13 @@
 import { ValueObject } from '@shared/domain/ValueObject';
 
-export type ChatTypeValue = 'individual' | 'group';
+export type ChatTypeValue = 'chat' | 'group';
 
 export class ChatType extends ValueObject<ChatTypeValue> {
   private constructor(value: ChatTypeValue) {
     super(value);
   }
 
-  static readonly INDIVIDUAL = new ChatType('individual');
+  static readonly INDIVIDUAL = new ChatType('chat');
   static readonly GROUP = new ChatType('group');
 
   static create(value: string): ChatType {
@@ -18,8 +18,8 @@ export class ChatType extends ValueObject<ChatTypeValue> {
     return this._value;
   }
   protected validate(): void {
-    if (this._value !== 'individual' && this._value !== 'group') {
-      throw new Error(`Invalid ChatType: "${this._value}". Must be "individual" or "group".`);
+    if (this._value !== 'chat' && this._value !== 'group') {
+      throw new Error(`Invalid ChatType: "${this._value}". Must be "chat" or "group".`);
     }
   }
   isGroup(): boolean {
@@ -27,7 +27,7 @@ export class ChatType extends ValueObject<ChatTypeValue> {
   }
 
   isIndividual(): boolean {
-    return this._value === 'individual';
+    return this._value === 'chat';
   }
 
   //   equals(other: ChatType): boolean {
