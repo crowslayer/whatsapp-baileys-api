@@ -50,7 +50,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
 
     instance.addDomainEvent(
       new InstanceCreatedEvent(instanceId.value, {
-        // phoneNumber: props.phoneNumber?.value,
+        name: name.value,
         webhookUrl,
       })
     );
@@ -112,37 +112,9 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     );
   }
 
-  // generateQRCode(qrCode: string, qrText: string): void {
-  //   this._qrCode = qrCode;
-  //   this._qrText = qrText;
-  //   this._status = ConnectionStatus.qrReady();
-
-  //   this.addDomainEvent(
-  //     new QRCodeGeneratedEvent(this.instanceId, {
-  //       qrCode,
-  //       qrText,
-  //     })
-  //   );
-  // }
-
-  // generatePairingCode(pairingCode: string): void {
-  //   this._pairingCode = pairingCode;
-  //   this._status = ConnectionStatus.pairingCodeReady();
-
-  //   this.addDomainEvent(
-  //     new PairingCodeGeneratedEvent(this.instanceId, {
-  //       pairingCode,
-  //     })
-  //   );
-  // }
-
   updateStatus(status: ConnectionStatusEnum): void {
     this._status = ConnectionStatus.create(status);
   }
-
-  // updateSessionData(sessionData: any): void {
-  //   this._sessionData = sessionData;
-  // }
 
   canSendMessages(): boolean {
     return this._status.isConnected();
@@ -166,9 +138,6 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
       name: this._name.value,
       status: this._status.value,
       phoneNumber: this._phoneNumber?.value,
-      // qrCode: this._qrCode,
-      // qrText: this._qrText,
-      // pairingCode: this._pairingCode,
       webhookUrl: this._webhookUrl,
       lastConnectedAt: this._lastConnectedAt,
       createdAt: this.createdAt,
