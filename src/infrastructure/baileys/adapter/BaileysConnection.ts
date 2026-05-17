@@ -205,7 +205,6 @@ export class BaileysConnection {
   // ===============================
   private async clearAuthFolder(): Promise<void> {
     try {
-      // const fs = await import('fs/promises');
       await rm(this.getAuthPath(), { recursive: true, force: true });
 
       this._logger.warn({

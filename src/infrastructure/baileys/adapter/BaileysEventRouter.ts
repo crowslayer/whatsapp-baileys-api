@@ -33,7 +33,6 @@ export class BaileysEventRouter {
                   instanceId: this.instance.instanceId,
                   message: msg,
                 });
-                // return this.handlers.onMessage?.(msg);
               }
             })
           );
