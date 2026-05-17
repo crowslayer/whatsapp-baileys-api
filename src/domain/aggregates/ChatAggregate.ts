@@ -1,8 +1,6 @@
 import { ChatId } from '@domain/value-objects/ChatId';
 import { ChatType } from '@domain/value-objects/ChatType';
 
-import { AggregateRoot } from '@shared/domain/AggregateRoot';
-
 export interface IChatProps {
   chatId: ChatId;
   instanceId: string;
