@@ -1,8 +1,11 @@
+import { EventId } from '@domain/value-objects/EventId';
+
 import { IDomainEvent } from '@shared/domain/DomainEvent';
 
 export class InstanceDisconnectedEvent implements IDomainEvent {
-  public readonly occurredOn: Date;
   public readonly eventName: string = 'instance.disconnected';
+  public readonly eventId: string = EventId.create().value;
+  public readonly occurredOn: Date = new Date();
 
   constructor(
     public readonly aggregateId: string,
@@ -10,7 +13,5 @@ export class InstanceDisconnectedEvent implements IDomainEvent {
       instanceName: string;
       reason?: string;
     }
-  ) {
-    this.occurredOn = new Date();
-  }
+  ) {}
 }
