@@ -1,4 +1,8 @@
-import { DomainEvent, DomainEventClass, SerializedDomainEvent } from '@shared/domain/DomainEvent';
+import type {
+  DomainEvent,
+  DomainEventClass,
+  SerializedDomainEvent,
+} from '@shared/domain/DomainEvent';
 
 export type AnyDomainEvent = DomainEvent<string, unknown>;
 
