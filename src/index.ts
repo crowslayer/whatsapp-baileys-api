@@ -33,6 +33,10 @@ async function bootstrap(): Promise<void> {
     // activando bot
     botService.subscribe(eventBus);
 
+    // const domainEventBus = container.get<IEventBus>('shared.domain.event_bus');
+    // const subscribers = DomainEventSubscribers.from(container);
+    // domainEventBus.addSubscribers(subscribers);
+
     await mongoConnection.connect();
 
     // Restore existing connections
