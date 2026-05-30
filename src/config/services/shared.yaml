@@ -62,6 +62,10 @@ services:
   shared.event_bus:
     class: ../../shared/infrastructure/event-bus/in-memory/NodeEventBus
     public: true
+
+  shared.domain.event_bus:
+    class: ../../shared/infrastructure/event-bus/in-memory/InMemoryEventBus
+    public: true
   # =============================================
   # Command Handler
   # =============================================

@@ -158,3 +158,13 @@ services:
       - '@application.service.limiter_factory'
       - '@application.service.human_behavior'
     public: true
+  # =============================================
+  # EventSubscribers
+  # =============================================
+  application.subscriber.message_received:
+    class: '../../../application/events/subscribers/MessageReceivedSubscriber'
+    arguments:
+      - '@application.bot.bot_service'
+    tags:
+      - { name: 'subscriber' }
+    public: true

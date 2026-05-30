@@ -126,3 +126,13 @@ services:
     tags:
       - { name: 'commandHandler' }
     public: true
+  # =============================================
+  # EventSubscribers
+  # =============================================
+  application.subscriber.qr_code_generated:
+    class: ../../../application/instances/qr-code/save/StoreQRCodeGenerated
+    arguments:
+      - '@infrastructure.cache.nodecache_connection_store'
+    tags:
+      - { name: 'subscriber' }
+    public: true
