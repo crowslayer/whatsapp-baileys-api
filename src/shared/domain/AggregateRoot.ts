@@ -4,8 +4,16 @@ import { Entity } from '@shared/domain/Entity';
 export abstract class AggregateRoot<T> extends Entity<T> {
   private _domainEvents: IDomainEvent[] = [];
 
-  get domainEvents(): IDomainEvent[] {
+  get domainEvents(): Readonly<IDomainEvent[]> {
     return this._domainEvents;
+  }
+
+  pullDomainEvents(): IDomainEvent[] {
+    const events = [...this.domainEvents];
+
+    this._domainEvents = [];
+
+    return events;
   }
 
   protected addDomainEvent(event: IDomainEvent): void {
