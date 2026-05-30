@@ -1,48 +1,48 @@
-import { MessageReceivedEvent } from '../../../src/domain/events/MessageReceivedEvent'
+import { MessageReceivedEvent } from '../../../src/domain/events/MessageReceivedEvent';
 
 describe('MessageReceivedEvent', () => {
   test('creates with correct aggregateId', () => {
-    const event = new MessageReceivedEvent('agg-123', {
-      messageId: 'msg-1',
-      from: 'sender-id',
+    const event = MessageReceivedEvent.create('agg-123', {
+      instanceId: 'msg-1',
+      chatId: 'sender-id',
       message: 'Hello!',
-    })
-    expect(event.aggregateId).toBe('agg-123')
-  })
+    });
+    expect(event.aggregateId).toBe('agg-123');
+  });
 
   test('creates with correct payload values', () => {
-    const payload = { messageId: 'msg-1', from: 'sender-id', message: 'Hello!' }
-    const event = new MessageReceivedEvent('agg-123', payload)
-    expect(event.payload).toEqual(payload)
-  })
+    const payload = { instanceId: 'msg-1', chatId: 'sender-id', message: 'Hello!' };
+    const event = MessageReceivedEvent.create('agg-123', payload);
+    expect(event.payload).toEqual(payload);
+  });
 
   test('eventName is message.received', () => {
-    const event = new MessageReceivedEvent('agg-1', {
-      messageId: 'm1',
-      from: 'f',
+    const event = MessageReceivedEvent.create('agg-1', {
+      instanceId: 'm1',
+      chatId: 'f',
       message: 'Hi',
-    })
-    expect(event.eventName).toBe('message.received')
-  })
+    });
+    expect(event.eventName).toBe('message.received');
+  });
 
   test('occurredOn is a Date', () => {
-    const event = new MessageReceivedEvent('agg-1', {
-      messageId: 'm1',
-      from: 'f',
+    const event = MessageReceivedEvent.create('agg-1', {
+      instanceId: 'm1',
+      chatId: 'f',
       message: 'Hi',
-    })
-    expect(event.occurredOn).toBeInstanceOf(Date)
-  })
+    });
+    expect(event.occurredOn).toBeInstanceOf(Date);
+  });
 
   test('implements IDomainEvent shape', () => {
-    const event = new MessageReceivedEvent('agg-1', {
-      messageId: 'm1',
-      from: 'f',
+    const event = MessageReceivedEvent.create('agg-1', {
+      instanceId: 'm1',
+      chatId: 'f',
       message: 'Hi',
-    })
-    expect(event.aggregateId).toBeDefined()
-    expect(event.eventName).toBeDefined()
-    expect(event.occurredOn).toBeDefined()
-    expect(event.payload).toBeDefined()
-  })
-})
+    });
+    expect(event.aggregateId).toBeDefined();
+    expect(event.eventName).toBeDefined();
+    expect(event.occurredOn).toBeDefined();
+    expect(event.payload).toBeDefined();
+  });
+});
