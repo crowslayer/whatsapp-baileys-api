@@ -24,6 +24,8 @@ export class InstanceConnectedEvent extends DomainEvent<
 
   readonly payload: Readonly<InstanceConnectedPayload>;
 
+  readonly eventName = InstanceConnectedEvent.EVENT_NAME;
+
   private constructor(props: CreateProps) {
     super(props);
     this.payload = this.freezePayload(props.payload);
