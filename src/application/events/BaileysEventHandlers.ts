@@ -30,12 +30,10 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
   async onMessage(message: WAMessage): Promise<void> {
     try {
       const text = this.extractText(message);
-      const chatId = message.key.remoteJid;
+      const chatId = message.key.remoteJid ?? message.key.remoteJidAlt;
 
       if (!chatId || chatId === undefined) return;
       if (!text) return;
-
-      // await this.botService.handleMessage(this.instance.instanceId, chatId, text);
 
       // opcional: seguir enviando webhook
       await this.webhookService.send(this.instance.instanceId, 'message', {
