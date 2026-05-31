@@ -1,11 +1,11 @@
 import { QRCodeGeneratedEvent } from '@domain/events/QRCodeGeneratedEvent';
 
-import { IConnectionStateStore } from '@application/runtime/IConnectionStateStore';
+import { QRCodePersist } from '@application/instances/qr-code/save/QRCodePersist';
 
 import { IDomainEventSubscriber } from '@shared/domain/IDomainEventSubscriber';
 
 export class StoreQRCodeGenerated implements IDomainEventSubscriber<QRCodeGeneratedEvent> {
-  constructor(private readonly connectionStore: IConnectionStateStore) {}
+  constructor(private readonly persist: QRCodePersist) {}
 
   subscribedTo(): [typeof QRCodeGeneratedEvent] {
     return [QRCodeGeneratedEvent];
@@ -15,6 +15,6 @@ export class StoreQRCodeGenerated implements IDomainEventSubscriber<QRCodeGenera
     console.log(event);
     const data = event.payload;
     // store efímero
-    await this.connectionStore.setQR(data.instanceId, data.qrCode, data.qrText);
+    await this.persist.execute(data);
   }
 }
