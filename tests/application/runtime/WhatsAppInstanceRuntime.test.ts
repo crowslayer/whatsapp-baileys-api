@@ -262,4 +262,62 @@ describe('WhatsAppInstanceRuntime', () => {
     expect(instance.connect).not.toHaveBeenCalled();
     expect(repository.update).not.toHaveBeenCalled();
   });
+
+  it('should ignore qr from another instance', async () => {
+    const runtime = new WhatsAppInstanceRuntime(
+      instance,
+      repository,
+      eventHandlers,
+      connectionStore,
+      eventBus,
+      domainEventBus
+    );
+
+    await runtime.start();
+
+    await listeners.qr({
+      instanceId: 'another-instance',
+      qrCode: 'qr',
+      qrText: 'qr',
+    });
+
+    expect(mocks.publishMock).not.toHaveBeenCalled();
+  });
+
+  it('should handle disconnected without callback handler', async () => {
+    const runtime = new WhatsAppInstanceRuntime(
+      instance,
+      repository,
+      eventHandlers,
+      connectionStore,
+      eventBus,
+      domainEventBus
+    );
+
+    await runtime.start();
+
+    await listeners.disconnected({
+      instanceId: 'instance-1',
+      reason: 'logout',
+      type: 'LOGGED_OUT',
+    });
+
+    expect(instance.disconnect).toHaveBeenCalled();
+    expect(repository.update).toHaveBeenCalled();
+  });
+
+  it('should pass phone number to connection', async () => {
+    const runtime = new WhatsAppInstanceRuntime(
+      instance,
+      repository,
+      eventHandlers,
+      connectionStore,
+      eventBus,
+      domainEventBus
+    );
+
+    await runtime.start('5219999999999');
+
+    expect(mocks.connectMock).toHaveBeenCalledWith('5219999999999');
+  });
 });
