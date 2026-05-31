@@ -10,6 +10,8 @@ import { WhatsAppInstanceRuntime } from '@application/runtime/WhatsAppInstanceRu
 import { WebhookService } from '@infrastructure/http/webhooks/WebhookService';
 import { ILogger } from '@infrastructure/loggers/Logger';
 
+import { IEventBus } from '@shared/domain/IEventBus';
+
 export class WhatsAppRuntimeFactory {
   constructor(
     private readonly repository: IWhatsAppInstanceRepository,
@@ -17,7 +19,8 @@ export class WhatsAppRuntimeFactory {
     private readonly webhookService: WebhookService,
     private readonly logger: ILogger,
     private readonly connectionStore: IConnectionStateStore,
-    private readonly eventBus: IConnectionEventBus
+    private readonly eventBus: IConnectionEventBus,
+    private readonly domainEventBus: IEventBus
   ) {}
 
   create(instance: WhatsAppInstanceAggregate): WhatsAppInstanceRuntime {
@@ -33,7 +36,8 @@ export class WhatsAppRuntimeFactory {
       this.repository,
       eventHandlers,
       this.connectionStore,
-      this.eventBus // usando eventbus
+      this.eventBus, // usando eventbus
+      this.domainEventBus // domainEvent
     );
   }
 }

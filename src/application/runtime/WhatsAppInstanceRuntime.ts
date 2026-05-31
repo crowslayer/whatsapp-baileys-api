@@ -1,4 +1,5 @@
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
+import { QRCodeGeneratedEvent } from '@domain/events/QRCodeGeneratedEvent';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
 import { IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers';
@@ -21,6 +22,8 @@ import { IPresenceService } from '@infrastructure/baileys/adapter/IPresenceServi
 import { IPrivacyService } from '@infrastructure/baileys/adapter/IPrivacyService';
 import { IProfileService } from '@infrastructure/baileys/adapter/IProfileService';
 
+import { IEventBus } from '@shared/domain/IEventBus';
+
 type DisconnectEvent = {
   type: 'TRANSIENT' | 'INVALID_SESSION' | 'LOGGED_OUT';
   reason?: string;
@@ -41,7 +44,8 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
     private readonly repository: IWhatsAppInstanceRepository,
     private readonly eventHandlers: IBaileysEventHandlers,
     private readonly connectionStore: IConnectionStateStore,
-    private readonly eventBus: IConnectionEventBus
+    private readonly eventBus: IConnectionEventBus,
+    private readonly domainEventBus: IEventBus
   ) {}
 
   async start(phoneNumber?: string): Promise<void> {
@@ -102,7 +106,8 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
     this.eventBus.on('qr', async (data) => {
       if (data.instanceId !== this.instance.instanceId) return;
       // store efímero
-      await this.connectionStore.setQR(data.instanceId, data.qrCode, data.qrText);
+      const event = QRCodeGeneratedEvent.create(data.instanceId, data);
+      this.domainEventBus.publish([event]);
     });
 
     this.eventBus.on('connected', async (data) => {
