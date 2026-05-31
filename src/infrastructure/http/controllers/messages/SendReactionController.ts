@@ -6,8 +6,8 @@ import { StatusCode } from '@infrastructure/http/StatusCode';
 
 import { ICommandBus } from '@shared/domain/commands/CommandBus';
 import { AuditDataBuilder } from '@shared/infrastructure/AuditData';
-import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
+import { ResponseHandler } from '@shared/infrastructure/ResponseHandler';
 
 export class SendReactionController {
   constructor(private readonly commandBus: ICommandBus) {}
