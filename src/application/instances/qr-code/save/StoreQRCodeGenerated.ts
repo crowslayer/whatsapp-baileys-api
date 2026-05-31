@@ -12,7 +12,6 @@ export class StoreQRCodeGenerated implements IDomainEventSubscriber<QRCodeGenera
   }
 
   async on(event: QRCodeGeneratedEvent): Promise<void> {
-    console.log(event);
     const data = event.payload;
     // store efímero
     await this.persist.execute(data);
