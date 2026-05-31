@@ -5,6 +5,10 @@ const mocks = vi.hoisted(() => ({
   disconnectMock: vi.fn(),
   getSocketMock: vi.fn(() => ({})),
   bindMock: vi.fn(),
+  publishMock: vi.fn(),
+  qrEventCreateMock: vi.fn(() => ({
+    eventId: 'event-1',
+  })),
 }));
 
 vi.mock('@infrastructure/baileys/adapter/BaileysConnection', () => ({
@@ -12,6 +16,12 @@ vi.mock('@infrastructure/baileys/adapter/BaileysConnection', () => ({
     connect = mocks.connectMock;
     disconnect = mocks.disconnectMock;
     getSocket = mocks.getSocketMock;
+  },
+}));
+
+vi.mock('@domain/events/QRCodeGeneratedEvent', () => ({
+  QRCodeGeneratedEvent: {
+    create: mocks.qrEventCreateMock,
   },
 }));
 
@@ -55,6 +65,7 @@ describe('WhatsAppInstanceRuntime', () => {
   let connectionStore: any;
   let eventBus: any;
   let eventHandlers: any;
+  let domainEventBus: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -83,6 +94,10 @@ describe('WhatsAppInstanceRuntime', () => {
       }),
     };
 
+    domainEventBus = {
+      publish: mocks.publishMock,
+    };
+
     eventHandlers = {};
   });
 
@@ -92,7 +107,8 @@ describe('WhatsAppInstanceRuntime', () => {
       repository,
       eventHandlers,
       connectionStore,
-      eventBus
+      eventBus,
+      domainEventBus
     );
 
     await runtime.start();
@@ -114,7 +130,8 @@ describe('WhatsAppInstanceRuntime', () => {
       repository,
       eventHandlers,
       connectionStore,
-      eventBus
+      eventBus,
+      domainEventBus
     );
 
     await runtime.start();
@@ -129,7 +146,8 @@ describe('WhatsAppInstanceRuntime', () => {
       repository,
       eventHandlers,
       connectionStore,
-      eventBus
+      eventBus,
+      domainEventBus
     );
 
     await runtime.start();
@@ -140,7 +158,17 @@ describe('WhatsAppInstanceRuntime', () => {
       qrText: 'qr-text',
     });
 
-    expect(connectionStore.setQR).toHaveBeenCalledWith('instance-1', 'qr-code', 'qr-text');
+    expect(mocks.qrEventCreateMock).toHaveBeenCalledWith('instance-1', {
+      instanceId: 'instance-1',
+      qrCode: 'qr-code',
+      qrText: 'qr-text',
+    });
+
+    expect(mocks.publishMock).toHaveBeenCalledWith([
+      {
+        eventId: 'event-1',
+      },
+    ]);
   });
 
   it('should handle connected event', async () => {
@@ -149,7 +177,8 @@ describe('WhatsAppInstanceRuntime', () => {
       repository,
       eventHandlers,
       connectionStore,
-      eventBus
+      eventBus,
+      domainEventBus
     );
 
     await runtime.start();
@@ -172,7 +201,8 @@ describe('WhatsAppInstanceRuntime', () => {
       repository,
       eventHandlers,
       connectionStore,
-      eventBus
+      eventBus,
+      domainEventBus
     );
 
     runtime.onDisconnect(handler);
@@ -198,7 +228,8 @@ describe('WhatsAppInstanceRuntime', () => {
       repository,
       eventHandlers,
       connectionStore,
-      eventBus
+      eventBus,
+      domainEventBus
     );
 
     await runtime.start();
@@ -217,7 +248,8 @@ describe('WhatsAppInstanceRuntime', () => {
       repository,
       eventHandlers,
       connectionStore,
-      eventBus
+      eventBus,
+      domainEventBus
     );
 
     await runtime.start();
