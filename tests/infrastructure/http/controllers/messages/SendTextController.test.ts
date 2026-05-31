@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { MockPhoneNormalizer } from '../../../../helpers/MockPhoneNormalizer';
 
 const mocks = vi.hoisted(() => ({
   successMock: vi.fn(),
@@ -11,16 +12,8 @@ vi.mock('../../../../../src/shared/infrastructure/ResponseHandler', () => ({
   },
 }));
 
-vi.mock('../../../../../src/shared/infrastructure/utils/PhoneNormalizer', () => ({
-  PhoneNormalizer: class {
-    toJid(phone: string) {
-      if (phone === 'explode') {
-        throw new Error('normalizer error');
-      }
-      if (phone === 'invalid') return null;
-      return `${phone}@s.whatsapp.net`;
-    }
-  },
+vi.mock('@shared/infrastructure/utils/PhoneNormalizer', () => ({
+  PhoneNormalizer: MockPhoneNormalizer,
 }));
 
 import { SendTextController } from '../../../../../src/infrastructure/http/controllers/messages/SendTextController';
