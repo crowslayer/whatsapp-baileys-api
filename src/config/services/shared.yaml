@@ -110,6 +110,7 @@ services:
       - '@shared.logger'
       - '@infrastructure.cache.nodecache_connection_store'
       - '@shared.event_bus'
+      - '@shared.domain.event_bus'
 
   # =============================================
   # Runtime Managers
