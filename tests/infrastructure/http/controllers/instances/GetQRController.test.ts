@@ -1,4 +1,5 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { QRCodeResponse } from '../../../../../src/application/instances/qr-code/get/QRCodeResponse';
 import { GetQRController } from '../../../../../src/infrastructure/http/controllers/instances/GetQRController';
 
@@ -32,7 +33,7 @@ describe('GetQRController', () => {
         QRCodeResponse.create({ qrCode: 'qr-data', instanceId: 'inst-1' })
       );
 
-      await controller.handle(req as Request, res as Response, next);
+      await controller.handle(req as Request, res as Response, next as NextFunction);
 
       expect(mockQueryBus.ask).toHaveBeenCalledTimes(1);
       expect(res.json).toHaveBeenCalled();
@@ -45,7 +46,7 @@ describe('GetQRController', () => {
       });
       mockQueryBus.ask.mockResolvedValue(response);
 
-      await controller.handle(req as Request, res as Response, next);
+      await controller.handle(req as Request, res as Response, next as NextFunction);
 
       expect(res.status).not.toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalled();
@@ -55,7 +56,7 @@ describe('GetQRController', () => {
       const error = new Error('Query failed');
       mockQueryBus.ask.mockRejectedValue(error);
 
-      await controller.handle(req as Request, res as Response, next);
+      await controller.handle(req as Request, res as Response, next as NextFunction);
       expect(next).toHaveBeenCalledWith(error);
     });
   });
@@ -73,7 +74,7 @@ describe('GetQRController', () => {
         })
       );
 
-      await controller.renderQRPage(req as Request, res as Response, next);
+      await controller.renderQRPage(req as Request, res as Response, next as NextFunction);
 
       expect(res.render).toHaveBeenCalledWith('qr-code', {
         instanceId: 'inst-1',
@@ -88,7 +89,7 @@ describe('GetQRController', () => {
     test('should render error page when instance not found', async () => {
       mockQueryBus.ask.mockResolvedValue(QRCodeResponse.create(null));
 
-      await controller.renderQRPage(req as Request, res as Response, next);
+      await controller.renderQRPage(req as Request, res as Response, next as NextFunction);
 
       expect(res.render).toHaveBeenCalledWith('error', {
         message: 'Instancia no encontrada',
@@ -100,7 +101,7 @@ describe('GetQRController', () => {
       const error = new Error('Render failed');
       mockQueryBus.ask.mockRejectedValue(error);
 
-      await controller.renderQRPage(req as Request, res as Response, next);
+      await controller.renderQRPage(req as Request, res as Response, next as NextFunction);
       expect(next).toHaveBeenCalledWith(error);
     });
   });
