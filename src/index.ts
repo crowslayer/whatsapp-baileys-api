@@ -14,8 +14,11 @@ import { ILogger } from '@infrastructure/loggers/Logger';
 import { IDatabaseConnection } from '@infrastructure/persistence';
 import { SocketGateway } from '@infrastructure/realtime/SocketGateway';
 
-import { IConfig } from './config';
+import { IEventBus } from '@shared/domain/IEventBus';
+import { DomainEventSubscribers } from '@shared/infrastructure/event-bus/DomainEventSubscribers';
 
+import { IConfig } from './config';
+// eslint-disable-next-line
 async function bootstrap(): Promise<void> {
   try {
     // Connect to database
@@ -32,10 +35,10 @@ async function bootstrap(): Promise<void> {
     const eventBus = container.get<IConnectionEventBus>('shared.event_bus');
     // activando bot
     botService.subscribe(eventBus);
-
-    // const domainEventBus = container.get<IEventBus>('shared.domain.event_bus');
-    // const subscribers = DomainEventSubscribers.from(container);
-    // domainEventBus.addSubscribers(subscribers);
+    // DoaminEvents register subscribers
+    const domainEventBus = container.get<IEventBus>('shared.domain.event_bus');
+    const subscribers = DomainEventSubscribers.from(container);
+    domainEventBus.addSubscribers(subscribers);
 
     await mongoConnection.connect();
 
