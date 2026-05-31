@@ -1,4 +1,5 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { QRCodeStatusResponse } from '../../../../../src/application/instances/qr-code/status/QRCodeStatusResponse';
 import { GetQRStatusController } from '../../../../../src/infrastructure/http/controllers/instances/GetQRStatusController';
 
@@ -30,7 +31,7 @@ describe('GetQRStatusController', () => {
     const response = QRCodeStatusResponse.create(mockContent);
     mockQueryBus.ask.mockResolvedValue(response);
 
-    await controller.handle(req as Request, res as Response, next);
+    await controller.handle(req as Request, res as Response, next as NextFunction);
 
     expect(mockQueryBus.ask).toHaveBeenCalledTimes(1);
     expect(res.json).toHaveBeenCalled();
@@ -39,7 +40,7 @@ describe('GetQRStatusController', () => {
   test('should call next with NotFoundError when instance not found', async () => {
     mockQueryBus.ask.mockResolvedValue(null);
 
-    await controller.handle(req as Request, res as Response, next);
+    await controller.handle(req as Request, res as Response, next as NextFunction);
 
     expect(next).toHaveBeenCalled();
     expect(next.mock.calls[0][0].constructor.name).toBe('NotFoundError');
@@ -49,7 +50,7 @@ describe('GetQRStatusController', () => {
     const response = QRCodeStatusResponse.create({ qrCode: null });
     mockQueryBus.ask.mockResolvedValue(response);
 
-    await controller.handle(req as Request, res as Response, next);
+    await controller.handle(req as Request, res as Response, next as NextFunction);
 
     expect(next).toHaveBeenCalled();
     expect(next.mock.calls[0][0].constructor.name).toBe('WhatsAppConnectionError');
@@ -59,7 +60,7 @@ describe('GetQRStatusController', () => {
     const error = new Error('Query failed');
     mockQueryBus.ask.mockRejectedValue(error);
 
-    await controller.handle(req as Request, res as Response, next);
+    await controller.handle(req as Request, res as Response, next as NextFunction);
     expect(next).toHaveBeenCalledWith(error);
   });
 });
