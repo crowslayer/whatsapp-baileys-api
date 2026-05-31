@@ -1,13 +1,11 @@
-// src/application/events/subscribers/MessageReceivedSubscriber.ts
-
 import { MessageReceivedEvent } from '@domain/events/MessageReceivedEvent';
 
-import { BotService } from '@application/bot/BotService';
+import { IBotService } from '@application/bot/types/IBotService';
 
 import { IDomainEventSubscriber } from '@shared/domain/IDomainEventSubscriber';
 
 export class MessageReceivedSubscriber implements IDomainEventSubscriber<MessageReceivedEvent> {
-  constructor(private readonly botService: BotService) {}
+  constructor(private readonly botService: IBotService) {}
 
   subscribedTo(): [typeof MessageReceivedEvent] {
     return [MessageReceivedEvent];
