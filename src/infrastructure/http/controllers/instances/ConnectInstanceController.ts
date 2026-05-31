@@ -23,7 +23,7 @@ export class ConnectInstanceController {
       const instance = await this.commandBus.dispatch(command);
 
       const content = instance;
-      ResponseHandler.created(res, content, 'Instance created successfully', audit);
+      ResponseHandler.created(res, content, 'Instance connected successfully', audit);
     } catch (error) {
       next(error);
     }
