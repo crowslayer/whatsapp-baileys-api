@@ -32,6 +32,7 @@ describe('WhatsAppRuntimeFactory', () => {
     const logger = {};
     const connectionStore = {};
     const eventBus = {};
+    const domainEventBus = {};
 
     const instance = {
       instanceId: 'instance-1',
@@ -43,7 +44,8 @@ describe('WhatsAppRuntimeFactory', () => {
       webhookService as any,
       logger as any,
       connectionStore as any,
-      eventBus as any
+      eventBus as any,
+      domainEventBus as any
     );
 
     const runtime = factory.create(instance as any);
@@ -64,7 +66,8 @@ describe('WhatsAppRuntimeFactory', () => {
       repository,
       expect.anything(), // eventHandlers
       connectionStore,
-      eventBus
+      eventBus,
+      domainEventBus
     );
 
     expect(runtime).toBeInstanceOf(WhatsAppInstanceRuntime);
