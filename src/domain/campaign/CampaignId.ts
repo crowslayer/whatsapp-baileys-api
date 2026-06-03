@@ -18,7 +18,7 @@ export class CampaignId extends ValueObject<string> {
 
   protected validate(): void {
     if (!this._value || this._value.trim().length === 0) {
-      throw new ValidationError([{ field: 'instanceId', message: 'InstanceId cannot be empty' }]);
+      throw new ValidationError([{ field: 'campaignId', message: 'CampaignId cannot be empty' }]);
     }
   }
 }
