@@ -3,7 +3,7 @@ import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 
 export class Name extends ValueObject<string> {
   private constructor(value: string) {
-    super(value.trim().toUpperCase());
+    super(value.trim());
   }
 
   static create(value: string): Name {
