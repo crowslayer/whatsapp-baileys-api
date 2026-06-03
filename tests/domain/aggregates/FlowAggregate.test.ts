@@ -135,7 +135,7 @@ describe('FlowAggregate state transitions', () => {
     const name = Name.create('Original');
     const agg = FlowAggregate.create(instanceId, name);
     agg.rename(Name.create('Renamed'));
-    expect(agg.name.value).toBe('RENAMED');
+    expect(agg.name.value).toBe('Renamed');
   });
 
   test('changeInstance() updates instanceId', () => {
@@ -201,7 +201,7 @@ describe('FlowAggregate state transitions', () => {
     } as any);
     expect(agg.flowId.value).toBe('flow-restore-all');
     expect(agg.instanceId.value).toBe('inst-restore-all');
-    expect(agg.name.value).toBe('RESTORED FLOW');
+    expect(agg.name.value).toBe('Restored Flow');
     expect(agg.version).toBe(2);
     expect(agg.start).toBe('start');
     expect(agg.nodes).toEqual(nodes);

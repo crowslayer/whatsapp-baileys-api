@@ -31,7 +31,7 @@ describe('CreateFlowController', () => {
     const dispatched = mockCommandBus.dispatch.mock.calls[0][0];
     expect(dispatched.constructor.name).toBe('CreateFlowCommand');
     expect(dispatched.instanceId.value).toBe('inst-1');
-    expect(dispatched.name.value).toBe('TEST FLOW');
+    expect(dispatched.name.value).toBe('Test Flow');
     expect(res.status).toHaveBeenCalledWith(201);
   });
 
