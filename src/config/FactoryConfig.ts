@@ -88,10 +88,12 @@ export class FactoryConfig {
   private static buildSecurity(environment: string): IConfig['security'] {
     const SECURITY_TYPE = required('SECURITY_TYPE', process.env.SECURITY_TYPE);
     const corsOrigins = FactoryConfig.buildCorsOrigins(environment);
+    const protectedRoutes =
+      environment === 'production' ? true : toBoolean(process.env.PROTECT_ROUTES);
 
     const base = {
       cors: { origins: corsOrigins },
-      protectRoutes: toBoolean(process.env.PROTECT_ROUTES),
+      protectRoutes: protectedRoutes,
       enabledRateLimit: toBoolean(process.env.ENABLED_RATE_LIMITS),
     };
 
