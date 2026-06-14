@@ -52,3 +52,11 @@ services:
   infrastructure.cache.nodecache_connection_store:
     class: '../../infrastructure/cache/NodeCacheConnectionStateStore'
     public: true
+
+  infrastructure.http.token_verifier:
+    factory:
+      class: '../../infrastructure/http/validators/token/TokenVerifierFactory'
+      method: 'createTokenVerifier'
+    arguments:
+      - '@api.config'
+    public: true

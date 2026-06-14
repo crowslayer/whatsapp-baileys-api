@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { ContainerBuilder } from 'node-dependency-injection';
 
+import { createAuthMiddleware } from '@infrastructure/http/middlewares/AuthMiddleware';
 import { createCorsMiddleware } from '@infrastructure/http/middlewares/CorsMiddleware';
 import { errorMiddleware } from '@infrastructure/http/middlewares/ErrorMiddleware';
 import { loggerMiddleware } from '@infrastructure/http/middlewares/LoggerMiddleware';
@@ -18,6 +19,7 @@ import { createGroupRouter } from '@infrastructure/http/routes/group.routes';
 import { createInstanceRouter } from '@infrastructure/http/routes/instance.routes';
 import { createMessageRouter } from '@infrastructure/http/routes/message.routes';
 import { createMultimediaRouter } from '@infrastructure/http/routes/multimedia.routes';
+import { ITokenVerifier } from '@infrastructure/http/validators/token/Index';
 import { ILogger } from '@infrastructure/loggers/Logger';
 
 import { IConfig } from '@config/index';
@@ -115,7 +117,7 @@ export class ExpressApp {
   }
 
   private initRoutes(): void {
-    this._app.get('/health', (req, res) => {
+    this._app.get('/health', (_req, res) => {
       res.json({
         status: 'OK',
         timestamp: new Date().toISOString(),
@@ -124,6 +126,14 @@ export class ExpressApp {
     });
     const config = this._config;
     const base = `/${config.api.path}/${config.api.version}`;
+
+    // Auth
+    if (config.security?.protectRoutes) {
+      const tokenVerifier = this.container.get<ITokenVerifier>(
+        'infrastructure.http.token_verifier'
+      );
+      this._app.use(`${base}`, createAuthMiddleware(tokenVerifier));
+    }
 
     // Routes
     this._app.use(`${base}/instances`, createInstanceRouter(this.container));
