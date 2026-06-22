@@ -95,7 +95,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
 
     this.addDomainEvent(
       InstanceConnectedEvent.create(this.instanceId, {
-        instanceName: this._name.value,
+        instanceId: this._id,
         phoneNumber,
       })
     );
