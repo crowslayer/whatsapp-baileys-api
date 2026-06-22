@@ -1,15 +1,23 @@
-import { InstanceConnectedEvent } from '@domain/events/InstanceConnectedEvent';
+import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
-import { AnyDomainEventClass, IDomainEventSubscriber } from '@shared/domain/IDomainEventSubscriber';
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
 
-export class NotifyInstanceConnected implements IDomainEventSubscriber<InstanceConnectedEvent> {
-  subscribedTo(): AnyDomainEventClass[] {
-    return [InstanceConnectedEvent];
-  }
+export class NotifyInstanceConnected {
+  constructor(private readonly repository: IWhatsAppInstanceRepository) {}
 
-  async on(event: InstanceConnectedEvent): Promise<void> {
-    console.log(event.payload.instanceName);
+  async execute(params: { instanceId: string; phoneNumber: string }): Promise<void> {
+    try {
+      const instance = await this.repository.findById(params.instanceId);
 
-    console.log(event.payload.phoneNumber);
+      if (!instance) throw new NotFoundError('Instance not found');
+
+      instance.connect(params.phoneNumber);
+
+      this.repository.save(instance);
+    } catch (error) {
+      if (error instanceof NotFoundError) throw error;
+
+      throw new Error('Internal Error');
+    }
   }
 }

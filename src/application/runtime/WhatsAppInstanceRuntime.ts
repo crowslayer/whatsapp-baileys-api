@@ -1,4 +1,5 @@
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
+import { InstanceConnectedEvent } from '@domain/events/InstanceConnectedEvent';
 import { QRCodeGeneratedEvent } from '@domain/events/QRCodeGeneratedEvent';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
@@ -113,6 +114,11 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
     this.eventBus.on('connected', async (data) => {
       if (data.instanceId !== this.instance.instanceId) return;
 
+      const event = InstanceConnectedEvent.create(data.instanceId, {
+        instanceId: data.instanceId,
+        phoneNumber: data.phone,
+      });
+      this.domainEventBus.publish([event]);
       this.instance.connect(data.phone);
       await this.repository.update(this.instance);
 

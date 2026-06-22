@@ -12,7 +12,6 @@ export class MessageReceivedSubscriber implements IDomainEventSubscriber<Message
   }
 
   async on(event: MessageReceivedEvent): Promise<void> {
-    console.log('Message received:', event.eventId);
     const { chatId, message, instanceId } = event.payload;
 
     await this.botService.handleMessage(instanceId, chatId, message);
