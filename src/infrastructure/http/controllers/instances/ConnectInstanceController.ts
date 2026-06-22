@@ -11,7 +11,8 @@ export class ConnectInstanceController {
 
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { instanceId, usePairingCode, phoneNumber } = req.body;
+      const { usePairingCode, phoneNumber } = req.body;
+      const { instanceId } = req.params;
 
       const audit = new AuditDataBuilder('CONNECT', 'INSTANCE')
         .withRequest(req.ip, req.get('user-agent'))
