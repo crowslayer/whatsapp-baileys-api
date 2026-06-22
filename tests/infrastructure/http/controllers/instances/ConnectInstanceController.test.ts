@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { ConnectInstanceCommand } from '../../../../../src/application/instances/connect/ConnectInstanceCommand';
 import { ConnectInstanceController } from '../../../../../src/infrastructure/http/controllers/instances/ConnectInstanceController';
 
 const mocks = vi.hoisted(() => ({
@@ -30,9 +31,11 @@ describe('ConnectInstanceController', () => {
 
     req = {
       body: {
-        instanceId: 'inst-1',
         usePairingCode: true,
         phoneNumber: '521234567890',
+      },
+      params: {
+        instanceId: 'inst-1',
       },
       ip: '127.0.0.1',
       get: vi.fn().mockReturnValue('test-agent'),
@@ -51,17 +54,26 @@ describe('ConnectInstanceController', () => {
     await controller.handle(req as Request, res as Response, next as NextFunction);
 
     expect(mockCommandBus.dispatch).toHaveBeenCalledTimes(1);
+
+    const dispatchedCommand = mockCommandBus.dispatch.mock.calls[0][0];
+
+    expect(dispatchedCommand).toBeInstanceOf(ConnectInstanceCommand);
+    expect(dispatchedCommand).toMatchObject({
+      instanceId: 'inst-1',
+      usePairingCode: true,
+      phoneNumber: '521234567890',
+    });
     expect(mocks.createdMock).toHaveBeenCalledTimes(1);
 
-    const call = mocks.createdMock.mock.calls[0];
-
-    expect(call[0]).toBe(res);
-    expect(call[1]).toEqual({
-      id: 'inst-1',
-      status: 'connected',
-    });
-
-    expect(call[2]).toBe('Instance connected successfully');
+    expect(mocks.createdMock).toHaveBeenCalledWith(
+      res,
+      {
+        id: 'inst-1',
+        status: 'connected',
+      },
+      'Instance connected successfully',
+      expect.any(Object)
+    );
   });
 
   test('should call next when dispatch fails', async () => {
@@ -71,5 +83,8 @@ describe('ConnectInstanceController', () => {
     await controller.handle(req as Request, res as Response, next as NextFunction);
 
     expect(next).toHaveBeenCalledWith(error);
+    expect(next).toHaveBeenCalledWith(error);
+
+    expect(mocks.createdMock).not.toHaveBeenCalled();
   });
 });
