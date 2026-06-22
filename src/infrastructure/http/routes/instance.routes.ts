@@ -7,7 +7,7 @@ import {
   createInstanceSchemaWithWebhookValidation,
   instanceIdSchema,
 } from '@infrastructure/http/validators/express/schemas/instanceSchema';
-
+// eslint-disable-next-line
 export const createInstanceRouter = (container: ContainerBuilder): Router => {
   const router = Router();
   const getQRController = container.get('http.controller.get_qr');
@@ -17,6 +17,7 @@ export const createInstanceRouter = (container: ContainerBuilder): Router => {
   const qrStatusController = container.get('http.controller.qr_status');
   const deleteInstanceController = container.get('http.controller.instance.eraser');
   const disconnectController = container.get('http.controller.instance.disconect');
+  const connectController = container.get('http.controller.instance.connect');
 
   router.post(
     '/',
@@ -66,6 +67,12 @@ export const createInstanceRouter = (container: ContainerBuilder): Router => {
     '/:instanceId/disconnect',
     validate(instanceIdSchema),
     (req: Request, res: Response, next: NextFunction) => disconnectController.handle(req, res, next)
+  );
+
+  router.post(
+    '/:instanceId/connect',
+    validate(instanceIdSchema),
+    (req: Request, res: Response, next: NextFunction) => connectController.handle(req, res, next)
   );
 
   return router;
