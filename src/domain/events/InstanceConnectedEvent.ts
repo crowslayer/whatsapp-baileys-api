@@ -1,7 +1,7 @@
 import { DomainEvent, IEventMetadata, SerializedDomainEvent } from '@shared/domain/DomainEvent';
 
 export type InstanceConnectedPayload = {
-  instanceName: string;
+  instanceId: string;
   phoneNumber: string;
 };
 
