@@ -41,3 +41,9 @@ services:
     arguments:
       - '@shared.command_bus'
     public: true
+
+  http.controller.instance.connect:
+    class: '../../../infrastructure/http/controllers/instances/ConnectInstanceController'
+    arguments:
+      - '@shared.command_bus'
+    public: true
