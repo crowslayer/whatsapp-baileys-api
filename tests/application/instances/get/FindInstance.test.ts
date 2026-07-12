@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { FindInstance } from '../../../../src/application/instances/get/FindInstance';
 import { InstanceId } from '../../../../src/domain/value-objects/InstanceId';
 

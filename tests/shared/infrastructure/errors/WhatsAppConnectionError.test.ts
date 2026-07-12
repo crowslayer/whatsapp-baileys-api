@@ -1,3 +1,4 @@
+import { describe, expect } from 'vitest';
 import { ApplicationError } from '../../../../src/shared/infrastructure/errors/ApplicationError';
 import { ErrorCode } from '../../../../src/shared/infrastructure/errors/ErrorCode';
 import { ErrorType } from '../../../../src/shared/infrastructure/errors/ErrorType';

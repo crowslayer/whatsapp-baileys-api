@@ -1,3 +1,4 @@
+import { describe, expect } from 'vitest';
 import { PhoneNormalizer } from '../../../../src/shared/infrastructure/utils/PhoneNormalizer';
 
 describe('PhoneNormalizer', () => {

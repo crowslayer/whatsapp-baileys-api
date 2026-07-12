@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { AddParticipantGroupCommand } from '../../../../../src/application/groups/participants/add/AddParticipantGroupCommand';
 import { ParticipantsAggregator } from '../../../../../src/application/groups/participants/add/ParticipantsAggregator';
 

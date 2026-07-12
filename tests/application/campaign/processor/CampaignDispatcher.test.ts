@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { CampaignDispatcher } from '../../../../src/application/campaign/processor/CampaignDispatcher';
 
 describe('CampaignDispatcher', () => {

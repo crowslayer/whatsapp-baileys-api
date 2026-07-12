@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { Query } from '../../../../../src/shared/domain/query/Query';
 import { IResponse } from '../../../../../src/shared/domain/Response';
 

@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { DeleteCampaignCommand } from '../../../../src/application/campaign/delete/DeleteCampaignCommand';
 import { DeleteCampaignCommandHandler } from '../../../../src/application/campaign/delete/DeleteCampaignCommandHandler';
 import { CampaignId } from '../../../../src/domain/campaign/CampaignId';

@@ -1,3 +1,4 @@
+import { describe, expect } from 'vitest';
 import { WhatsAppInstanceAggregate } from '../../../src/domain/aggregates/WhatsAppInstanceAggregate';
 import { ConnectionStatus } from '../../../src/domain/value-objects/ConnectionStatus';
 import { InstanceId } from '../../../src/domain/value-objects/InstanceId';

@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { SendMessageCommand } from '../../../../src/application/messages/text/SendMessageCommand';
 import { SendMessageCommandHandler } from '../../../../src/application/messages/text/SendMessageCommandHandler';
 

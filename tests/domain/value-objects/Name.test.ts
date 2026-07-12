@@ -1,3 +1,4 @@
+import { describe, expect } from 'vitest';
 import { Name } from '../../../src/domain/value-objects/Name';
 import { ValidationError } from '../../../src/shared/infrastructure/errors/ValidationError';
 

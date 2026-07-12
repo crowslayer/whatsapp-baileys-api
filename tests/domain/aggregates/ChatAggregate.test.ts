@@ -1,3 +1,4 @@
+import { describe, expect } from 'vitest';
 import { ChatAggregate } from '../../../src/domain/aggregates/ChatAggregate';
 import { ChatId } from '../../../src/domain/value-objects/ChatId';
 import { ChatType } from '../../../src/domain/value-objects/ChatType';

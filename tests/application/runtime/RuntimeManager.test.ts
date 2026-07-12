@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { RuntimeManager } from '../../../src/application/runtime/RuntimeManager';
 
 function makeRuntimeManager({

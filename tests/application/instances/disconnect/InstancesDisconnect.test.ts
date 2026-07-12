@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { DisconnectInstanceCommand } from '../../../../src/application/instances/disconnect/DisconnectInstanceCommand';
 import { InstancesDisconnect } from '../../../../src/application/instances/disconnect/InstancesDisconnect';
 

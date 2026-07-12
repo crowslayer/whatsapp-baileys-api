@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { GetInstanceQuery } from '../../../../src/application/instances/get/GetInstanceQuery';
 import { GetInstanceQueryHandler } from '../../../../src/application/instances/get/GetInstanceQueryHandler';
 import { InstanceResponse } from '../../../../src/application/instances/InstanceResponse';

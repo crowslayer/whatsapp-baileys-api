@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { InstancesResponse } from '../../../../src/application/instances/InstancesResponse';
 import { ListInstancesQuery } from '../../../../src/application/instances/list/ListInstancesQuery';
 import { ListInstancesQueryHandler } from '../../../../src/application/instances/list/ListInstancesQueryHandler';

@@ -1,3 +1,4 @@
+import { describe, expect } from 'vitest';
 import { QRCodeGeneratedEvent } from '../../../src/domain/events/QRCodeGeneratedEvent';
 
 describe('QRCodeGeneratedEvent', () => {

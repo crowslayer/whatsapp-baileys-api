@@ -1,3 +1,4 @@
+import { describe, expect } from 'vitest';
 import { MessageReceivedEvent } from '../../../src/domain/events/MessageReceivedEvent';
 
 describe('MessageReceivedEvent', () => {

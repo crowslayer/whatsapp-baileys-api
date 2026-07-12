@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { beforeEach, describe, expect, vi } from 'vitest';
 import { CreateCampaignController } from '../../../../../src/infrastructure/http/controllers/campaign/CreateCampaignController';
 
 describe('CreateCampaignController', () => {

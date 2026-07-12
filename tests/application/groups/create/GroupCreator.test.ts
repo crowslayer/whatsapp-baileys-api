@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { CreateGroupCommand } from '../../../../src/application/groups/create/CreateGroupCommand';
 import { GroupCreator } from '../../../../src/application/groups/create/GroupCreator';
 

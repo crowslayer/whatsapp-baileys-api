@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { GroupInviteAccepted } from '../../../../../src/application/groups/invite/accept/GroupInviteAccepted';
 import { InstanceId } from '../../../../../src/domain/value-objects/InstanceId';
 import { WhatsAppConnectionError } from '../../../../../src/shared/infrastructure/errors/WhatsAppConnectionError';

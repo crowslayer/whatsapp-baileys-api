@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { CampaignUpdater } from '../../../../src/application/campaign/update/CampaignUpdater';
 import { CampaignId } from '../../../../src/domain/campaign/CampaignId';
 import { Description } from '../../../../src/domain/campaign/Description';

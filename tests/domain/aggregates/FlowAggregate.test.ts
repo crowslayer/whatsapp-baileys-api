@@ -1,9 +1,10 @@
+import { describe, expect } from 'vitest';
+import type { FlowNode } from '../../../src/application/bot/types/FlowTypes';
 import { FlowAggregate } from '../../../src/domain/aggregates/FlowAggregate';
 import { FlowId } from '../../../src/domain/value-objects/FlowId';
 import { InstanceId } from '../../../src/domain/value-objects/InstanceId';
 import { Name } from '../../../src/domain/value-objects/Name';
 
-import type { FlowNode } from '../../../src/application/bot/types/FlowTypes';
 type NodeId = string;
 
 describe('FlowAggregate unit tests', () => {

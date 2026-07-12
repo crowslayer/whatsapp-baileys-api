@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { beforeEach, describe, expect, vi } from 'vitest';
 import { ChatsResponse } from '../../../../../src/application/chats/list/ChatsResponse';
 import { ListChatsController } from '../../../../../src/infrastructure/http/controllers/chats/list/ListChatsController';
 

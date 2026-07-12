@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { TextMessageSender } from '../../../../src/application/messages/text/TextMessageSender';
 
 describe('TextMessageSender', () => {

@@ -1,4 +1,5 @@
-import { AggregateResponse } from '../../../../src/application/instances/create/AggregateResponse'
+import { describe, expect } from 'vitest';
+import { AggregateResponse } from '../../../../src/application/instances/create/AggregateResponse';
 
 describe('AggregateResponse', () => {
   test('create wraps instance with toJSON', () => {
@@ -8,10 +9,10 @@ describe('AggregateResponse', () => {
       status: 'connected',
       createdAt: new Date(),
       updatedAt: new Date(),
-    }
-    const response = AggregateResponse.create(instance)
-    expect(response.content.instanceId).toBe('inst-1')
-  })
+    };
+    const response = AggregateResponse.create(instance);
+    expect(response.content.instanceId).toBe('inst-1');
+  });
 
   test('content properties', () => {
     const instance = {
@@ -22,9 +23,9 @@ describe('AggregateResponse', () => {
       webhookUrl: 'http://hook.test',
       createdAt: new Date(),
       updatedAt: new Date(),
-    }
-    const response = AggregateResponse.create(instance)
-    expect(response.content.name).toBe('Test 2')
-    expect(response.content.phoneNumber).toBe('5215512345678')
-  })
-})
+    };
+    const response = AggregateResponse.create(instance);
+    expect(response.content.name).toBe('Test 2');
+    expect(response.content.phoneNumber).toBe('5215512345678');
+  });
+});

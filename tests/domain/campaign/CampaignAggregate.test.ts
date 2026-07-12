@@ -1,3 +1,4 @@
+import { describe, expect } from 'vitest';
 import { CampaignAggregate } from '../../../src/domain/campaign/CampaignAggregate';
 import { CampaignId } from '../../../src/domain/campaign/CampaignId';
 import { Description } from '../../../src/domain/campaign/Description';

@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { beforeEach, describe, expect, vi } from 'vitest';
 import { AddParticipantsController } from '../../../../../src/infrastructure/http/controllers/groups/AddParticipantsController';
 
 describe('AddParticipantsController', () => {

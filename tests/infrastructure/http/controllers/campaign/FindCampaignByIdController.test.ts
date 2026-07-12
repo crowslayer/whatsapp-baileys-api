@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { beforeEach, describe, expect, vi } from 'vitest';
 import { CampaignResponse } from '../../../../../src/application/campaign/CampaignResponse';
 import { FindCampaignByIdController } from '../../../../../src/infrastructure/http/controllers/campaign/FindCampaignByIdController';
 

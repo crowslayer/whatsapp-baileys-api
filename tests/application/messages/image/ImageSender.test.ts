@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { ImageSender } from '../../../../src/application/messages/image/ImageSender';
 import { SendImageCommand } from '../../../../src/application/messages/image/SendImageCommand';
 

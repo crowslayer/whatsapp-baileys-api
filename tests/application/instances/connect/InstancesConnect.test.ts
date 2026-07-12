@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { ConnectInstanceCommand } from '../../../../src/application/instances/connect/ConnectInstanceCommand';
 import { InstancesConnect } from '../../../../src/application/instances/connect/InstancesConnect';
 

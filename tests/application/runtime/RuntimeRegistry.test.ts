@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { RuntimeRegistry } from '../../../src/application/runtime/RuntimeRegistry';
 
 describe('RuntimeRegistry', () => {

@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { UpdateCampaignCommand } from '../../../../src/application/campaign/update/UpdateCampaignCommand';
 import { UpdateCampaignCommandHandler } from '../../../../src/application/campaign/update/UpdateCampaignCommandHandler';
 import { CampaignId } from '../../../../src/domain/campaign/CampaignId';

@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { InstancesSearcher } from '../../../../src/application/instances/list/InstancesSearcher';
 
 describe('InstancesSearcher', () => {

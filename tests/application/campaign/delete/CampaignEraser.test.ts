@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { CampaignEraser } from '../../../../src/application/campaign/delete/CampaignEraser';
 import { CampaignId } from '../../../../src/domain/campaign/CampaignId';
 

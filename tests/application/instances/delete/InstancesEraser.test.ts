@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { DeleteInstanceCommand } from '../../../../src/application/instances/delete/DeleteInstanceCommand';
 import { InstancesEraser } from '../../../../src/application/instances/delete/InstancesEraser';
 
