@@ -49,7 +49,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     });
 
     instance.addDomainEvent(
-      new InstanceCreatedEvent(instanceId.value, {
+      InstanceCreatedEvent.create(instanceId.value, {
         name: name.value,
         webhookUrl,
       })
