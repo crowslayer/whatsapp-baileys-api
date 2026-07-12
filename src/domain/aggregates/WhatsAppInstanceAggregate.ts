@@ -105,8 +105,9 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     this._status = ConnectionStatus.disconnected();
 
     this.addDomainEvent(
-      new InstanceDisconnectedEvent(this.instanceId, {
+      InstanceDisconnectedEvent.create(this.instanceId, {
         instanceName: this._name.value,
+        instanceId: this._id,
         reason,
       })
     );

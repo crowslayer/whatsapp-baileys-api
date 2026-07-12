@@ -1,17 +1,54 @@
-import { EventId } from '@domain/value-objects/EventId';
+import { DomainEvent, IEventMetadata, SerializedDomainEvent } from '@shared/domain/DomainEvent';
 
-import { IDomainEvent } from '@shared/domain/DomainEvent';
+export type InstanceDisconnectedPayload = {
+  instanceId: string;
+  instanceName: string;
+  reason?: string;
+};
 
-export class InstanceDisconnectedEvent implements IDomainEvent {
-  public readonly eventName: string = 'instance.disconnected';
-  public readonly eventId: string = EventId.create().value;
-  public readonly occurredOn: Date = new Date();
+export type InstanceDisconnectedPrimitives = SerializedDomainEvent<
+  typeof InstanceDisconnectedEvent.EVENT_NAME,
+  InstanceDisconnectedPayload
+>;
 
-  constructor(
-    public readonly aggregateId: string,
-    public readonly payload: {
-      instanceName: string;
-      reason?: string;
-    }
-  ) {}
+type CreateProps = IEventMetadata & {
+  payload: InstanceDisconnectedPayload;
+};
+
+export class InstanceDisconnectedEvent extends DomainEvent<
+  typeof InstanceDisconnectedEvent.EVENT_NAME,
+  InstanceDisconnectedPayload
+> {
+  static readonly EVENT_NAME = 'instance.disconnected' as const;
+
+  public readonly eventName = InstanceDisconnectedEvent.EVENT_NAME;
+
+  readonly payload: Readonly<InstanceDisconnectedPayload>;
+
+  private constructor(props: CreateProps) {
+    super(props);
+    this.payload = this.freezePayload(props.payload);
+  }
+
+  static create(
+    aggregateId: string,
+    payload: InstanceDisconnectedPayload
+  ): InstanceDisconnectedEvent {
+    return new InstanceDisconnectedEvent({
+      aggregateId,
+      payload,
+    });
+  }
+
+  static fromPrimitives(primitives: InstanceDisconnectedPrimitives): InstanceDisconnectedEvent {
+    return new InstanceDisconnectedEvent({
+      aggregateId: primitives.aggregateId,
+      eventId: primitives.eventId,
+      occurredOn: new Date(primitives.occurredOn),
+      correlationId: primitives.correlationId,
+      causationId: primitives.causationId,
+      aggregateVersion: primitives.aggregateVersion,
+      payload: primitives.payload,
+    });
+  }
 }
