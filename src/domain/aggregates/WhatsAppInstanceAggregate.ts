@@ -20,6 +20,17 @@ export interface IWhatsAppInstanceProps {
   lastConnectedAt?: Date;
 }
 
+type WhatsAppInstance = {
+  instanceId: string;
+  name: string;
+  status: string;
+  phoneNumber?: string;
+  webhookUrl?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  lastConnectedAt?: Date;
+};
+
 export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
   private _name: Name;
   private _status: ConnectionStatus;
@@ -133,7 +144,7 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
     }
   }
 
-  toJSON() {
+  toPrimitives(): WhatsAppInstance {
     return {
       instanceId: this.instanceId,
       name: this._name.value,

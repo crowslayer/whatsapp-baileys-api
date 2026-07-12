@@ -56,7 +56,7 @@ describe('WhatsAppInstanceAggregate', () => {
   test('toJSON returns expected shape', () => {
     const instance = WhatsAppInstanceAggregate.create(Name.create('JSON Test'));
     instance.connect('5215512345678');
-    const json = instance.toJSON();
+    const json = instance.toPrimitives();
     expect(json.instanceId).toBeDefined();
     expect(json.name).toBe('JSON Test');
     expect(json.status).toBe('connected');

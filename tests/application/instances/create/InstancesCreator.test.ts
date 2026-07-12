@@ -1,3 +1,4 @@
+import { describe, expect, vi } from 'vitest';
 import { CreateInstanceCommand } from '../../../../src/application/instances/create/CreateInstanceCommand';
 import { InstancesCreator } from '../../../../src/application/instances/create/InstancesCreator';
 

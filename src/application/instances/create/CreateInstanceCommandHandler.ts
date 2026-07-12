@@ -13,6 +13,6 @@ export class CreateInstanceCommandHandler implements ICommandHandler<CreateInsta
 
   async handle(command: CreateInstanceCommand): Promise<AggregateResponse> {
     const result = await this.creator.execute(command);
-    return AggregateResponse.create(result.toJSON());
+    return AggregateResponse.create(result.toPrimitives());
   }
 }
