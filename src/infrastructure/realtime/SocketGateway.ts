@@ -59,4 +59,8 @@ export class SocketGateway {
       this._io.to(`campaign:${data.campaignId}`).emit('campaign:progress', data);
     });
   }
+
+  close(): void {
+    this._io.close();
+  }
 }

@@ -53,6 +53,10 @@ async function bootstrap(): Promise<void> {
     // =============================================
 
     const server = http.createServer(app);
+    server.headersTimeout = 10000;
+    server.requestTimeout = 10000;
+    server.keepAliveTimeout = 5000;
+    server.maxHeadersCount = 100;
 
     const socketGateway = new SocketGateway(
       server,
@@ -102,12 +106,22 @@ async function bootstrap(): Promise<void> {
           resolve();
         });
       });
-
+      await mongoConnection.disconnect();
+      socketGateway.close();
       process.exit(0);
     };
 
     process.on('SIGTERM', gracefulShutdown);
     process.on('SIGINT', gracefulShutdown);
+    process.on('uncaughtException', (err) => {
+      logger.fatal(err);
+      process.exit(1);
+    });
+
+    process.on('unhandledRejection', (err) => {
+      logger.fatal(err as Error);
+      process.exit(1);
+    });
   } catch (error) {
     console.error('Failed to start application:', error);
     process.exit(1);

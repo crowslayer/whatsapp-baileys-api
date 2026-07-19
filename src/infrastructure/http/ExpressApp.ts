@@ -65,6 +65,7 @@ export class ExpressApp {
     this.initCors();
     this._app.use(express.json({ limit: '1mb' }));
     this._app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+    this._app.set('trust proxy', 1);
     this.initRateLimit(this._config.security?.enabledRateLimit ?? false);
     this.initLogger();
   }
@@ -92,8 +93,10 @@ export class ExpressApp {
         crossOriginEmbedderPolicy: true,
         crossOriginOpenerPolicy: { policy: 'same-origin' },
         crossOriginResourcePolicy: { policy: 'cross-origin' }, // API pública
+        dnsPrefetchControl: { allow: false },
       })
     );
+    this._app.disable('x-powered-by');
   }
   private initCors(): void {
     this._app.use(createCorsMiddleware(this._config, this.logger));
