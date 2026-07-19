@@ -1,68 +1,73 @@
-# WhatsApp Multi-Instance API con Baileys
+# WhatsApp Multi-Instance API with Baileys
 
-API REST profesional para interactuar con WhatsApp usando la librería Baileys, construida con Node.js, TypeScript y siguiendo principios de arquitectura hexagonal, DDD, CQRS y patrones de diseño empresariales.
+WhatsApp Multi-Instance REST API
+Built with Baileys, TypeScript, Clean Architecture & DDD
+
+👉 Spanish version: README.es.md
+
+A professional REST API for interacting with WhatsApp using the Baileys library, built with Node.js, TypeScript, and following Hexagonal Architecture, DDD, CQRS, and enterprise design patterns.
 
 - **Releases (tags)**: `v1.0.1`, `v1.1.0`, `v1.3.0`
 - **Current version**: 1.3.0
-- **Tags**: use v1.1.0 formato para publicar releases
-- **Historial de cambios**: ver `CHANGELOG.md`
+- **Tags**: use `v1.1.0` format for publishing releases
+- **Changelog**: see `CHANGELOG.md`
 
-## 🚀 Características
+## 🚀 Features
 
-- ✅ **Multi-instancia**: Soporte para múltiples sesiones de WhatsApp simultáneas
-- ✅ **Conexión flexible**: Sincronización mediante QR o código de emparejamiento
-- ✅ **QR en navegador**: Ruta `GET .../qr/view` que renderiza una página HTML con el código (útil fuera de producción; en producción la app no monta vistas EJS)
-- ✅ **Consulta de chats**: Listado de conversaciones/chats asociados a una instancia conectada
-- ✅ **Consulta de grupos**: Listado de grupos de WhatsApp de la cuenta vinculada a la instancia
-- ✅ **Multimedia completo**: Imágenes, documentos, audio, video, ubicaciones, contactos vCard y stickers WebP
-- ✅ **Reacciones con emojis**: Responder mensajes con emojis
-- ✅ **Notas de voz**: Soporte para mensajes PTT (Push To Talk)
-- ✅ **Baileys 7 (RC)**: `@whiskeysockets/baileys` en rama 7.x (p. ej. `7.0.0-rc.x`)
-- ✅ **Reintentos de mensajes**: Caché interna (`node-cache`) integrada con Baileys para el flujo de reintentos de mensajes
-- ✅ **ES Modules**: Arquitectura moderna con ESM
-- ✅ **Arquitectura hexagonal**: Separación clara entre dominio, aplicación e infraestructura
-- ✅ **Inyección de dependencias**: Contenedor con `node-dependency-injection` y servicios declarados en YAML
-- ✅ **DDD**: Entidades, Value Objects, Aggregates y Domain Events
-- ✅ **CQRS**: Separación entre comandos y consultas
-- ✅ **MongoDB**: Persistencia de instancias y sesiones
-- ✅ **Auditoría completa**: Tracking de todas las operaciones
-- ✅ **Logging robusto**: Sistema de logs con Pino
-- ✅ **Manejo de errores**: Gestión centralizada y tipada de errores
-- ✅ **ResponseHandler homologado**: Respuestas consistentes en toda la API
-- ✅ **Validación**: Validación de datos con express-validator
-- ✅ **Seguridad HTTP**: Helmet con CSP estricta, CORS configurable y rate limiting global opcional (`ENABLED_RATE_LIMITS=true`)
-- ✅ **Health check**: `GET /health` para supervisión (estado, timestamp, uptime)
-- ✅ **TypeScript estricto**: Tipado fuerte en todo el proyecto
-- 🚀 **Campaigns management**: Soporte para crear, planificar y monitorizar campañas de mensajes. Incluye un dominio CampaignAggregate con orchestración basada en CQRS (CampaignDispatcher, CampaignProcessor, CampaignScheduler y CampaignRetryWorker) y repositorios para lectura/escritura de campañas.
-- 🔄 **Sprint/campaigns infra**: Servicios de campaña (CampaignService) y repositorios Mongo (MongoCampaignReadRepository, MongoCampaignRepository) acompañados de controladores y rutas HTTP para gestionar campañas desde la API.
-- 🧭 **Dominio de campañas**: Nuevos aggregates y value objects para flujos de campañas (FlowDefinitionAggregate, FlowId, CampaignAggregate, etc.).
-- 🧩 **Extensibilidad futura**: Estructura preparada para añadir métricas, estado de progreso y reportes de campañas.
+- ✅ **Multi-instance**: Support for multiple simultaneous WhatsApp sessions
+- ✅ **Flexible connection**: Sync via QR code or pairing code
+- ✅ **QR in browser**: `GET .../qr/view` route renders an HTML page with the QR code (useful outside production; in production the app does not mount EJS views)
+- ✅ **Chat queries**: List conversations/chats associated with a connected instance
+- ✅ **Group queries**: List WhatsApp groups from the account linked to the instance
+- ✅ **Full multimedia support**: Images, documents, audio, video, locations, vCard contacts, and WebP stickers
+- ✅ **Emoji reactions**: Reply to messages with emojis
+- ✅ **Voice notes**: PTT (Push To Talk) message support
+- ✅ **Baileys 7 (RC)**: `@whiskeysockets/baileys` on the 7.x branch (e.g. `7.0.0-rc.x`)
+- ✅ **Message retries**: Internal cache (`node-cache`) integrated with Baileys for the message retry flow
+- ✅ **ES Modules**: Modern ESM architecture
+- ✅ **Hexagonal Architecture**: Clear separation between domain, application, and infrastructure
+- ✅ **Dependency injection**: Container with `node-dependency-injection` and YAML-declared services
+- ✅ **DDD**: Entities, Value Objects, Aggregates, and Domain Events
+- ✅ **CQRS**: Separation between commands and queries
+- ✅ **MongoDB**: Instance and session persistence
+- ✅ **Full auditing**: Tracking of all operations
+- ✅ **Robust logging**: Log system with Pino
+- ✅ **Error handling**: Centralized and typed error management
+- ✅ **Standardized ResponseHandler**: Consistent responses across the entire API
+- ✅ **Validation**: Data validation with express-validator
+- ✅ **HTTP Security**: Helmet with strict CSP, configurable CORS, and optional global rate limiting (`ENABLED_RATE_LIMITS=true`)
+- ✅ **Health check**: `GET /health` for monitoring (status, timestamp, uptime)
+- ✅ **Strict TypeScript**: Strong typing throughout the project
+- 🚀 **Campaigns management**: Support for creating, scheduling, and monitoring message campaigns. Includes a CampaignAggregate domain with CQRS-based orchestration (CampaignDispatcher, CampaignProcessor, CampaignScheduler, and CampaignRetryWorker) plus read/write campaign repositories.
+- 🔄 **Campaign infrastructure**: Campaign services (CampaignService) and Mongo repositories (MongoCampaignReadRepository, MongoCampaignRepository) along with HTTP controllers and routes for managing campaigns via the API.
+- 🧭 **Campaign domain**: New aggregates and value objects for campaign flows (FlowDefinitionAggregate, FlowId, CampaignAggregate, etc.).
+- 🧩 **Future extensibility**: Structure ready for adding metrics, progress status, and campaign reports.
 
-## 📋 Requisitos Previos
+## 📋 Prerequisites
 
-- Node.js >= 20.x (recomendado para ESM)
+- Node.js >= 20.x (recommended for ESM)
 - MongoDB >= 6.x
 - npm >= 9.x
-- **pnpm** (recomendado): el script `npm run build` ejecuta internamente `pnpm run build:di`; `npm run validate` también usa pnpm. Con Node 16+ puedes activar Corepack: `corepack enable` y luego `corepack prepare pnpm@latest --activate`
+- **pnpm** (recommended): the `npm run build` script internally runs `pnpm run build:di`; `npm run validate` also uses pnpm. With Node 16+ you can enable Corepack: `corepack enable` then `corepack prepare pnpm@latest --activate`
 
-## 🛠️ Instalación
+## 🛠️ Installation
 
-### 1. Clonar el repositorio
+### 1. Clone the repository
 
 ```bash
 git clone <repository-url>
 cd whatsapp-baileys-api
 ```
 
-### 2. Instalar dependencias
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Configurar variables de entorno
+### 3. Configure environment variables
 
-El proyecto carga variables desde `.env` (vía `dotenv`). Puedes partir de la plantilla del repositorio:
+The project loads variables from `.env` (via `dotenv`). You can start from the template:
 
 ```bash
 # Linux / macOS / Git Bash
@@ -71,7 +76,7 @@ cp .env.example .env
 # Copy-Item .env.example .env
 ```
 
-Ajusta los valores; configuración mínima de referencia:
+Adjust the values; minimum reference configuration:
 
 ```env
 # Runtime
@@ -81,7 +86,7 @@ API_PATH=api
 API_VERSION=v1
 APP_URL=http://localhost:3333
 
-# Database (MongoDB vía mongoose)
+# Database (MongoDB via mongoose)
 DB_TYPE=mongoose
 DB_ENABLED=true
 DB_URI=mongodb://localhost:27017/whatsapp-api
@@ -92,52 +97,52 @@ JWT_SECRET=replace-with-a-long-random-secret-at-least-32-chars
 JWT_EXPIRES=1d
 JWT_REFRESH_EXPIRES=7d
 
-# CORS (coma-separado). En production es obligatorio.
+# CORS (comma-separated). Required in production.
 ACCEPTED_ORIGINS=http://localhost:3000,http://localhost:4200
 
-# Opcionales (booleanos como string)
+# Optional (booleans as strings)
 PROTECT_ROUTES=false
 ENABLED_RATE_LIMITS=false
 ```
 
-Notas:
+Notes:
 
-- **`NODE_ENV` es obligatorio** y solo admite: `development | production | test | staging`.
-- En **production** se requieren **`APP_URL`** y **`ACCEPTED_ORIGINS`**; y si usas JWT, **`JWT_SECRET`** debe tener **mínimo 32 caracteres**.
-- Para base de datos, `DB_TYPE` soporta `mongoose | typeorm | sequelize` (en este repo el flujo principal está probado con **mongoose**; otros adaptadores exigen variables `DB_HOST`, `DB_PORT`, etc., según `FactoryConfig.ts`).
-- **`SECURITY_TYPE`**: `jwt` (por defecto en los ejemplos) u **`oauth2`**, que requiere `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET` y `OAUTH_AUTH_SERVER`.
-- **`PROTECT_ROUTES`**: se lee en la configuración, pero **en el código actual no hay middleware de autenticación aplicado a las rutas**; trátalo como reservado para evolución futura.
+- **`NODE_ENV` is required** and only accepts: `development | production | test | staging`.
+- In **production**, **`APP_URL`** and **`ACCEPTED_ORIGINS`** are required; if using JWT, **`JWT_SECRET`** must be at least **32 characters**.
+- For the database, `DB_TYPE` supports `mongoose | typeorm | sequelize` (the main flow is tested with **mongoose**; other adapters require `DB_HOST`, `DB_PORT`, etc., per `FactoryConfig.ts`).
+- **`SECURITY_TYPE`**: `jwt` (default in examples) or **`oauth2`**, which requires `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`, and `OAUTH_AUTH_SERVER`.
+- **`PROTECT_ROUTES`**: read in configuration, but currently **no auth middleware is applied to routes**; treat it as reserved for future evolution.
 
-### Scripts útiles (`package.json`)
+### Useful scripts (`package.json`)
 
-| Script                            | Descripción                                                                                                           |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`                     | Servidor en caliente con `tsx watch`                                                                                  |
-| `npm run build`                   | Compila TypeScript, `tsc-alias` y copia assets (`build:di` vía pnpm)                                                  |
-| `npm start`                       | Ejecuta `dist/index.js` (tras `build`)                                                                                |
-| `npm run type-check`              | `tsc --noEmit`                                                                                                        |
-| `npm run lint` / `lint:fix`       | ESLint                                                                                                                |
-| `npm run format` / `format:check` | Prettier sobre `src/**`                                                                                               |
-| `npm run validate`                | `type-check` + `lint` + `format:check` (usa pnpm)                                                                     |
-| `npm run clean`                   | Borra `dist/` con `rm -rf` (en Windows, si falla, elimina la carpeta `dist` manualmente o usa un shell tipo Git Bash) |
+| Script                            | Description                                                                                                       |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                     | Hot-reload server with `tsx watch`                                                                                |
+| `npm run build`                   | Compiles TypeScript, runs `tsc-alias`, and copies assets (`build:di` via pnpm)                                    |
+| `npm start`                       | Runs `dist/index.js` (after `build`)                                                                              |
+| `npm run type-check`              | `tsc --noEmit`                                                                                                    |
+| `npm run lint` / `lint:fix`       | ESLint                                                                                                            |
+| `npm run format` / `format:check` | Prettier on `src/**`                                                                                              |
+| `npm run validate`                | `type-check` + `lint` + `format:check` (uses pnpm)                                                                |
+| `npm run clean`                   | Removes `dist/` via `rm -rf` (on Windows, if it fails, delete the `dist` folder manually or use a Git Bash shell) |
 
-### 4. Compilar TypeScript
+### 4. Compile TypeScript
 
 ```bash
 npm run build
 ```
 
-El script de compilación ejecuta TypeScript, resuelve alias (`tsc-alias`), copia assets al `dist/` y requiere **`pnpm`** para el paso `build:di`. Si falla por falta de `pnpm`, instálalo globalmente o usa `corepack enable` según tu entorno.
+The build script runs TypeScript, resolves aliases (`tsc-alias`), copies assets to `dist/`, and requires **`pnpm`** for the `build:di` step. If it fails due to missing `pnpm`, install it globally or use `corepack enable` depending on your environment.
 
-### 5. Iniciar la aplicación
+### 5. Start the application
 
-**Desarrollo:**
+**Development:**
 
 ```bash
 npm run dev
 ```
 
-**Producción:**
+**Production:**
 
 ```bash
 npm start
@@ -145,42 +150,42 @@ npm start
 
 ## 🔌 API Endpoints
 
-La URL base de la API es `http://localhost:{PORT}/{API_PATH}/{API_VERSION}` (por defecto `PORT=3333`, `API_PATH=api`, `API_VERSION=v1` → `http://localhost:3333/api/v1`).
+The base API URL is `http://localhost:{PORT}/{API_PATH}/{API_VERSION}` (defaults: `PORT=3333`, `API_PATH=api`, `API_VERSION=v1` → `http://localhost:3333/api/v1`).
 
-### Salud del servicio
+### Service health
 
 ```http
 GET /health
 ```
 
-Respuesta JSON con `status`, `timestamp` y `uptime` del proceso.
+Returns a JSON response with `status`, `timestamp`, and process `uptime`.
 
-### Instancias
+### Instances
 
-#### Crear nueva instancia
+#### Create a new instance
 
 ```http
 POST /api/v1/instances
 Content-Type: application/json
 
 {
-  "name": "Mi Primera Instancia",
-  "webhookUrl": "https://mi-webhook.com/whatsapp",
+  "name": "My First Instance",
+  "webhookUrl": "https://my-webhook.com/whatsapp",
   "usePairingCode": false
 }
 ```
 
-**Con código de emparejamiento:**
+**With pairing code:**
 
 ```json
 {
-  "name": "Instancia con Código",
+  "name": "Instance with Code",
   "usePairingCode": true,
   "phoneNumber": "5215512345678"
 }
 ```
 
-**Respuesta:**
+**Response:**
 
 ```json
 {
@@ -188,7 +193,7 @@ Content-Type: application/json
   "message": "Instance created successfully",
   "data": {
     "instanceId": "uuid-instance-id",
-    "name": "Mi Primera Instancia",
+    "name": "My First Instance",
     "status": "connecting",
     "qrCode": "data:image/png;base64,...",
     "createdAt": "2025-01-25T10:00:00.000Z"
@@ -205,45 +210,45 @@ Content-Type: application/json
 }
 ```
 
-#### Listar instancias
+#### List instances
 
 ```http
 GET /api/v1/instances
 ```
 
-#### Obtener instancia por ID
+#### Get instance by ID
 
 ```http
 GET /api/v1/instances/:instanceId
 ```
 
-#### Obtener QR Code
+#### Get QR Code
 
 ```http
 GET /api/v1/instances/:instanceId/qr
 ```
 
-#### Obtener status del QR / conexión
+#### Get QR / connection status
 
 ```http
 GET /api/v1/instances/:instanceId/qr/status
 ```
 
-#### Vista HTML del QR (navegador)
+#### HTML QR view (browser)
 
 ```http
 GET /api/v1/instances/:instanceId/qr/view
 ```
 
-Disponible cuando la app **no** está en modo `production` (en ese entorno no se registran vistas EJS).
+Available when the app is **not** in `production` mode (EJS views are not registered in that environment).
 
-#### Desconectar instancia
+#### Disconnect instance
 
 ```http
 POST /api/v1/instances/:instanceId/disconnect
 ```
 
-#### Eliminar instancia
+#### Delete instance
 
 ```http
 DELETE /api/v1/instances/:instanceId
@@ -251,17 +256,17 @@ DELETE /api/v1/instances/:instanceId
 
 ### Chats
 
-#### Listar chats de la instancia
+#### List instance chats
 
 ```http
 GET /api/v1/instances/:instanceId/chats
 ```
 
-Requiere que la instancia esté conectada a WhatsApp.
+Requires the instance to be connected to WhatsApp.
 
-### Mensajes
+### Messages
 
-#### Enviar mensaje
+#### Send a message
 
 ```http
 POST /api/v1/messages/:instanceId/send
@@ -269,63 +274,63 @@ Content-Type: application/json
 
 {
   "to": "5215512345678@s.whatsapp.net",
-  "message": "Hola desde la API!"
+  "message": "Hello from the API!"
 }
 ```
 
 ### Multimedia
 
-#### Enviar imagen
+#### Send image
 
 ```bash
 curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/image \
-  -F "image=@imagen.jpg" \
+  -F "image=@image.jpg" \
   -F "to=5215512345678@s.whatsapp.net" \
-  -F "caption=¡Mira esta imagen! 📸"
+  -F "caption=Check out this image! 📸"
 ```
 
-#### Enviar documento (PDF, Word, Excel, etc.)
+#### Send document (PDF, Word, Excel, etc.)
 
 ```bash
 curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/document \
-  -F "document=@documento.pdf" \
+  -F "document=@document.pdf" \
   -F "to=5215512345678@s.whatsapp.net" \
-  -F "caption=Documento adjunto"
+  -F "caption=Attached document"
 ```
 
-#### Enviar audio / nota de voz
+#### Send audio / voice note
 
 ```bash
-# Audio normal
+# Normal audio
 curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/audio \
   -F "audio=@audio.mp3" \
   -F "to=5215512345678@s.whatsapp.net" \
   -F "ptt=false"
 
-# Nota de voz (PTT)
+# Voice note (PTT)
 curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/audio \
-  -F "audio=@voz.ogg" \
+  -F "audio=@voice.ogg" \
   -F "to=5215512345678@s.whatsapp.net" \
   -F "ptt=true"
 ```
 
-#### Enviar video / GIF
+#### Send video / GIF
 
 ```bash
-# Video normal
+# Normal video
 curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/video \
   -F "video=@video.mp4" \
   -F "to=5215512345678@s.whatsapp.net" \
-  -F "caption=¡Mira esto! 🎥"
+  -F "caption=Watch this! 🎥"
 
-# GIF animado
+# Animated GIF
 curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/video \
-  -F "video=@animacion.mp4" \
+  -F "video=@animation.mp4" \
   -F "to=5215512345678@s.whatsapp.net" \
   -F "gifPlayback=true"
 ```
 
-#### Enviar ubicación
+#### Send location
 
 ```http
 POST /api/v1/multimedia/:instanceId/send/location
@@ -335,12 +340,12 @@ Content-Type: application/json
   "to": "5215512345678@s.whatsapp.net",
   "latitude": 20.9674,
   "longitude": -89.6243,
-  "name": "Mérida, Yucatán",
-  "address": "Centro Histórico"
+  "name": "Merida, Yucatan",
+  "address": "Historic Center"
 }
 ```
 
-#### Enviar reacción (emoji)
+#### Send reaction (emoji)
 
 ```http
 POST /api/v1/multimedia/:instanceId/send/reaction
@@ -353,7 +358,7 @@ Content-Type: application/json
 }
 ```
 
-#### Enviar contacto(s)
+#### Send contact(s)
 
 ```http
 POST /api/v1/multimedia/:instanceId/send/contact
@@ -363,14 +368,14 @@ Content-Type: application/json
   "to": "5215512345678@s.whatsapp.net",
   "contacts": [
     {
-      "displayName": "Juan Pérez",
-      "vcard": "BEGIN:VCARD\nVERSION:3.0\nFN:Juan Pérez\nTEL;type=CELL:+5215512345678\nEND:VCARD"
+      "displayName": "John Doe",
+      "vcard": "BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nTEL;type=CELL:+5215512345678\nEND:VCARD"
     }
   ]
 }
 ```
 
-#### Enviar sticker (WebP)
+#### Send sticker (WebP)
 
 ```bash
 curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/sticker \
@@ -378,24 +383,24 @@ curl -X POST http://localhost:3333/api/v1/multimedia/:instanceId/send/sticker \
   -F "to=5215512345678@s.whatsapp.net"
 ```
 
-### Grupos
+### Groups
 
-Las rutas de grupos viven bajo el prefijo de instancias: `/api/v1/instances/:instanceId/groups`.
+Group routes live under the instance prefix: `/api/v1/instances/:instanceId/groups`.
 
-#### Listar grupos
+#### List groups
 
 ```http
 GET /api/v1/instances/:instanceId/groups
 ```
 
-#### Crear grupo
+#### Create group
 
 ```http
 POST /api/v1/instances/:instanceId/groups
 Content-Type: application/json
 
 {
-  "name": "Mi Grupo",
+  "name": "My Group",
   "participants": [
     "5215512345678@s.whatsapp.net",
     "5215587654321@s.whatsapp.net"
@@ -403,7 +408,7 @@ Content-Type: application/json
 }
 ```
 
-#### Agregar participantes
+#### Add participants
 
 ```http
 POST /api/v1/instances/:instanceId/groups/:groupId/participants/add
@@ -416,7 +421,7 @@ Content-Type: application/json
 }
 ```
 
-#### Eliminar participantes
+#### Remove participants
 
 ```http
 POST /api/v1/instances/:instanceId/groups/:groupId/participants/remove
@@ -429,50 +434,50 @@ Content-Type: application/json
 }
 ```
 
-## 🏗️ Arquitectura
+## 🏗️ Architecture
 
 ### Hexagonal Architecture (Ports & Adapters)
 
-El proyecto sigue arquitectura hexagonal con tres capas principales:
+The project follows hexagonal architecture with three main layers:
 
-1. **Domain (Núcleo)**: Lógica de negocio pura, independiente de frameworks
-2. **Application**: Casos de uso y orquestación
-3. **Infrastructure**: Adaptadores para tecnologías específicas (MongoDB, Express, Baileys)
+1. **Domain (Core)**: Pure business logic, independent of frameworks
+2. **Application**: Use cases and orchestration
+3. **Infrastructure**: Adapters for specific technologies (MongoDB, Express, Baileys)
 
 ### Domain-Driven Design (DDD)
 
 - **Entities**: `WhatsAppInstance`, `Message`, `Group`
 - **Value Objects**: `InstanceId`, `PhoneNumber`, `ConnectionStatus`
-- **Aggregates**: `WhatsAppInstanceAggregate` como raíz de agregado
+- **Aggregates**: `WhatsAppInstanceAggregate` as the aggregate root
 - **Domain Events**: `InstanceConnectedEvent`, `MessageReceivedEvent`, etc.
-- **Repositories**: Interfaces para persistencia
+- **Repositories**: Interfaces for persistence
 
 ### CQRS Pattern
 
-Separación clara entre:
+Clear separation between:
 
-- **Commands**: Operaciones que modifican el estado (CreateInstance, SendMessage)
-- **Queries**: Operaciones de solo lectura (GetInstance, ListInstances)
-- **Handlers**: Procesadores específicos para cada comando/query
+- **Commands**: Operations that modify state (CreateInstance, SendMessage)
+- **Queries**: Read-only operations (GetInstance, ListInstances)
+- **Handlers**: Specific processors for each command/query
 
 ### Aggregate Root Pattern
 
-`WhatsAppInstanceAggregate` actúa como raíz de agregado:
+`WhatsAppInstanceAggregate` acts as the aggregate root:
 
 ```typescript
-const instance = WhatsAppInstanceAggregate.create('Mi Instancia');
+const instance = WhatsAppInstanceAggregate.create('My Instance');
 instance.connect('5215512345678');
 instance.generateQRCode('qr-code-data');
 
-// Los eventos de dominio se generan automáticamente
+// Domain events are generated automatically
 const events = instance.domainEvents;
 ```
 
-## 🔍 Características Técnicas
+## 🔍 Technical Features
 
-### ResponseHandler Homologado
+### Standardized ResponseHandler
 
-Todas las respuestas HTTP siguen un formato consistente:
+All HTTP responses follow a consistent format:
 
 ```typescript
 interface ApiResponse<T> {
@@ -492,9 +497,9 @@ interface ApiResponse<T> {
 }
 ```
 
-### Auditoría
+### Auditing
 
-Cada operación incluye datos de auditoría:
+Each operation includes audit data:
 
 ```typescript
 interface AuditData {
@@ -512,33 +517,33 @@ interface AuditData {
 
 ### Logging
 
-Sistema de logging estructurado con Pino:
+Structured logging system with Pino:
 
 ```typescript
 logger.info('Instance created', { instanceId, name });
 logger.error('Connection failed', { error, instanceId });
 ```
 
-### Manejo de Errores
+### Error Handling
 
-Errores tipados y jerárquicos:
+Typed and hierarchical errors:
 
-- `DomainError`: Errores del dominio
-- `ValidationError`: Errores de validación
-- `NotFoundError`: Recurso no encontrado
-- `ConflictError`: Conflicto de recursos
-- `InfrastructureError`: Errores de infraestructura
-- `WhatsAppConnectionError`: Errores específicos de WhatsApp
+- `DomainError`: Domain errors
+- `ValidationError`: Validation errors
+- `NotFoundError`: Resource not found
+- `ConflictError`: Resource conflicts
+- `InfrastructureError`: Infrastructure errors
+- `WhatsAppConnectionError`: WhatsApp-specific errors
 
-## 🔐 Seguridad
+## 🔐 Security
 
-- Validación de datos con `express-validator`
-- Sanitización de inputs
-- **Helmet** con políticas de cabeceras (CSP restrictiva, HSTS en producción detrás de HTTPS, políticas COOP/COEP/CORP según configuración)
-- **CORS** con orígenes permitidos vía `ACCEPTED_ORIGINS` (obligatorio en producción)
-- **Rate limiting** opcional en rutas bajo `/api/` cuando `ENABLED_RATE_LIMITS=true`
-- Gestión segura de sesiones de WhatsApp
-- Almacenamiento cifrado de credenciales (recomendado para producción)
+- Data validation with `express-validator`
+- Input sanitization
+- **Helmet** with header policies (strict CSP, HSTS in production behind HTTPS, COOP/COEP/CORP policies as configured)
+- **CORS** with allowed origins via `ACCEPTED_ORIGINS` (required in production)
+- **Rate limiting** optional on routes under `/api/` when `ENABLED_RATE_LIMITS=true`
+- Secure WhatsApp session management
+- Encrypted credential storage (recommended for production)
 
 ## 📊 MongoDB Schema
 
@@ -558,96 +563,110 @@ Errores tipados y jerárquicos:
 }
 ```
 
-## 🚦 Estados de Conexión
+## 🚦 Connection States
 
-- `disconnected`: Sin conexión
-- `connecting`: Conectando
-- `connected`: Conectado y listo
-- `qr_ready`: QR generado, esperando escaneo
-- `pairing_code_ready`: Código de emparejamiento generado
-- `error`: Error en la conexión
+- `disconnected`: No connection
+- `connecting`: Connecting
+- `connected`: Connected and ready
+- `qr_ready`: QR generated, waiting for scan
+- `pairing_code_ready`: Pairing code generated
+- `error`: Connection error
 
 ## 🧪 Tests
 
-En el estado actual del repositorio **no hay suite de tests configurada** en `package.json` (no existe script `test` ni dependencias Jest/Vitest). Si quieres añadir tests, configura el runner que prefieras e incorpora el script correspondiente.
+```bash
+# Run all tests
+npm test
 
-## 📝 Ejemplo de Uso Completo
+# Run unit tests only
+npm run test:unit
+
+# Run integration tests only
+npm run test:integration
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+The project uses **Vitest** as the test runner. Tests are located under the `tests/` directory.
+
+## 📝 Complete Usage Example
 
 ```typescript
-// 1. Crear instancia
+// 1. Create instance
 POST /api/v1/instances
 {
-  "name": "Ventas",
+  "name": "Sales",
   "usePairingCode": false
 }
 
-// 2. Obtener QR (JSON) o abrir en navegador la vista HTML
+// 2. Get QR (JSON) or open the HTML view in a browser
 GET /api/v1/instances/{instanceId}/qr
 GET /api/v1/instances/{instanceId}/qr/view
 
-// 3. Esperar conexión (webhook o polling)
+// 3. Wait for connection (webhook or polling)
 
-// 4. Listar chats o grupos (instancia conectada)
+// 4. List chats or groups (connected instance)
 GET /api/v1/instances/{instanceId}/chats
 GET /api/v1/instances/{instanceId}/groups
 
-// 5. Enviar mensaje
+// 5. Send message
 POST /api/v1/messages/{instanceId}/send
 {
   "to": "5215512345678@s.whatsapp.net",
-  "message": "¡Hola!"
+  "message": "Hello!"
 }
 
-// 6. Crear grupo
+// 6. Create group
 POST /api/v1/instances/{instanceId}/groups
 {
-  "name": "Equipo Ventas",
+  "name": "Sales Team",
   "participants": ["5215512345678@s.whatsapp.net"]
 }
 ```
 
-## 🔧 Configuración Avanzada
+## 🔧 Advanced Configuration
 
-### Configurar path de sesiones
+### Configure session path
 
-Por defecto, las credenciales de Baileys se guardan en el sistema de archivos bajo `{cwd}/sessions/{instanceId}` (ver `BaileysAdapter.ts`). El proyecto también incluye utilidades de auth orientadas a MongoDB (`useMongoAuthState`); si quieres persistir solo en BD, habría que integrar ese flujo en el adaptador.
+By default, Baileys credentials are saved to the filesystem under `{cwd}/sessions/{instanceId}` (see `BaileysAdapter.ts`). The project also includes MongoDB-oriented auth utilities (`useMongoAuthState`); to persist in the database only, integrate that flow into the adapter.
 
-### Configurar reconexión automática
+### Configure automatic reconnection
 
-El `BaileysAdapter` maneja reconexiones automáticas. Personaliza el comportamiento en el método `setupEventHandlers`.
+`BaileysAdapter` handles automatic reconnections. Customize the behavior in the `setupEventHandlers` method.
 
 ### Webhooks
 
-Configura webhooks al crear instancias para recibir eventos en tiempo real:
+Configure webhooks when creating instances to receive real-time events:
 
 ```json
 {
-  "name": "Mi Instancia",
-  "webhookUrl": "https://mi-servidor.com/webhook"
+  "name": "My Instance",
+  "webhookUrl": "https://my-server.com/webhook"
 }
 ```
 
-## 🤝 Contribuciones
+## 🤝 Contributing
 
-Las contribuciones son bienvenidas. Por favor:
+Contributions are welcome. Please:
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto está bajo la Licencia MIT.
+This project is licensed under the MIT License.
 
-## 🙏 Agradecimientos
+## 🙏 Acknowledgments
 
-- [Baileys](https://github.com/WhiskeySockets/Baileys) - Librería de WhatsApp
-- [Express](https://expressjs.com/) - Framework web
-- [MongoDB](https://www.mongodb.com/) - Base de datos
-- [TypeScript](https://www.typescriptlang.org/) - Superset de JavaScript
+- [Baileys](https://github.com/WhiskeySockets/Baileys) - WhatsApp library
+- [Express](https://expressjs.com/) - Web framework
+- [MongoDB](https://www.mongodb.com/) - Database
+- [TypeScript](https://www.typescriptlang.org/) - JavaScript superset
 
-## 📞 Soporte
+## 📞 Support
 
-Para preguntas o issues, por favor abre un issue en el repositorio.
+For questions or issues, please open an issue in the repository.
