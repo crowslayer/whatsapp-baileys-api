@@ -1,5 +1,7 @@
 import { URL } from 'node:url';
 
+import { Environment } from '@config/index';
+
 export function required(name: string, value?: string): string {
   if (!value) {
     throw new Error(`Missing required env variable: ${name}`);
@@ -48,4 +50,16 @@ export function parseOrigins(raw: string): string[] {
         return false;
       }
     });
+}
+
+export function parseEnvironment(value?: string): Environment {
+  switch (value) {
+    case 'development':
+    case 'production':
+    case 'test':
+    case 'staging':
+      return value;
+    default:
+      throw new Error(`Invalid NODE_ENV: ${value}`);
+  }
 }
