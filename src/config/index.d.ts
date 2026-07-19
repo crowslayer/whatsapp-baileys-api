@@ -86,6 +86,37 @@ export interface IOAuth2SecurityConfig extends IBaseSecurityConfig {
   options?: Record<string, unknown>;
 }
 
+export type AlgorithmType = 'sha256' | 'sha384' | 'sha512';
+
+export interface ICircuitBreaker {
+  failureThreshold: number;
+  successThreshold: number;
+  timeout: number;
+}
+
+export interface IWebhookConfig {
+  enabled: boolean;
+  timeout: number;
+  retryAttempts: number;
+  maxPayloadSize: number;
+  allowedProtocols: 'https'[];
+  allowedPorts: number[];
+  allowedHosts: string[];
+  allowPrivateNetworks: boolean;
+  signPayload: boolean;
+  signatureAlgorithm: AlgorithmType;
+  userAgent: string;
+  validateDns: boolean;
+  maxBodyLength: number;
+  maxContentLength: number;
+  circuitBreaker: ICircuitBreaker;
+  blockPrivateNetworks: boolean;
+  blockLoopback: boolean;
+  blockLinkLocal: boolean;
+  blockMulticast: boolean;
+  blockReserved: boolean;
+}
+
 export type ISecurityConfig = IJwtSecurityConfig | IOAuth2SecurityConfig;
 export type Environment = 'development' | 'production' | 'test' | 'staging';
 
@@ -94,4 +125,5 @@ export interface IConfig {
   api: IApiConfig;
   database?: IDatabaseConfig;
   security?: ISecurityConfig;
+  webhooks?: IWebhookConfig;
 }

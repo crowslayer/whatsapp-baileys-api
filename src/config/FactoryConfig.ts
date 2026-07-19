@@ -1,5 +1,7 @@
 import { URL } from 'url';
 
+import { WebhookConfigBuilder } from '@config/builders/WebhookConfigBuilder';
+
 import { IConfig } from '.';
 
 type Environment = 'development' | 'production' | 'test' | 'staging';
@@ -28,6 +30,7 @@ export class FactoryConfig {
       },
       database: FactoryConfig.buildDatabase(),
       security: FactoryConfig.buildSecurity(ENVIRONMENT),
+      webhooks: WebhookConfigBuilder.build(),
     });
   }
 

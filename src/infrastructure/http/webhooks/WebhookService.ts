@@ -1,112 +1,196 @@
+import crypto, { randomUUID } from 'crypto';
+import { setTimeout } from 'node:timers/promises';
+
 import axios, { AxiosInstance } from 'axios';
 
-import {
-  CircuitBreaker,
-  CircuitState,
-  ICircuitBreakerOptions,
-} from '@infrastructure/http/webhooks/CircuitBreaker';
+import { NetworkUrlValidator } from '@infrastructure/http/validators/network/NetworkUrlValidator';
+import { CircuitBreaker, CircuitState } from '@infrastructure/http/webhooks/CircuitBreaker';
 import { ILogger } from '@infrastructure/loggers/Logger';
+
+import { IWebhookConfig } from '@config/index';
 
 export interface IWebhookPayload {
   type: string;
   body: unknown;
   instanceId: string;
   timestamp: string;
+  eventId: string;
+  correlationId?: string;
+  causationId?: string;
+  version: 1;
 }
 
-export interface IWebhookServiceOptions {
-  timeout?: number;
-  circuitBreaker?: Partial<ICircuitBreakerOptions>;
+interface IWebhookResult {
+  success: boolean;
+  status?: number;
+  duration: number;
+  retries: number;
+  error?: string;
 }
 
-const DEFAULT_CB_OPTIONS: ICircuitBreakerOptions = {
-  failureThreshold: 5,
-  successThreshold: 2,
-  timeout: 30000,
-};
+interface IWebhookEndpoint {
+  registration: IWebhookRegistration;
+  client: AxiosInstance;
+  circuitBreaker: CircuitBreaker;
+}
+
+export interface IWebhookRegistration {
+  instanceId: string;
+  url: string;
+  secret: string;
+  enabled?: boolean;
+}
 
 export class WebhookService {
-  private readonly _clients: Map<string, AxiosInstance> = new Map();
-  private readonly _circuitBreakers: Map<string, CircuitBreaker> = new Map();
-  private readonly _cbOptions: ICircuitBreakerOptions;
-  private readonly _timeout: number;
-  private readonly _logger: ILogger;
+  private readonly _endpoints = new Map<string, IWebhookEndpoint>();
 
-  constructor(logger: ILogger, options: IWebhookServiceOptions = {}) {
-    this._logger = logger;
-    this._timeout = options.timeout ?? 10000;
-    this._cbOptions = {
-      failureThreshold:
-        options.circuitBreaker?.failureThreshold ?? DEFAULT_CB_OPTIONS.failureThreshold,
-      successThreshold:
-        options.circuitBreaker?.successThreshold ?? DEFAULT_CB_OPTIONS.successThreshold,
-      timeout: options.circuitBreaker?.timeout ?? DEFAULT_CB_OPTIONS.timeout,
+  constructor(
+    private readonly config: IWebhookConfig,
+    private readonly validator: NetworkUrlValidator,
+    private readonly logger: ILogger
+  ) {}
+
+  private signPayload(payload: IWebhookPayload, secret: string): string {
+    return crypto
+      .createHmac(this.config.signatureAlgorithm, secret)
+      .update(JSON.stringify(payload))
+      .digest('hex');
+  }
+
+  private createPayload(instanceId: string, type: string, body: unknown): IWebhookPayload {
+    if (!type.trim()) {
+      throw new Error('Invalid event type');
+    }
+    if (body == null) {
+      throw new Error('Payload cannot be null');
+    }
+    const eventId = randomUUID();
+    return {
+      eventId,
+      type,
+      body,
+      instanceId,
+      timestamp: new Date().toISOString(),
+      version: 1,
+      causationId: eventId,
+      correlationId: randomUUID(),
     };
   }
 
-  configureWebhook(webhookUrl: string, instanceId: string): void {
-    const baseURL = webhookUrl.replace(/\/$/, '');
+  private async executeWithRetry(
+    action: () => Promise<void>,
+    attempts = this.config.retryAttempts
+  ): Promise<void> {
+    let delay = 500;
 
-    this._clients.set(
+    for (let i = 0; i < attempts; i++) {
+      try {
+        return await action();
+      } catch (error) {
+        if (i === attempts - 1) {
+          throw error;
+        }
+        await setTimeout(delay);
+        delay *= 2;
+      }
+    }
+  }
+
+  async configureWebhook(registration: IWebhookRegistration): Promise<void> {
+    await this.validator.validate(registration.url);
+
+    const baseURL = registration.url.replace(/\/$/, '');
+    const instanceId = registration.instanceId;
+    const circuitBreaker = new CircuitBreaker(`webhook:${instanceId}`, this.config.circuitBreaker, {
+      warn: (msg) => this.logger.warn(msg),
+      error: (msg) => this.logger.error(msg),
+    });
+
+    const client = axios.create({
+      baseURL,
+      timeout: this.config.timeout,
+      headers: { 'Content-Type': 'application/json', 'User-Agent': this.config.userAgent },
+      validateStatus: (status) => status < 500,
+      maxBodyLength: this.config.maxBodyLength,
+      maxContentLength: this.config.maxContentLength,
+    });
+
+    const config: IWebhookEndpoint = {
+      registration: { ...registration, enabled: registration.enabled ?? true },
+      client,
+      circuitBreaker,
+    };
+
+    this._endpoints.set(instanceId, config);
+
+    this.logger.info({
+      event: 'webhook.configured',
       instanceId,
-      axios.create({
-        baseURL,
-        timeout: this._timeout,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    );
-
-    this._circuitBreakers.set(
-      instanceId,
-      new CircuitBreaker(`webhook:${instanceId}`, this._cbOptions, {
-        warn: (msg) => this._logger.warn(msg),
-        error: (msg) => this._logger.error(msg),
-      })
-    );
-
-    this._logger.info(`Webhook configured for instance ${instanceId}: ${baseURL}`);
+      url: baseURL,
+    });
   }
 
   removeWebhook(instanceId: string): void {
-    this._clients.delete(instanceId);
-    this._circuitBreakers.delete(instanceId);
+    this._endpoints.delete(instanceId);
   }
 
   async send(instanceId: string, type: string, body: unknown): Promise<boolean> {
-    const client = this._clients.get(instanceId);
-    const circuitBreaker = this._circuitBreakers.get(instanceId);
+    const endpoint = this._endpoints.get(instanceId);
+    if (!endpoint || !endpoint.registration.enabled) {
+      return false;
+    }
+    const client = endpoint.client;
+    const circuitBreaker = endpoint.circuitBreaker;
 
     if (!client || !circuitBreaker) {
       return false;
     }
 
-    const payload: IWebhookPayload = {
-      type,
-      body,
-      instanceId,
-      timestamp: new Date().toISOString(),
-    };
+    const payload = this.createPayload(instanceId, type, body);
+
+    const signature = this.signPayload(payload, endpoint.registration.secret);
 
     const result = await circuitBreaker.execute(async () => {
-      await client.post('', payload);
+      await this.executeWithRetry(() =>
+        client.post('', payload, {
+          headers: {
+            'X-Webhook-Signature': signature,
+            'X-Webhook-Timestamp': payload.timestamp,
+            'X-Webhook-Nonce': randomUUID(),
+            'X-Webhook-Event': payload.type,
+            'X-Webhook-Version': '1',
+            'Idempotency-Key': payload.eventId,
+          },
+        })
+      );
+    });
+
+    this.logger.info({
+      event: 'webhook.sent',
+      instanceId,
+      eventId: payload.eventId,
+      // duration,
+      // retry,
+      correlationId: payload.correlationId,
+      causationId: payload.causationId,
     });
 
     return result !== undefined;
   }
 
   getCircuitState(instanceId: string): CircuitState | undefined {
-    return this._circuitBreakers.get(instanceId)?.getState();
+    return this._endpoints.get(instanceId)?.circuitBreaker.getState();
   }
 
   resetCircuit(instanceId: string): void {
-    this._circuitBreakers.get(instanceId)?.reset();
-    this._logger.info(`Circuit breaker reset for instance ${instanceId}`);
+    this._endpoints.get(instanceId)?.circuitBreaker.reset();
+    this.logger.info(`Circuit breaker reset for instance ${instanceId}`);
   }
 
   getAllCircuitStates(): Map<string, CircuitState> {
     const states = new Map<string, CircuitState>();
-    this._circuitBreakers.forEach((cb, id) => {
-      states.set(id, cb.getState());
+    this._endpoints.forEach((cb, id) => {
+      states.set(id, cb.circuitBreaker.getState());
     });
     return states;
   }

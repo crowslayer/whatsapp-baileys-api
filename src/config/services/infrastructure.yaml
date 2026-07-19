@@ -44,9 +44,21 @@ services:
   # =============================================
   # Services
   # =============================================
+  config.webhook:
+    factory:
+      class: ../../config/builders/WebhookConfigBuilder
+      method: build
+
+  infrastructure.network.validator:
+    class: '../../infrastructure/http/validators/network/NetworkUrlValidator'
+    arguments:
+      - '@config.webhook'
+
   infrastructure.http.webhooks.webhook_service:
     class: '../../infrastructure/http/webhooks/WebhookService'
     arguments:
+      - '@config.webhook'
+      - '@infrastructure.network.validator'
       - '@shared.logger'
 
   infrastructure.cache.nodecache_connection_store:
