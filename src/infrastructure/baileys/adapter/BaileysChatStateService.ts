@@ -66,7 +66,8 @@ export class BaileysChatStateService implements IChatStateService {
 
   /**
    * Activa o desactiva mensajes temporales (disappearing) en un chat.
-   * @param expiration segundos. 0 para desactivar. Valores típicos: 86400 (1d), 604800 (7d), 7776000 (90d).
+   * @param expiration segundos:
+   *  0 para desactivar. Valores típicos: 86400 (1d), 604800 (7d), 7776000 (90d).
    */
   async setDisappearingMessages(jid: string, expiration: number): Promise<void> {
     try {
