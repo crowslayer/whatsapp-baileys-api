@@ -1,5 +1,6 @@
-import { URL } from 'url';
-
+import { DatabaseConfigBuilder } from '@config/builders/DatabaseConfigBuilder';
+import { SecurityConfigBuilder } from '@config/builders/SecurityConfigBuilder';
+import { toPort } from '@config/builders/Utils';
 import { WebhookConfigBuilder } from '@config/builders/WebhookConfigBuilder';
 
 import { IConfig } from '.';
@@ -28,8 +29,8 @@ export class FactoryConfig {
         version: API_VERSION,
         url: APP_URL,
       },
-      database: FactoryConfig.buildDatabase(),
-      security: FactoryConfig.buildSecurity(ENVIRONMENT),
+      database: DatabaseConfigBuilder.build(),
+      security: SecurityConfigBuilder.build(),
       webhooks: WebhookConfigBuilder.build(),
     });
   }
@@ -45,169 +46,4 @@ export class FactoryConfig {
         throw new Error(`Invalid NODE_ENV: ${value}`);
     }
   }
-
-  private static buildDatabase(): IConfig['database'] {
-    const DB_TYPE = required('DB_TYPE', process.env.DB_TYPE);
-
-    switch (DB_TYPE) {
-      case 'mongoose':
-        return {
-          type: 'mongoose',
-          enabled: toBoolean(process.env.DB_ENABLED),
-          uri: required('DB_URI', process.env.DB_URI),
-        };
-
-      case 'typeorm':
-        return {
-          type: 'typeorm',
-          enabled: true,
-          dialect: 'postgres',
-          host: required('DB_HOST', process.env.DB_HOST),
-          port: toNumber('DB_PORT', process.env.DB_PORT),
-          username: required('DB_USER', process.env.DB_USER),
-          password: required('DB_PASS', process.env.DB_PASS),
-          database: required('DB_NAME', process.env.DB_NAME),
-          entities: [],
-        };
-
-      case 'sequelize':
-        return {
-          type: 'sequelize',
-          enabled: true,
-          dialect: 'postgres',
-          host: required('DB_HOST', process.env.DB_HOST),
-          port: toNumber('DB_PORT', process.env.DB_PORT),
-          username: required('DB_USER', process.env.DB_USER),
-          password: required('DB_PASS', process.env.DB_PASS),
-          database: required('DB_NAME', process.env.DB_NAME),
-          models: [],
-        };
-
-      default:
-        throw new Error(`Unsupported DB_TYPE: ${DB_TYPE}`);
-    }
-  }
-
-  private static buildSecurity(environment: string): IConfig['security'] {
-    const SECURITY_TYPE = required('SECURITY_TYPE', process.env.SECURITY_TYPE);
-    const corsOrigins = FactoryConfig.buildCorsOrigins(environment);
-    const protectedRoutes =
-      environment === 'production' ? true : toBoolean(process.env.PROTECT_ROUTES);
-
-    const base = {
-      cors: { origins: corsOrigins },
-      protectRoutes: protectedRoutes,
-      enabledRateLimit: toBoolean(process.env.ENABLED_RATE_LIMITS),
-    };
-
-    switch (SECURITY_TYPE) {
-      case 'jwt':
-        return {
-          ...base,
-          type: 'jwt',
-          enabled: true,
-          jwt: {
-            secret: FactoryConfig.validateJwtSecret(
-              environment,
-              required('JWT_SECRET', process.env.JWT_SECRET)
-            ),
-            expires: parseJwtExpiry('JWT_EXPIRES', process.env.JWT_EXPIRES || '1d'),
-            refreshExpires: parseJwtExpiry(
-              'JWT_REFRESH_EXPIRES',
-              process.env.JWT_REFRESH_EXPIRES || '7d'
-            ),
-          },
-        };
-
-      case 'oauth2':
-        return {
-          ...base,
-          type: 'oauth2',
-          enabled: true,
-          clientId: required('OAUTH_CLIENT_ID', process.env.OAUTH_CLIENT_ID),
-          clientSecret: required('OAUTH_CLIENT_SECRET', process.env.OAUTH_CLIENT_SECRET),
-          authorizationServer: required('OAUTH_AUTH_SERVER', process.env.OAUTH_AUTH_SERVER),
-        };
-
-      default:
-        throw new Error(`Unsupported SECURITY_TYPE: "${SECURITY_TYPE}". Use jwt | oauth2`);
-    }
-  }
-
-  private static buildCorsOrigins(environment: string): string[] {
-    const raw = process.env.ACCEPTED_ORIGINS ?? '';
-
-    if (!raw && environment === 'production')
-      throw new Error('ACCEPTED_ORIGINS is required in production');
-
-    const origins = raw
-      ? parseOrigins(raw)
-      : ['http://localhost:8080', 'http://localhost:4200', 'http://localhost:3000'];
-
-    if (origins.length === 0) throw new Error('ACCEPTED_ORIGINS contains no valid URLs');
-
-    return origins;
-  }
-
-  private static validateJwtSecret(environment: string, secret: string): string {
-    const WEAK_SECRETS = ['secret', 'password', 'changeme', '1234', 'test', 'dev'];
-
-    if (environment === 'production' && secret.length < 32)
-      throw new Error('JWT_SECRET must be at least 32 characters in production');
-
-    if (WEAK_SECRETS.some((w) => secret.toLowerCase().includes(w)))
-      console.warn('[config] JWT_SECRET looks weak — use a cryptographically random value');
-
-    return secret;
-  }
-}
-
-function required(name: string, value?: string): string {
-  if (!value) {
-    throw new Error(`Missing required env variable: ${name}`);
-  }
-  return value;
-}
-
-function toBoolean(value?: string): boolean {
-  return value === 'true';
-}
-
-function toNumber(name: string, value?: string): number {
-  const parsed = Number(value);
-
-  if (isNaN(parsed)) {
-    throw new Error(`Env variable ${name} must be a number`);
-  }
-  return parsed;
-}
-
-function toPort(name: string, value?: string): number {
-  const n = toNumber(name, value);
-
-  if (!Number.isInteger(n) || n < 1 || n > 65535)
-    throw new Error(`${name} must be a valid port (1–65535), got: ${value}`);
-
-  return n;
-}
-
-function parseJwtExpiry(name: string, value: string): string {
-  const JWT_DURATION_RE = /^\d+[smhd]$/;
-
-  if (!JWT_DURATION_RE.test(value))
-    throw new Error(`${name} format invalid: use e.g. '1d', '2h', '30m'`);
-  return value;
-}
-
-function parseOrigins(raw: string): string[] {
-  return raw
-    .split(',')
-    .map((o) => o.trim())
-    .filter((o) => {
-      try {
-        return ['http:', 'https:'].includes(new URL(o).protocol);
-      } catch {
-        return false;
-      }
-    });
 }
