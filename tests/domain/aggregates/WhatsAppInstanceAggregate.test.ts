@@ -93,7 +93,7 @@ describe('WhatsAppInstanceAggregate', () => {
     const instance = WhatsAppInstanceAggregate.create(Name.create('Double Connect'));
     instance.connect('5215512345678');
     expect(() => instance.connect('5215598765432')).not.toThrow();
-    expect(instance.phoneNumber?.value).toBe('5215598765432');
+    expect(instance.phoneNumber?.value).toBe('5215512345678');
   });
 
   test('disconnect when already disconnected succeeds (no throw)', () => {

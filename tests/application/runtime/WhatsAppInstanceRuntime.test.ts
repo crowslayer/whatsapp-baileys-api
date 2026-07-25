@@ -76,6 +76,7 @@ describe('WhatsAppInstanceRuntime', () => {
       instanceId: 'instance-1',
       connect: vi.fn(),
       disconnect: vi.fn(),
+      pullDomainEvents: vi.fn(),
     };
 
     repository = {

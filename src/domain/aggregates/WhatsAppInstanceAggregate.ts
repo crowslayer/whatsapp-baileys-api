@@ -1,7 +1,7 @@
 import { InstanceConnectedEvent } from '@domain/events/InstanceConnectedEvent';
 import { InstanceCreatedEvent } from '@domain/events/InstanceCreatedEvent';
 import { InstanceDisconnectedEvent } from '@domain/events/InstanceDisconnectedEvent';
-import { ConnectionStatus, ConnectionStatusEnum } from '@domain/value-objects/ConnectionStatus';
+import { ConnectionStatus } from '@domain/value-objects/ConnectionStatus';
 import { InstanceId } from '@domain/value-objects/InstanceId';
 import { Name } from '@domain/value-objects/Name';
 import { PhoneNumber } from '@domain/value-objects/PhoneNumber';
@@ -100,6 +100,8 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
 
   // Business Logic
   connect(phoneNumber: string): void {
+    if (this._status.isConnected()) return;
+
     this._phoneNumber = PhoneNumber.create(phoneNumber);
     this._status = ConnectionStatus.connected();
     this._lastConnectedAt = new Date();
@@ -113,6 +115,8 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
   }
 
   disconnect(reason?: string): void {
+    if (!this._status.isConnected()) return;
+
     this._status = ConnectionStatus.disconnected();
 
     this.addDomainEvent(
@@ -122,10 +126,6 @@ export class WhatsAppInstanceAggregate extends AggregateRoot<string> {
         reason,
       })
     );
-  }
-
-  updateStatus(status: ConnectionStatusEnum): void {
-    this._status = ConnectionStatus.create(status);
   }
 
   canSendMessages(): boolean {
