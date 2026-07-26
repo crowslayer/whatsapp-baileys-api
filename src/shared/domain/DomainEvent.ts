@@ -1,7 +1,5 @@
 import { EventId } from '@domain/value-objects/EventId';
 
-import { AnyDomainEvent } from '@shared/domain/IDomainEventSubscriber';
-
 export interface IEventMetadata {
   eventId?: string;
   aggregateId: string;
@@ -83,3 +81,5 @@ export type DomainEventClass<TEvent extends AnyDomainEvent, TSerialized> = {
 
   fromPrimitives(params: TSerialized): TEvent;
 };
+
+export type AnyDomainEvent = DomainEvent<string, unknown>;

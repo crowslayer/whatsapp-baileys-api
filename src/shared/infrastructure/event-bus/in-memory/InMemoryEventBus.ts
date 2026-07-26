@@ -1,4 +1,4 @@
-import { AnyDomainEvent } from '@shared/domain/IDomainEventSubscriber';
+import { AnyDomainEvent } from '@shared/domain/DomainEvent';
 import { IEventBus } from '@shared/domain/IEventBus';
 import { DomainEventSubscribers } from '@shared/infrastructure/event-bus/DomainEventSubscribers';
 

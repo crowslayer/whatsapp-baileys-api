@@ -1,6 +1,7 @@
 import { ContainerBuilder } from 'node-dependency-injection';
 
-import { AnyDomainEvent, IDomainEventSubscriber } from '@shared/domain/IDomainEventSubscriber';
+import { AnyDomainEvent } from '@shared/domain/DomainEvent';
+import { IDomainEventSubscriber } from '@shared/domain/IDomainEventSubscriber';
 
 export class DomainEventSubscribers {
   constructor(public readonly items: Array<IDomainEventSubscriber<AnyDomainEvent>>) {}

@@ -1,5 +1,5 @@
+import { AnyDomainEvent } from '@shared/domain/DomainEvent';
 import { Entity } from '@shared/domain/Entity';
-import { AnyDomainEvent } from '@shared/domain/IDomainEventSubscriber';
 
 export abstract class AggregateRoot<T> extends Entity<T> {
   private _domainEvents: AnyDomainEvent[] = [];

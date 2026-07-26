@@ -1,10 +1,8 @@
 import type {
-  DomainEvent,
+  AnyDomainEvent,
   DomainEventClass,
   SerializedDomainEvent,
 } from '@shared/domain/DomainEvent';
-
-export type AnyDomainEvent = DomainEvent<string, unknown>;
 
 export type AnySerializedDomainEvent = SerializedDomainEvent<string, unknown>;
 
