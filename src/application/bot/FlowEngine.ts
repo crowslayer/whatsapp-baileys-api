@@ -51,7 +51,6 @@ export class FlowEngine {
         if (input === undefined) break;
 
         state.currentNodeId = result.nextNodeId ?? undefined;
-        // input = undefined;
       }
 
       // FIN
@@ -63,17 +62,6 @@ export class FlowEngine {
       // avanza automatico
       currentNodeId = result.nextNodeId;
       state.currentNodeId = currentNodeId;
-      // log de prueba
-      // this.logger.info('Node execution', {
-      //   node: node.type,
-      //   reply: result.reply,
-      //   next: result.nextNodeId,
-      // });
-
-      // this.logger.info('STATE AFTER NODE', {
-      //   nextNodeId: state.currentNodeId,
-      //   variables: state.variables,
-      // });
     }
     return lastResult;
   }

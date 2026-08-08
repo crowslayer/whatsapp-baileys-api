@@ -67,7 +67,7 @@ describe('BotService', () => {
       logger
     );
 
-    await service.handleMessage('instance-1', 'chat-1', 'hi');
+    await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'hi' });
 
     expect(flowRepository.findActiveByInstance).toHaveBeenCalledWith('instance-1');
 
@@ -119,7 +119,7 @@ describe('BotService', () => {
       logger
     );
 
-    await service.handleMessage('instance-1', 'chat-1', 'answer');
+    await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'answer' });
 
     expect(flowRepository.findById).toHaveBeenCalledWith('flow-1');
 
@@ -144,7 +144,7 @@ describe('BotService', () => {
       logger
     );
 
-    await service.handleMessage('instance-1', 'chat-1', 'hello');
+    await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'hello' });
 
     expect(flowEngine.execute).not.toHaveBeenCalled();
     expect(store.set).not.toHaveBeenCalled();
@@ -174,7 +174,7 @@ describe('BotService', () => {
       logger
     );
 
-    await service.handleMessage('instance-1', 'chat-1', 'hello');
+    await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'hello' });
 
     expect(logger.warn).toHaveBeenCalled();
     expect(flowEngine.execute).not.toHaveBeenCalled();
@@ -214,7 +214,7 @@ describe('BotService', () => {
       logger
     );
 
-    await service.handleMessage('instance-1', 'chat-1', 'hello');
+    await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'hello' });
 
     expect(store.set).toHaveBeenCalledWith(
       'instance-1',
@@ -259,7 +259,11 @@ describe('BotService', () => {
       },
     });
 
-    expect(handleSpy).toHaveBeenCalledWith('instance-1', 'chat-1', 'hello');
+    expect(handleSpy).toHaveBeenCalledWith({
+      instanceId: 'instance-1',
+      chatId: 'chat-1',
+      text: 'hello',
+    });
   });
 
   it('should ignore events without chatId or text', async () => {

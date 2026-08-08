@@ -1,6 +1,7 @@
 import { Chat, WASocket } from '@whiskeysockets/baileys';
 
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
+import { InconmingWhatsAppMessage } from '@domain/events/InconmingWhatsAppMessage';
 
 import { IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers';
 import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
@@ -29,6 +30,21 @@ export class BaileysEventRouter {
           await Promise.all(
             messages.map((msg) => {
               if (!msg.key.fromMe && msg.message) {
+                const text = msg.message?.conversation ?? msg.message.extendedTextMessage?.text;
+
+                if (!text) return;
+                const payload = {
+                  instanceId: this.instance.instanceId,
+                  messageId: msg.key.id ?? '',
+                  chatId: msg.key.remoteJid ?? msg.key.remoteJidAlt ?? '',
+                  from: msg.key.participant ?? msg.key.remoteJid ?? '',
+                  text,
+                  timestamp: new Date(Number(msg.messageTimestamp) * 1000),
+                };
+                const eventMessage = InconmingWhatsAppMessage.create(
+                  this.instance.instanceId,
+                  payload
+                );
                 this.eventBus.emit('message', {
                   instanceId: this.instance.instanceId,
                   message: msg,

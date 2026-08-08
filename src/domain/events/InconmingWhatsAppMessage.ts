@@ -3,7 +3,10 @@ import { DomainEvent, IEventMetadata, SerializedDomainEvent } from '@shared/doma
 type MessagePayload = {
   instanceId: string;
   chatId: string;
-  message: string;
+  messageId: string;
+  from: string;
+  text: string;
+  timestamp: Date;
 };
 
 type CreateProps = IEventMetadata & {
@@ -11,17 +14,17 @@ type CreateProps = IEventMetadata & {
 };
 
 type MessageEventPrimitives = SerializedDomainEvent<
-  typeof MessageReceivedEvent.EVENT_NAME,
+  typeof InconmingWhatsAppMessage.EVENT_NAME,
   MessagePayload
 >;
 
-export class MessageReceivedEvent extends DomainEvent<
-  typeof MessageReceivedEvent.EVENT_NAME,
+export class InconmingWhatsAppMessage extends DomainEvent<
+  typeof InconmingWhatsAppMessage.EVENT_NAME,
   MessagePayload
 > {
   static readonly EVENT_NAME = 'message.received' as const;
 
-  readonly eventName = MessageReceivedEvent.EVENT_NAME;
+  readonly eventName = InconmingWhatsAppMessage.EVENT_NAME;
 
   readonly payload: Readonly<MessagePayload>;
 
@@ -30,15 +33,15 @@ export class MessageReceivedEvent extends DomainEvent<
     this.payload = this.freezePayload(props.payload);
   }
 
-  static create(aggregateId: string, payload: MessagePayload): MessageReceivedEvent {
-    return new MessageReceivedEvent({
+  static create(aggregateId: string, payload: MessagePayload): InconmingWhatsAppMessage {
+    return new InconmingWhatsAppMessage({
       aggregateId,
       payload,
     });
   }
 
-  static fromPrimitives(primitives: MessageEventPrimitives): MessageReceivedEvent {
-    return new MessageReceivedEvent({
+  static fromPrimitives(primitives: MessageEventPrimitives): InconmingWhatsAppMessage {
+    return new InconmingWhatsAppMessage({
       aggregateId: primitives.aggregateId,
       eventId: primitives.eventId,
       occurredOn: new Date(primitives.occurredOn),

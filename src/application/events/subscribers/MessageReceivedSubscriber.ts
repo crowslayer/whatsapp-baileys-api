@@ -1,19 +1,17 @@
-import { MessageReceivedEvent } from '@domain/events/MessageReceivedEvent';
+import { InconmingWhatsAppMessage } from '@domain/events/InconmingWhatsAppMessage';
 
 import { IBotService } from '@application/bot/types/IBotService';
 
 import { IDomainEventSubscriber } from '@shared/domain/IDomainEventSubscriber';
 
-export class MessageReceivedSubscriber implements IDomainEventSubscriber<MessageReceivedEvent> {
+export class MessageReceivedSubscriber implements IDomainEventSubscriber<InconmingWhatsAppMessage> {
   constructor(private readonly botService: IBotService) {}
 
-  subscribedTo(): [typeof MessageReceivedEvent] {
-    return [MessageReceivedEvent];
+  subscribedTo(): [typeof InconmingWhatsAppMessage] {
+    return [InconmingWhatsAppMessage];
   }
 
-  async on(event: MessageReceivedEvent): Promise<void> {
-    const { chatId, message, instanceId } = event.payload;
-
-    await this.botService.handleMessage(instanceId, chatId, message);
+  async on(event: InconmingWhatsAppMessage): Promise<void> {
+    await this.botService.handleMessage(event.payload);
   }
 }

@@ -9,6 +9,12 @@ import { MessageOrchestrator } from '@application/services/MessageOrchestrator';
 
 import { ILogger } from '@infrastructure/loggers/Logger';
 
+export interface IProcessBotMessageRequest {
+  instanceId: string;
+  chatId: string;
+  text: string;
+}
+
 export class BotService {
   constructor(
     private readonly flowEngine: FlowEngine,
@@ -30,11 +36,13 @@ export class BotService {
       this.logger.info('Event Message captured in bot', { instanceId, to, chatId });
 
       if (!chatId || !text) return;
-      await this.handleMessage(instanceId, chatId, text);
+      await this.handleMessage({ instanceId, chatId, text });
     });
   }
 
-  async handleMessage(instanceId: string, chatId: string, text: string): Promise<void> {
+  async handleMessage(request: IProcessBotMessageRequest): Promise<void> {
+    const { instanceId, chatId, text } = request;
+
     let state = await this.store.get(instanceId, chatId);
     let isNewFlow = false;
 
@@ -42,10 +50,10 @@ export class BotService {
 
     if (!state) {
       state = {
-        currentFlowId: undefined,
-        currentNodeId: undefined,
         instanceId,
         chatId,
+        currentFlowId: undefined,
+        currentNodeId: undefined,
         variables: {},
       };
     }

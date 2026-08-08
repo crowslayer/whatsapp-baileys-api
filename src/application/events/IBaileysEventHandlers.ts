@@ -4,7 +4,6 @@ import {
   GroupParticipant,
   PresenceData,
   WACallEvent,
-  WAMessage,
 } from '@whiskeysockets/baileys';
 import { Label } from '@whiskeysockets/baileys/lib/Types/Label';
 import { LabelAssociation } from '@whiskeysockets/baileys/lib/Types/LabelAssociation';
@@ -32,7 +31,6 @@ export type Asociacion =
   | undefined;
 
 export interface IBaileysEventHandlers {
-  onMessage?: (message: WAMessage) => Promise<void>;
   onChatsUpsert?: (chats: IBaileysChat[], isFullSync: boolean) => void | Promise<void>;
   onChatsUpdate?: (updates: IBaileysChatUpdate[]) => void | Promise<void>;
   onChatsDelete?: (chatIds: string[]) => Promise<void>;
