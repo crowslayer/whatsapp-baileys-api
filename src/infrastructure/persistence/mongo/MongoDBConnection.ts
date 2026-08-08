@@ -19,17 +19,22 @@ export class MongoDBConnection {
       this._logger.info('MongoDB already connected');
       return;
     }
+
+    if (!this._config.enabled) {
+      throw new InfrastructureError('Database not enabled');
+    }
+
     try {
-      if (!this._config.enabled) {
-        throw new Error('Database not enabled');
-      }
-      await mongoose.connect(this._config.uri);
+      await mongoose.connect(this._config.uri, this._config.options);
+
       this._isConnected = true;
+
       this._logger.info('MongoDB connected succesfully');
+
       this.setupEventHandlers();
     } catch (error) {
       this._logger.error('Failed to connect to MongoDB', error);
-      throw error;
+      throw new InfrastructureError('Failed to connect to MongoDB', error);
     }
   }
 
@@ -37,9 +42,12 @@ export class MongoDBConnection {
     if (!this._isConnected) {
       return;
     }
+
     try {
       await mongoose.disconnect();
+
       this._isConnected = false;
+
       this._logger.info('MongoDB disconnected');
     } catch (error) {
       this._logger.error('Error disconnecting MongpDB');

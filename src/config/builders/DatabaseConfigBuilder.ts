@@ -11,6 +11,12 @@ export class DatabaseConfigBuilder {
           type: 'mongoose',
           enabled: toBoolean(process.env.DB_ENABLED),
           uri: required('DB_URI', process.env.DB_URI),
+          options: {
+            maxPoolSize:
+              toNumber('DB_OPTIONS_MAX_POOL_SIZE', process.env.DB_OPTIONS_MAX_POOL_SIZE) ?? 20,
+            minPoolSize:
+              toNumber('DB_OPTIONS_MIN_POOL_SIZE', process.env.DB_OPTIONS_MIN_POOL_SIZE) ?? 5,
+          },
         };
 
       case 'typeorm':
