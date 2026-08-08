@@ -68,11 +68,5 @@ export class MongoDBConnection {
       this._isConnected = true;
       this._logger.info('MongoDB reconnected');
     });
-
-    process.on('SIGINT', async () => {
-      await this.disconnect();
-      this._logger.info('MongoDB connection closed due to app termination');
-      process.exit(0);
-    });
   }
 }

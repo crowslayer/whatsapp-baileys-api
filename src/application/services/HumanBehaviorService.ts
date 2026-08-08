@@ -23,7 +23,7 @@ export class HumanBehaviorService {
 
   async simulateTyping(runtime: IWhatsAppRuntime, to: string, text: string): Promise<void> {
     const safeJid = this.sanitizeJid(to);
-    console.log(safeJid);
+
     try {
       if (safeJid && safeJid.endsWith('s.whatsapp.net')) {
         await runtime.presence.sendPresence(to, 'composing');
