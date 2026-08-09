@@ -22,28 +22,6 @@ export class BaileysEventHandlers implements IBaileysEventHandlers {
     private readonly webhookService: WebhookService,
     private readonly logger: ILogger
   ) {}
-
-  // ─────────────────────────────────────────────
-  // Messages
-  // ─────────────────────────────────────────────
-  // deprecated
-  async onMessage(message: WAMessage): Promise<void> {
-    try {
-      const text = this.extractText(message);
-      const chatId = message.key.remoteJid ?? message.key.remoteJidAlt;
-
-      if (!chatId || chatId === undefined) return;
-      if (!text) return;
-
-      // opcional: seguir enviando webhook
-      await this.webhookService.send(this.instance.instanceId, 'message', {
-        message,
-      });
-    } catch (error) {
-      this.logger.error('Error handling message event', error);
-    }
-  }
-
   // ─────────────────────────────────────────────
   // Chats
   // ─────────────────────────────────────────────

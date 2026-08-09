@@ -13,7 +13,7 @@ export class ValidationError extends DomainError {
   readonly errors: ValidationItem[];
 
   constructor(errors: ValidationItem[]) {
-    super(`Validation failed: ${errors.map(e => `${e.field}: ${e.message}`).join(', ')}`);
+    super(`Validation failed: ${errors.map((e) => `${e.field}: ${e.message}`).join(', ')}`);
     this.errors = errors;
   }
 }
