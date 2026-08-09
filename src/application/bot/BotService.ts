@@ -4,7 +4,6 @@ import { FlowEngine } from '@application/bot/FlowEngine';
 import { FlowTriggerResolver } from '@application/bot/FlowTriggerResolver';
 import { IFlow } from '@application/bot/types/FlowTypes';
 import { IConversationStore } from '@application/bot/types/IConversationStore';
-import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
 import { MessageOrchestrator } from '@application/services/MessageOrchestrator';
 
 import { ILogger } from '@infrastructure/loggers/Logger';
@@ -24,21 +23,6 @@ export class BotService {
     private readonly flowRepository: IFlowReadRepository,
     private readonly logger: ILogger
   ) {}
-
-  subscribe(eventBus: IConnectionEventBus): void {
-    eventBus.on('message', async ({ instanceId, message }) => {
-      const chatId = message.key.remoteJid ?? message.key.remoteJidAlt;
-      const to = message.key.remoteJidAlt;
-
-      const text =
-        message.message?.conversation || message.message?.extendedTextMessage?.text || null;
-
-      this.logger.info('Event Message captured in bot', { instanceId, to, chatId });
-
-      if (!chatId || !text) return;
-      await this.handleMessage({ instanceId, chatId, text });
-    });
-  }
 
   async handleMessage(request: IProcessBotMessageRequest): Promise<void> {
     const { instanceId, chatId, text } = request;

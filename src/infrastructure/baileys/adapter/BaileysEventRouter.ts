@@ -4,16 +4,17 @@ import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAg
 import { InconmingWhatsAppMessage } from '@domain/events/InconmingWhatsAppMessage';
 
 import { IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers';
-import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
 
 import { IBaileysChat } from '@infrastructure/baileys/IBaileysChat';
+
+import { IEventBus } from '@shared/domain/IEventBus';
 
 export class BaileysEventRouter {
   constructor(
     private readonly socket: WASocket,
     private readonly instance: WhatsAppInstanceAggregate,
     private readonly handlers: IBaileysEventHandlers,
-    private readonly eventBus: IConnectionEventBus
+    private readonly eventBus: IEventBus
   ) {}
 
   // eslint-disable-next-line
@@ -41,14 +42,9 @@ export class BaileysEventRouter {
                   text,
                   timestamp: new Date(Number(msg.messageTimestamp) * 1000),
                 };
-                const eventMessage = InconmingWhatsAppMessage.create(
-                  this.instance.instanceId,
-                  payload
-                );
-                this.eventBus.emit('message', {
-                  instanceId: this.instance.instanceId,
-                  message: msg,
-                });
+                this.eventBus.publish([
+                  InconmingWhatsAppMessage.create(this.instance.instanceId, payload),
+                ]);
               }
             })
           );

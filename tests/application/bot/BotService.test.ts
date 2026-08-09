@@ -126,6 +126,8 @@ describe('BotService', () => {
     expect(flowEngine.execute).toHaveBeenCalledWith(flow, state, 'answer');
 
     expect(messaging.send).toHaveBeenCalledWith('instance-1', 'chat-1', 'next step');
+
+    expect(store.set).toHaveBeenCalledWith('instance-1', 'chat-1', state);
   });
 
   it('should do nothing when no flow matches trigger', async () => {
@@ -146,6 +148,8 @@ describe('BotService', () => {
 
     await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'hello' });
 
+    expect(flowRepository.findActiveByInstance).toHaveBeenCalledWith('instance-1');
+    expect(triggerResolver.resolve).toHaveBeenCalledWith([], 'hello');
     expect(flowEngine.execute).not.toHaveBeenCalled();
     expect(store.set).not.toHaveBeenCalled();
     expect(messaging.send).not.toHaveBeenCalled();
@@ -159,11 +163,11 @@ describe('BotService', () => {
       chatId: 'chat-1',
       variables: {},
     });
-
-    flowRepository.findById.mockResolvedValue({
+    const flow = {
       flowId: 'flow-1',
       nodes: null,
-    });
+    };
+    flowRepository.findById.mockResolvedValue(flow);
 
     const service = new BotService(
       flowEngine,
@@ -176,8 +180,11 @@ describe('BotService', () => {
 
     await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'hello' });
 
-    expect(logger.warn).toHaveBeenCalled();
+    expect(flowRepository.findById).toHaveBeenCalledWith('flow-1');
+    expect(logger.warn).toHaveBeenCalledWith('Flow missing nodes', flow);
     expect(flowEngine.execute).not.toHaveBeenCalled();
+    expect(store.set).not.toHaveBeenCalled();
+    expect(messaging.send).not.toHaveBeenCalled();
   });
 
   it('should clear currentFlowId when conversation finishes', async () => {
@@ -198,12 +205,10 @@ describe('BotService', () => {
 
     flowRepository.findById.mockResolvedValue(flow);
 
-    flowEngine.execute.mockReturnValue({
-      reply: undefined,
-      variables: {},
+    flowEngine.execute.mockImplementation(() => {
+      state.currentNodeId = undefined;
+      return { reply: undefined, variables: {} };
     });
-
-    state.currentNodeId = undefined;
 
     const service = new BotService(
       flowEngine,
@@ -216,86 +221,15 @@ describe('BotService', () => {
 
     await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'hello' });
 
+    expect(flowEngine.execute).toHaveBeenCalledWith(flow, state, 'hello');
+
     expect(store.set).toHaveBeenCalledWith(
       'instance-1',
       'chat-1',
       expect.objectContaining({
         currentFlowId: undefined,
+        currentNodeId: undefined,
       })
     );
-  });
-
-  it('should subscribe to message events', async () => {
-    let callback: any;
-
-    const eventBus = {
-      on: vi.fn((event, cb) => {
-        callback = cb;
-      }),
-    };
-
-    const service = new BotService(
-      flowEngine,
-      triggerResolver,
-      store,
-      messaging,
-      flowRepository,
-      logger
-    );
-
-    const handleSpy = vi.spyOn(service, 'handleMessage');
-
-    service.subscribe(eventBus as any);
-
-    await callback({
-      instanceId: 'instance-1',
-      message: {
-        key: {
-          remoteJid: 'chat-1',
-        },
-        message: {
-          conversation: 'hello',
-        },
-      },
-    });
-
-    expect(handleSpy).toHaveBeenCalledWith({
-      instanceId: 'instance-1',
-      chatId: 'chat-1',
-      text: 'hello',
-    });
-  });
-
-  it('should ignore events without chatId or text', async () => {
-    let callback: any;
-
-    const eventBus = {
-      on: vi.fn((event, cb) => {
-        callback = cb;
-      }),
-    };
-
-    const service = new BotService(
-      flowEngine,
-      triggerResolver,
-      store,
-      messaging,
-      flowRepository,
-      logger
-    );
-
-    const handleSpy = vi.spyOn(service, 'handleMessage');
-
-    service.subscribe(eventBus as any);
-
-    await callback({
-      instanceId: 'instance-1',
-      message: {
-        key: {},
-        message: {},
-      },
-    });
-
-    expect(handleSpy).not.toHaveBeenCalled();
   });
 });
