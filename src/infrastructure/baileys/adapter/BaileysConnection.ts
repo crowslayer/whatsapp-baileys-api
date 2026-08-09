@@ -17,6 +17,8 @@ import QRCode from 'qrcode';
 
 import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
 
+import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
+
 // ===============================
 // TYPES
 // ===============================
@@ -159,7 +161,7 @@ export class BaileysConnection {
   // ===============================
   getSocket(): WASocket {
     if (!this._socket) {
-      throw new Error('Socket not initialized');
+      throw new WhatsAppConnectionError('Socket not initialized');
     }
     return this._socket;
   }
@@ -224,7 +226,7 @@ export class BaileysConnection {
     return Promise.race([
       promise,
       delay(ms).then(() => {
-        throw new Error('timeout');
+        throw new WhatsAppConnectionError('timeout');
       }),
     ]);
   }
