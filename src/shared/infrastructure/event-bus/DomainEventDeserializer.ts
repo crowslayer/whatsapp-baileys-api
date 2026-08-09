@@ -3,6 +3,7 @@ import {
   DomainEventClass,
   SerializedDomainEvent,
 } from '@shared/domain/DomainEvent';
+import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
 import { DomainEventSubscribers } from '@shared/infrastructure/event-bus/DomainEventSubscribers';
 
 export type DomainEventJSON = SerializedDomainEvent<string, unknown>;
@@ -35,7 +36,9 @@ export class DomainEventDeserializer extends Map<
     const eventClass = this.get(eventData.eventName);
 
     if (!eventClass) {
-      throw Error(`DomainEvent mapping not found for event ${eventData.eventName}`);
+      throw new InfrastructureError(
+        `DomainEvent mapping not found for event ${eventData.eventName}`
+      );
     }
 
     return eventClass.fromPrimitives(eventData);
