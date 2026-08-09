@@ -1,3 +1,4 @@
+import { RuntimeError } from '@application/runtime/errors/RuntimeError';
 import { IRuntimeRegistry } from '@application/runtime/IRuntimeRegistry';
 import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
 
@@ -11,7 +12,7 @@ export class RuntimeRegistry implements IRuntimeRegistry {
   get(instanceId: string): IWhatsAppRuntime {
     const runtime = this._runtimes.get(instanceId);
     if (!runtime) {
-      throw new Error(`Runtime not found for instance ${instanceId}`);
+      throw new RuntimeError(`Runtime not found for instance ${instanceId}`);
     }
     return runtime;
   }

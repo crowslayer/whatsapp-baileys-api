@@ -2,7 +2,11 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
 
+import { ILogger } from '@infrastructure/loggers/Logger';
+
 export class HumanBehaviorService {
+  constructor(private readonly logger: ILogger) {}
+
   getTypingDelay(text: string): number {
     const length = text.length;
 
@@ -29,7 +33,7 @@ export class HumanBehaviorService {
         await runtime.presence.sendPresence(to, 'composing');
       }
     } catch (error) {
-      console.error('Error actualiando presencia a composing', error);
+      this.logger.error('Error actualiando presencia a composing', error);
     }
 
     await delay(this.getTypingDelay(text));
@@ -39,7 +43,7 @@ export class HumanBehaviorService {
         await runtime.presence.sendPresence(safeJid, 'paused');
       }
     } catch (error) {
-      console.error('Error actualiando estado', error);
+      this.logger.error('Error actualiando estado', error);
     }
   }
 
@@ -55,7 +59,7 @@ export class HumanBehaviorService {
           await runtime.presence.sendPresence(safeJid, 'unavailable');
         }
       } catch (error) {
-        console.error('Error actualiando a unavailable', error);
+        this.logger.error('Error actualiando a unavailable', error);
       }
     }
   }

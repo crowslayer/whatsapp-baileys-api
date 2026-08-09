@@ -145,6 +145,8 @@ services:
   # =============================================
   application.service.human_behavior:
     class: '../../../application/services/HumanBehaviorService'
+    arguments:
+      - '@shared.logger'
     public: true
 
   application.service.limiter_factory:

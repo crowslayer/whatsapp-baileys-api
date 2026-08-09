@@ -2,6 +2,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 import { WAMessage } from '@whiskeysockets/baileys';
 
+import { RuntimeError } from '@application/runtime/errors/RuntimeError';
 import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 import { HumanBehaviorService } from '@application/services/HumanBehaviorService';
 import { LimiterFactory } from '@application/services/LimiterFactory';
@@ -42,7 +43,7 @@ export class MessageOrchestrator {
     text: string
   ): Promise<{ success: number; failed: number }> {
     if (toList.length > 1000) {
-      throw new Error('Bulk limit exceeded');
+      throw new RuntimeError('Bulk limit exceeded');
     }
 
     let success = 0;
@@ -88,7 +89,7 @@ export class MessageOrchestrator {
     return Promise.race([
       promise,
       delay(ms).then(() => {
-        throw new Error('timeout');
+        throw new RuntimeError('timeout');
       }),
     ]);
   }

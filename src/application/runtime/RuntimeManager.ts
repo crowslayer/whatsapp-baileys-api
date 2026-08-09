@@ -3,6 +3,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { RuntimeError } from '@application/runtime/errors/RuntimeError';
 import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 import { IRuntimeRegistry } from '@application/runtime/IRuntimeRegistry';
 import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
@@ -141,7 +142,7 @@ export class RuntimeManager implements IRuntimeManager {
   private async getInstanceOrThrow(instanceId: string): Promise<WhatsAppInstanceAggregate> {
     const instance = await this.repository.findById(instanceId);
     if (!instance) {
-      throw new Error(`Instance ${instanceId} not found`);
+      throw new RuntimeError(`Instance ${instanceId} not found`);
     }
     return instance;
   }

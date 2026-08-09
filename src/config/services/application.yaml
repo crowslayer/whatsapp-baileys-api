@@ -4,7 +4,7 @@
 # =============================================
 # Handlers y servicios del Application Layer
 imports:
-  - { resource: ./instances/instances.yaml }
+  - { resource: ./instances/application.yaml }
   - { resource: ./messages/application.yaml }
   - { resource: ./groups/application.yaml }
   - { resource: ./chats/application.yaml }
