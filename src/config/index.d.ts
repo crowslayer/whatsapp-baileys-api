@@ -21,10 +21,19 @@ export interface IBaseSecurityConfig {
   protectRoutes: boolean;
   enabledRateLimit?: boolean;
 }
+
+export interface IJwtKeysConfig {
+  privateKeyPath: string;
+  publicKeyPath: string;
+}
+
 export interface IJwtConfig {
-  secret: string;
+  algorithm: string;
+  keys: IJwtKeysConfig;
   expires: number | string;
   refreshExpires: number | string;
+  issuer: string;
+  auddience: string;
 }
 // TypeORM Configuration
 export interface ITypeORMConfig extends IBaseDatabaseConfig {
@@ -79,11 +88,13 @@ export interface IJwtSecurityConfig extends IBaseSecurityConfig {
 // OAuth 2.0 Security Configuration
 export interface IOAuth2SecurityConfig extends IBaseSecurityConfig {
   type: 'oauth2';
-  // Specific OAuth configurations here
-  clientId: string;
-  clientSecret: string;
-  authorizationServer: string;
-  options?: Record<string, unknown>;
+  oauth2: {
+    // Specific OAuth configurations here
+    clientId: string;
+    clientSecret: string;
+    authorizationServer: string;
+    options?: Record<string, unknown>;
+  };
 }
 
 export type AlgorithmType = 'sha256' | 'sha384' | 'sha512';

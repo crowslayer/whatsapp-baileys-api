@@ -1,3 +1,5 @@
+import { envString } from '@shared/infrastructure/utils/EnvironmentParser';
+
 import {
   parseEnvironment,
   parseJwtExpiry,
@@ -27,17 +29,20 @@ export class SecurityConfigBuilder {
         return {
           ...base,
           type: 'jwt',
-          enabled: true,
+          enabled: protectedRoutes,
           jwt: {
-            secret: SecurityConfigBuilder.validateJwtSecret(
-              environment,
-              required('JWT_SECRET', process.env.JWT_SECRET)
-            ),
+            algorithm: 'RS256',
+            keys: {
+              privateKeyPath: envString('JWT_PRIVATE_KEY_PATH', './certs/jwt-private.pem'),
+              publicKeyPath: envString('JWT_PUBLIC_KEY_PATH', './certs/jwt-public.pem'),
+            },
             expires: parseJwtExpiry('JWT_EXPIRES', process.env.JWT_EXPIRES || '1d'),
             refreshExpires: parseJwtExpiry(
               'JWT_REFRESH_EXPIRES',
               process.env.JWT_REFRESH_EXPIRES || '7d'
             ),
+            issuer: envString('JWT_ISSUER'),
+            auddience: envString('JWT_AUDIENCE'),
           },
         };
 
@@ -45,10 +50,12 @@ export class SecurityConfigBuilder {
         return {
           ...base,
           type: 'oauth2',
-          enabled: true,
-          clientId: required('OAUTH_CLIENT_ID', process.env.OAUTH_CLIENT_ID),
-          clientSecret: required('OAUTH_CLIENT_SECRET', process.env.OAUTH_CLIENT_SECRET),
-          authorizationServer: required('OAUTH_AUTH_SERVER', process.env.OAUTH_AUTH_SERVER),
+          enabled: protectedRoutes,
+          oauth2: {
+            clientId: required('OAUTH_CLIENT_ID', process.env.OAUTH_CLIENT_ID),
+            clientSecret: required('OAUTH_CLIENT_SECRET', process.env.OAUTH_CLIENT_SECRET),
+            authorizationServer: required('OAUTH_AUTH_SERVER', process.env.OAUTH_AUTH_SERVER),
+          },
         };
 
       default:

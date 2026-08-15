@@ -17,7 +17,12 @@ export function createAuthMiddleware(tokenVerifier: ITokenVerifier): RequestHand
 
     try {
       const decoded = tokenVerifier.verify(token);
-      req.user = decoded;
+
+      const user = decoded.sub;
+      if (!user) {
+        throw new UnauthorizedError('Unauthorized user');
+      }
+      req.user = { userId: user, iss: decoded.iss, aud: decoded.aud };
       next();
     } catch (error) {
       if (error instanceof UnauthorizedError) {

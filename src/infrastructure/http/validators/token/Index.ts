@@ -1,10 +1,21 @@
 export interface IAuthenticatedUser {
   userId: string;
-  email: string;
-  roles: string[];
+  aud?: string | string[];
+  iss?: string;
+}
+
+export interface IJwtPayload {
+  [key: string]: unknown;
+  iss?: string;
+  sub?: string;
+  aud?: string | string[];
+  exp?: number;
+  nbf?: number;
+  iat?: number;
+  jti?: string;
 }
 
 export interface ITokenVerifier {
-  generate(payload: IAuthenticatedUser, expiresIn?: string): string;
-  verify(token: string): IAuthenticatedUser;
+  generate(payload: IAuthenticatedUser): string;
+  verify(token: string): IJwtPayload;
 }
