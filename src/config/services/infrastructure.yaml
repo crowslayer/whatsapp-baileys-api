@@ -72,3 +72,8 @@ services:
     arguments:
       - '@api.config'
     public: true
+
+  infrastructure.realtime.socket_authenticator:
+    class: ../../infrastructure/realtime/SocketAuthenticator
+    arguments:
+      - '@infrastructure.http.token_verifier'

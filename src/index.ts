@@ -55,7 +55,10 @@ async function bootstrap(): Promise<void> {
 
     const socketGateway = new SocketGateway(
       server,
-      container.get('shared.event_bus') // NodeEventBus
+      container.get('shared.event_bus'), // NodeEventBus
+      container.get('infrastructure.realtime.socket_authenticator'),
+      logger,
+      config.security?.cors.origins as string[]
     );
 
     socketGateway.init();
