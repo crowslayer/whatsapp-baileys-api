@@ -141,40 +141,6 @@ export class SocketGateway {
   }
 
   init(): void {
-    // this._io.on('connection', (socket) => {
-
-    //   // socket.on('subscribe', (instanceId: string) => {
-    //   //   socket.join(instanceId);
-    //   // prepare namespace
-    //   socket.on('subscribe', (room: string) => {
-    //     if (!room.startsWith('instance:') && !room.startsWith('campaign:')) return;
-    //     socket.join(room);
-    //     // });
-    //   });
-    //   socket.on('disconnect', () => {
-    //     console.warn('Disconnected', socket.id);
-    //   });
-    // });
-    // // Bridge EventBus → WebSocket
-    // this.eventBus.on('qr', (data) => {
-    //   // this._io.to(data.instanceId).emit('qr', data);
-    //   this._io.to(`instance:${data.instanceId}`).emit('qr', data);
-    // });
-    // this.eventBus.on('connected', (data) => {
-    //   // this._io.to(data.instanceId).emit('connected', data);
-    //   this._io.to(`instance:${data.instanceId}`).emit('connected', data);
-    // });
-    // this.eventBus.on('disconnected', (data) => {
-    //   // this._io.to(data.instanceId).emit('disconnected', data);
-    //   this._io.to(`instance:${data.instanceId}`).emit('disconnected', data);
-    // });
-    // this.eventBus.on('pairingCode', (data) => {
-    //   // this._io.to(data.instanceId).emit('pairingCode', data);
-    //   this._io.to(`instance:${data.instanceId}`).emit('pairingCode', data);
-    // });
-    // this.eventBus.on('campaignProgress', (data) => {
-    //   this._io.to(`campaign:${data.campaignId}`).emit('campaign:progress', data);
-    // });
     if (this._initialized) return;
 
     this._initialized = true;
@@ -340,7 +306,7 @@ export class SocketGateway {
         room,
       });
     } catch (error) {
-      this.logger.error?.(error instanceof Error ? error : new Error('Socket subscription failed'));
+      this.logger.error('Socket subscription failed', error);
 
       ack?.({
         success: false,
@@ -468,11 +434,6 @@ export class SocketGateway {
     return this.isValidIdentifier(campaignId);
   }
 
-  /**
-   * Centralized room naming.
-   *
-   * Client never controls this.
-   */
   private instanceRoom(instanceId: string): string {
     return `instance:${instanceId}`;
   }
