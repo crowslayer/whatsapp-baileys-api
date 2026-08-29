@@ -67,7 +67,13 @@ describe('BotService', () => {
       logger
     );
 
-    await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'hi' });
+    await service.handleMessage({
+      instanceId: 'instance-1',
+      conversationId: 'chat-1',
+      text: 'hi',
+      messageId: 'message-1',
+      senderId: 'sender-1',
+    });
 
     expect(flowRepository.findActiveByInstance).toHaveBeenCalledWith('instance-1');
 
@@ -119,7 +125,13 @@ describe('BotService', () => {
       logger
     );
 
-    await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'answer' });
+    await service.handleMessage({
+      instanceId: 'instance-1',
+      conversationId: 'chat-1',
+      text: 'answer',
+      messageId: 'message-1',
+      senderId: 'sender-1',
+    });
 
     expect(flowRepository.findById).toHaveBeenCalledWith('flow-1');
 
@@ -146,7 +158,13 @@ describe('BotService', () => {
       logger
     );
 
-    await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'hello' });
+    await service.handleMessage({
+      instanceId: 'instance-1',
+      conversationId: 'chat-1',
+      text: 'hello',
+      senderId: 'sender-1',
+      messageId: 'message-1',
+    });
 
     expect(flowRepository.findActiveByInstance).toHaveBeenCalledWith('instance-1');
     expect(triggerResolver.resolve).toHaveBeenCalledWith([], 'hello');
@@ -178,7 +196,13 @@ describe('BotService', () => {
       logger
     );
 
-    await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'hello' });
+    await service.handleMessage({
+      instanceId: 'instance-1',
+      conversationId: 'chat-1',
+      text: 'hello',
+      senderId: 'sender-1',
+      messageId: 'message-1',
+    });
 
     expect(flowRepository.findById).toHaveBeenCalledWith('flow-1');
     expect(logger.warn).toHaveBeenCalledWith('Flow missing nodes', flow);
@@ -219,7 +243,13 @@ describe('BotService', () => {
       logger
     );
 
-    await service.handleMessage({ instanceId: 'instance-1', chatId: 'chat-1', text: 'hello' });
+    await service.handleMessage({
+      instanceId: 'instance-1',
+      conversationId: 'chat-1',
+      text: 'hello',
+      messageId: 'message-1',
+      senderId: 'sender-1',
+    });
 
     expect(flowEngine.execute).toHaveBeenCalledWith(flow, state, 'hello');
 
