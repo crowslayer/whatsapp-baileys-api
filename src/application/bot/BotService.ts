@@ -10,7 +10,9 @@ import { ILogger } from '@infrastructure/loggers/Logger';
 
 export interface IProcessBotMessageRequest {
   instanceId: string;
-  chatId: string;
+  conversationId: string;
+  messageId: string;
+  senderId: string;
   text: string;
 }
 
@@ -25,9 +27,9 @@ export class BotService {
   ) {}
 
   async handleMessage(request: IProcessBotMessageRequest): Promise<void> {
-    const { instanceId, chatId, text } = request;
+    const { instanceId, conversationId, text } = request;
 
-    let state = await this.store.get(instanceId, chatId);
+    let state = await this.store.get(instanceId, conversationId);
     let isNewFlow = false;
 
     this.logger.info('Conversation initialized');
@@ -35,7 +37,7 @@ export class BotService {
     if (!state) {
       state = {
         instanceId,
-        chatId,
+        chatId: conversationId,
         currentFlowId: undefined,
         currentNodeId: undefined,
         variables: {},
@@ -73,12 +75,12 @@ export class BotService {
     // actualizar estado
     state.variables = result.variables ?? state.variables;
 
-    await this.store.set(instanceId, chatId, state);
+    await this.store.set(instanceId, conversationId, state);
 
     // responder si hay mensaje
     if (result.reply) {
       this.logger.info('bot response in instance', { instanceId });
-      await this.messaging.send(instanceId, chatId, result.reply);
+      await this.messaging.send(instanceId, conversationId, result.reply);
     }
   }
 }
