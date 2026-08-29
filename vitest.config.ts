@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
-import { resolve } from 'path'
+import { resolve } from 'path';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   resolve: {
@@ -23,9 +23,10 @@ export default defineConfig({
         'src/**/*.test.ts',
         'src/**/*.d.ts',
         'src/config/**',
-        'src/infrastructure/Http/server.ts',
+        'src/infrastructure/Http/ExpressApp.ts',
+        'src/infrastructure/Http/StatusCode.ts',
         'src/index.ts',
       ],
     },
   },
-})
+});
