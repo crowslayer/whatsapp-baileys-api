@@ -1,5 +1,7 @@
 import { DomainEvent, IEventMetadata, SerializedDomainEvent } from '@shared/domain/DomainEvent';
 
+type MessageType = 'text' | 'image' | 'audio';
+
 type MessagePayload = {
   instanceId: string;
   chatId: string;
@@ -7,6 +9,7 @@ type MessagePayload = {
   from: string;
   text: string;
   timestamp: Date;
+  messageType?: MessageType;
 };
 
 type CreateProps = IEventMetadata & {

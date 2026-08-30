@@ -12,12 +12,14 @@ export class MessageReceivedSubscriber implements IDomainEventSubscriber<Inconmi
   }
 
   async on(event: InconmingWhatsAppMessage): Promise<void> {
-    await this.botService.handleMessage({
-      instanceId: event.payload.instanceId,
-      conversationId: event.payload.chatId,
-      messageId: event.payload.messageId,
-      senderId: event.payload.from,
-      text: event.payload.text,
-    });
+    if (event.payload.messageType === 'text') {
+      await this.botService.handleMessage({
+        instanceId: event.payload.instanceId,
+        conversationId: event.payload.chatId,
+        messageId: event.payload.messageId,
+        senderId: event.payload.from,
+        text: event.payload.text,
+      });
+    }
   }
 }
