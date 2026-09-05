@@ -1,61 +1,69 @@
 import { WAMessage } from '@whiskeysockets/baileys/lib/Types/Message';
 
-type MessageType = 'text' | 'image' | 'audio';
-
-type IncomingMessageDTO = {
-  instanceId: string;
-  chatId: string;
-  messageId: string;
-  from: string;
-  text: string;
-  timestamp: Date;
-  messageType?: MessageType;
-};
+import { MessageContent, MessagePayload } from '@domain/messages/MessagePayload';
 
 export class BaileysMessageMapper {
-  static toIncomingMessage(instanceId: string, message: WAMessage): IncomingMessageDTO | null {
+  static toIncomingMessage(instanceId: string, message: WAMessage): MessagePayload | null {
     if (message.key.fromMe) {
       return null;
     }
 
-    const text =
-      message.message?.conversation ??
-      message.message?.extendedTextMessage?.text ??
-      message.message?.imageMessage?.caption ??
-      '';
+    const content = BaileysMessageMapper.mapContent(message);
 
-    if (!text) {
-      return null;
-    }
-
-    const type = BaileysMessageMapper.getMessageType(message);
+    if (content === null) return null;
 
     return {
       instanceId,
       chatId: message.key.remoteJid ?? message.key.remoteJidAlt ?? '',
       messageId: message.key.id ?? '',
       from: message.key.participant ?? message.key.remoteJid ?? '',
-      text,
       timestamp: new Date(Number(message.messageTimestamp) * 1000),
-      messageType: type ?? undefined,
+      content,
     };
   }
 
-  static getMessageType(msg: WAMessage): MessageType | null {
-    const message = msg.message;
+  private static mapContent(message: WAMessage): MessageContent | null {
+    const msg = message.message;
 
-    if (!message) return null;
-
-    if (message.conversation || message.extendedTextMessage) {
-      return 'text';
+    if (!msg) {
+      return null;
     }
 
-    if (message.imageMessage) {
-      return 'image';
+    if (msg.conversation) {
+      return {
+        messageType: 'text',
+        text: msg.conversation,
+      };
     }
 
-    if (message.audioMessage) {
-      return 'audio';
+    if (msg.extendedTextMessage?.text) {
+      return {
+        messageType: 'text',
+        text: msg.extendedTextMessage.text,
+      };
+    }
+
+    if (msg.imageMessage) {
+      return {
+        messageType: 'image',
+        caption: msg.imageMessage.caption ?? undefined,
+        media: {
+          mimeType: msg.imageMessage.mimetype ?? undefined,
+          fileLength: msg.imageMessage.fileLength ? Number(msg.imageMessage.fileLength) : undefined,
+        },
+      };
+    }
+
+    if (msg.audioMessage) {
+      return {
+        messageType: 'audio',
+        media: {
+          mimeType: msg.audioMessage.mimetype ?? undefined,
+          fileLength: msg.audioMessage.fileLength ? Number(msg.audioMessage.fileLength) : undefined,
+          duration: msg.audioMessage.seconds ?? undefined,
+          ptt: msg.audioMessage.ptt ?? undefined,
+        },
+      };
     }
 
     return null;
