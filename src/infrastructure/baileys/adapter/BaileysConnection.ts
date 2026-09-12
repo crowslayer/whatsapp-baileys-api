@@ -9,6 +9,7 @@ import makeWASocket, {
   DisconnectReason,
   WASocket,
   fetchLatestBaileysVersion,
+  isJidBroadcast,
   makeCacheableSignalKeyStore,
   useMultiFileAuthState,
 } from '@whiskeysockets/baileys';
@@ -91,6 +92,12 @@ export class BaileysConnection {
       markOnlineOnConnect: false,
       syncFullHistory: false,
       msgRetryCounterCache: this._msgRetryCounterCache,
+      generateHighQualityLinkPreview: true,
+      maxMsgRetryCount: 5,
+      connectTimeoutMs: 20_000,
+      defaultQueryTimeoutMs: 60_000,
+      keepAliveIntervalMs: 30_000,
+      shouldIgnoreJid: (jid) => isJidBroadcast(jid),
     });
 
     // PAIRING CODE
