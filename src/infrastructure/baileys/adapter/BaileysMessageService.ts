@@ -8,6 +8,8 @@ import {
   WASocket,
 } from '@whiskeysockets/baileys';
 
+import { ISentMessage } from '@domain/messages/MessageTypes';
+
 import { IMessageService } from '@infrastructure/baileys/adapter/IMessageService';
 
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
@@ -42,8 +44,18 @@ export class BaileysMessageService implements IMessageService {
     to: string,
     text: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined> {
-    return this.send(to, { text }, options);
+  ): Promise<ISentMessage | undefined> {
+    const result = await this.send(to, { text }, options);
+
+    return {
+      messageId: result?.key.id ?? '',
+      chatId: result?.key.remoteJidAlt ?? to,
+      timestamp: new Date(Number(result?.messageTimestamp) * 1000),
+      content: {
+        messageType: 'text',
+        text,
+      },
+    };
   }
 
   async sendImage(
@@ -51,8 +63,21 @@ export class BaileysMessageService implements IMessageService {
     image: Buffer | { url: string },
     caption?: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined> {
-    return this.send(to, { image, caption }, options);
+  ): Promise<ISentMessage | undefined> {
+    const message = await this.send(to, { image, caption }, options);
+
+    if (!message) return undefined;
+
+    return {
+      messageId: message.key.id ?? '',
+      chatId: message.key.remoteJid ?? to,
+      timestamp: new Date(Number(message.messageTimestamp) * 1000),
+      content: {
+        messageType: 'image',
+        caption,
+        media: {},
+      },
+    };
   }
 
   async sendVideo(
@@ -61,8 +86,21 @@ export class BaileysMessageService implements IMessageService {
     caption?: string,
     gifPlayback = false,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined> {
-    return this.send(to, { video, caption, gifPlayback }, options);
+  ): Promise<ISentMessage | undefined> {
+    const message = await this.send(to, { video, caption, gifPlayback }, options);
+
+    if (!message) return undefined;
+
+    return {
+      messageId: message.key.id ?? '',
+      chatId: message.key.remoteJid ?? to,
+      timestamp: new Date(Number(message.messageTimestamp) * 1000),
+      content: {
+        messageType: 'video',
+        caption,
+        media: {},
+      },
+    };
   }
 
   async sendAudio(
@@ -71,8 +109,20 @@ export class BaileysMessageService implements IMessageService {
     ptt = false,
     mimetype = 'audio/mp4',
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined> {
-    return this.send(to, { audio, ptt, mimetype }, options);
+  ): Promise<ISentMessage | undefined> {
+    const message = await this.send(to, { audio, ptt, mimetype }, options);
+
+    if (!message) return undefined;
+
+    return {
+      messageId: message.key.id ?? '',
+      chatId: message.key.remoteJid ?? to,
+      timestamp: new Date(Number(message.messageTimestamp) * 1000),
+      content: {
+        messageType: 'audio',
+        media: { mimeType: mimetype, ptt },
+      },
+    };
   }
 
   async sendDocument(
@@ -82,16 +132,41 @@ export class BaileysMessageService implements IMessageService {
     mimetype: string,
     caption?: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined> {
-    return this.send(to, { document, fileName, mimetype, caption }, options);
+  ): Promise<ISentMessage | undefined> {
+    const message = await this.send(to, { document, fileName, mimetype, caption }, options);
+
+    if (!message) return undefined;
+
+    return {
+      messageId: message.key.id ?? '',
+      chatId: message.key.remoteJid ?? to,
+      timestamp: new Date(Number(message.messageTimestamp) * 1000),
+      content: {
+        messageType: 'document',
+        caption,
+        media: { fileName, mimeType: mimetype },
+      },
+    };
   }
 
   async sendSticker(
     to: string,
     sticker: Buffer | { url: string },
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined> {
-    return this.send(to, { sticker }, options);
+  ): Promise<ISentMessage | undefined> {
+    const message = await this.send(to, { sticker }, options);
+
+    if (!message) return undefined;
+
+    return {
+      messageId: message.key.id ?? '',
+      chatId: message.key.remoteJid ?? to,
+      timestamp: new Date(Number(message.messageTimestamp) * 1000),
+      content: {
+        messageType: 'sticker',
+        media: {},
+      },
+    };
   }
 
   async sendLocation(
@@ -101,8 +176,8 @@ export class BaileysMessageService implements IMessageService {
     name?: string,
     address?: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined> {
-    return this.send(
+  ): Promise<ISentMessage | undefined> {
+    const message = await this.send(
       to,
       {
         location: {
@@ -114,14 +189,31 @@ export class BaileysMessageService implements IMessageService {
       },
       options
     );
+
+    if (!message) return undefined;
+
+    return {
+      messageId: message.key.id ?? '',
+      chatId: message.key.remoteJid ?? to,
+      timestamp: new Date(Number(message.messageTimestamp) * 1000),
+      content: {
+        messageType: 'location',
+        location: {
+          latitude,
+          longitude,
+          name,
+          address,
+        },
+      },
+    };
   }
 
   async sendContact(
     to: string,
     contacts: Array<{ displayName: string; vcard: string }>,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined> {
-    return this.send(
+  ): Promise<ISentMessage | undefined> {
+    const message = await this.send(
       to,
       {
         contacts: {
@@ -131,12 +223,43 @@ export class BaileysMessageService implements IMessageService {
       },
       options
     );
+
+    if (!message) return undefined;
+
+    return {
+      messageId: message.key.id ?? '',
+      chatId: message.key.remoteJid ?? to,
+      timestamp: new Date(Number(message.messageTimestamp) * 1000),
+      content: {
+        messageType: 'contact',
+        contacts,
+      },
+    };
   }
 
-  async sendReaction(to: string, key: WAMessageKey, emoji: string): Promise<WAMessage | undefined> {
-    return this.send(to, {
+  async sendReaction(
+    to: string,
+    key: WAMessageKey,
+    emoji: string
+  ): Promise<ISentMessage | undefined> {
+    const message = await this.send(to, {
       react: { text: emoji, key },
     });
+
+    if (!message) return undefined;
+
+    return {
+      messageId: message.key.id ?? '',
+      chatId: message.key.remoteJid ?? to,
+      timestamp: new Date(Number(message.messageTimestamp) * 1000),
+      content: {
+        messageType: 'reaction',
+        reaction: {
+          emoji,
+          targetMessageId: key.remoteJid ?? '',
+        },
+      },
+    };
   }
 
   async sendPoll(
@@ -145,16 +268,45 @@ export class BaileysMessageService implements IMessageService {
     values: string[],
     selectableCount = 1,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined> {
-    return this.send(to, { poll: { name, values, selectableCount } }, options);
+  ): Promise<ISentMessage | undefined> {
+    const message = await this.send(to, { poll: { name, values, selectableCount } }, options);
+
+    if (!message) return undefined;
+
+    return {
+      messageId: message.key.id ?? '',
+      chatId: message.key.remoteJid ?? to,
+      timestamp: new Date(Number(message.messageTimestamp) * 1000),
+      content: {
+        messageType: 'poll',
+        poll: {
+          name,
+          values,
+          selectableCount,
+        },
+      },
+    };
   }
 
   async forwardMessage(
     to: string,
     message: WAMessage,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined> {
-    return this.send(to, { forward: message }, options);
+  ): Promise<ISentMessage | undefined> {
+    const result = await this.send(to, { forward: message }, options);
+    if (!result) return undefined;
+
+    return {
+      messageId: result.key.id ?? '',
+      chatId: result.key.remoteJid ?? to,
+      timestamp: new Date(Number(result.messageTimestamp) * 1000),
+      content: {
+        messageType: 'forward',
+        forward: {
+          originalMessageId: message.key.id ?? '',
+        },
+      },
+    };
   }
 
   async deleteMessage(to: string, key: WAMessageKey): Promise<void> {

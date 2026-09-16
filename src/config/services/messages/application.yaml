@@ -164,7 +164,7 @@ services:
   # EventSubscribers
   # =============================================
   application.subscriber.message_received:
-    class: '../../../application/events/subscribers/MessageReceivedSubscriber'
+    class: '../../../application/events/subscribers/IncomingMessageBotSubscriber'
     arguments:
       - '@application.bot.bot_service'
     tags:

@@ -1,13 +1,16 @@
 import { describe, expect } from 'vitest';
-import { InconmingWhatsAppMessage } from '../../../src/domain/events/InconmingWhatsAppMessage';
+import { IncomingWhatsAppMessage } from '../../../src/domain/events/IncomingWhatsAppMessage';
 
 describe('MessageReceivedEvent', () => {
   test('creates with correct aggregateId', () => {
-    const event = InconmingWhatsAppMessage.create('agg-123', {
+    const event = IncomingWhatsAppMessage.create('agg-123', {
       instanceId: 'msg-1',
       chatId: 'sender-id',
-      text: 'Hello!',
-      from: 'from-1',
+      content: {
+        messageType: 'text',
+        text: 'Hello!',
+      },
+      senderId: 'from-1',
       messageId: 'msg-id',
       timestamp: new Date(),
     });
@@ -18,47 +21,59 @@ describe('MessageReceivedEvent', () => {
     const payload = {
       instanceId: 'msg-1',
       chatId: 'sender-id',
-      text: 'Hello!',
-      from: 'from-1',
+      senderId: 'from-1',
+      content: {
+        messageType: 'text',
+        text: 'Hello!',
+      },
       messageId: 'msg-id',
       timestamp: new Date(),
     };
-    const event = InconmingWhatsAppMessage.create('agg-123', payload);
+    const event = IncomingWhatsAppMessage.create('agg-123', payload);
     expect(event.payload).toEqual(payload);
   });
 
   test('eventName is message.received', () => {
-    const event = InconmingWhatsAppMessage.create('agg-1', {
+    const event = IncomingWhatsAppMessage.create('agg-1', {
       instanceId: 'm1',
       chatId: 'f',
-      text: 'Hi',
-      from: 'from-1',
+      senderId: 'from-1',
       messageId: 'msg-id',
       timestamp: new Date(),
+      content: {
+        messageType: 'text',
+        text: 'Hello!',
+      },
     });
-    expect(event.eventName).toBe('message.received');
+    expect(event.eventName).toBe('whatsapp.message.received');
   });
 
   test('occurredOn is a Date', () => {
-    const event = InconmingWhatsAppMessage.create('agg-1', {
+    const event = IncomingWhatsAppMessage.create('agg-1', {
       instanceId: 'm1',
       chatId: 'f',
-      text: 'Hi',
-      from: 'from-1',
+      senderId: 'from-1',
       messageId: 'msg-id',
       timestamp: new Date(),
+      content: {
+        messageType: 'text',
+        text: 'Hello!',
+      },
     });
     expect(event.occurredOn).toBeInstanceOf(Date);
   });
 
   test('implements IDomainEvent shape', () => {
-    const event = InconmingWhatsAppMessage.create('agg-1', {
+    const event = IncomingWhatsAppMessage.create('agg-1', {
       instanceId: 'm1',
       chatId: 'f',
-      text: 'Hi',
-      from: 'from-1',
+      senderId: 'from-1',
       messageId: 'msg-id',
       timestamp: new Date(),
+      content: {
+        messageType: 'text',
+        text: 'Hello!',
+      },
     });
     expect(event.aggregateId).toBeDefined();
     expect(event.eventName).toBeDefined();

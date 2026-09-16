@@ -37,7 +37,7 @@ export class BotService {
     if (!state) {
       state = {
         instanceId,
-        chatId: conversationId,
+        conversationId,
         currentFlowId: undefined,
         currentNodeId: undefined,
         variables: {},
@@ -62,7 +62,15 @@ export class BotService {
     }
 
     if (!flow || !flow.nodes) {
-      this.logger.warn('Flow missing nodes', flow);
+      this.logger.warn('Flow missing nodes', {
+        instanceId,
+        conversationId,
+        flowid: state.currentNodeId,
+      });
+      state.currentFlowId = undefined;
+      state.currentNodeId = undefined;
+
+      await this.store.set(instanceId, conversationId, state);
       return;
     }
 

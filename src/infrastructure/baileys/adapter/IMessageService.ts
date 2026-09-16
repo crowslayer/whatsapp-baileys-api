@@ -1,18 +1,20 @@
 import { MiscMessageGenerationOptions, WAMessage, WAMessageKey } from '@whiskeysockets/baileys';
 
+import { ISentMessage } from '@domain/messages/MessageTypes';
+
 export interface IMessageService {
   sendText(
     to: string,
     text: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined>;
+  ): Promise<ISentMessage | undefined>;
 
   sendImage(
     to: string,
     image: Buffer | { url: string },
     caption?: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined>;
+  ): Promise<ISentMessage | undefined>;
 
   sendVideo(
     to: string,
@@ -20,7 +22,7 @@ export interface IMessageService {
     caption?: string,
     gifPlayback?: boolean,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined>;
+  ): Promise<ISentMessage | undefined>;
 
   sendAudio(
     to: string,
@@ -28,7 +30,7 @@ export interface IMessageService {
     ptt: boolean,
     mimetype: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined>;
+  ): Promise<ISentMessage | undefined>;
 
   sendDocument(
     to: string,
@@ -37,13 +39,13 @@ export interface IMessageService {
     mimetype: string,
     caption?: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined>;
+  ): Promise<ISentMessage | undefined>;
 
   sendSticker(
     to: string,
     sticker: Buffer | { url: string },
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined>;
+  ): Promise<ISentMessage | undefined>;
 
   sendLocation(
     to: string,
@@ -52,15 +54,15 @@ export interface IMessageService {
     name?: string,
     address?: string,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined>;
+  ): Promise<ISentMessage | undefined>;
 
   sendContact(
     to: string,
     contacts: Array<{ displayName: string; vcard: string }>,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined>;
+  ): Promise<ISentMessage | undefined>;
 
-  sendReaction(to: string, key: WAMessageKey, emoji: string): Promise<WAMessage | undefined>;
+  sendReaction(to: string, key: WAMessageKey, emoji: string): Promise<ISentMessage | undefined>;
 
   sendPoll(
     to: string,
@@ -68,13 +70,13 @@ export interface IMessageService {
     values: string[],
     selectableCount: number,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined>;
+  ): Promise<ISentMessage | undefined>;
 
   forwardMessage(
     to: string,
     message: WAMessage,
     options?: MiscMessageGenerationOptions
-  ): Promise<WAMessage | undefined>;
+  ): Promise<ISentMessage | undefined>;
 
   deleteMessage(to: string, key: WAMessageKey): Promise<void>;
   editMessage(to: string, key: WAMessageKey, text: string): Promise<WAMessage | undefined>;

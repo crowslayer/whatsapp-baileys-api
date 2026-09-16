@@ -1,7 +1,7 @@
 import { Chat, WASocket } from '@whiskeysockets/baileys';
 
 import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAggregate';
-import { InconmingWhatsAppMessage } from '@domain/events/InconmingWhatsAppMessage';
+import { IncomingWhatsAppMessage } from '@domain/events/IncomingWhatsAppMessage';
 
 import { IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers';
 
@@ -42,7 +42,7 @@ export class BaileysEventRouter {
                 }
 
                 this.eventBus.publish([
-                  InconmingWhatsAppMessage.create(this.instance.instanceId, payload),
+                  IncomingWhatsAppMessage.create(this.instance.instanceId, payload),
                 ]);
               }
             })

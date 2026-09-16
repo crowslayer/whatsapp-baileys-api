@@ -1,7 +1,7 @@
 export interface IConversationState {
   instanceId: string;
-  chatId: string;
+  conversationId: string;
   currentFlowId?: string;
   currentNodeId?: string;
-  variables: Record<string, any>;
+  variables: Record<string, unknown>;
 }

@@ -1,6 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 
-import { WAMessage } from '@whiskeysockets/baileys';
+import { ISentMessage } from '@domain/messages/MessageTypes';
 
 import { RuntimeError } from '@application/runtime/errors/RuntimeError';
 import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
@@ -17,7 +17,7 @@ export class MessageOrchestrator {
   // ===============================
   // SINGLE MESSAGE
   // ===============================
-  async send(instanceId: string, to: string, text: string): Promise<WAMessage | undefined> {
+  async send(instanceId: string, to: string, text: string): Promise<ISentMessage | undefined> {
     const runtime = this.runtimeRegistry.get(instanceId);
     const limiter = this.limiterFactory.getLimiter(instanceId);
 
@@ -48,6 +48,7 @@ export class MessageOrchestrator {
 
     let success = 0;
     let failed = 0;
+    let processed = 0;
 
     for (const to of toList) {
       try {
@@ -57,11 +58,13 @@ export class MessageOrchestrator {
         failed++;
       }
 
+      processed++;
+
       // delay humano entre mensajes
       await delay(500 + Math.random() * 500);
 
       // pausa cada 20 mensajes
-      if (success % 20 === 0) {
+      if (processed % 20 === 0) {
         await delay(5000);
       }
     }
