@@ -9,18 +9,30 @@ export class BaileysMessageMapper {
     }
 
     const content = BaileysMessageMapper.mapContent(message);
+    const senderId = BaileysMessageMapper.resolveSenderId(message) ?? instanceId;
 
     if (content === null) return null;
 
     return {
       instanceId,
-      chatId: message.key.remoteJid ?? message.key.remoteJidAlt ?? '',
       messageId: message.key.id ?? '',
-      senderId:
-        message.key.participant ?? message.key.participantAlt ?? message.key.remoteJid ?? '',
+      chatId: message.key.remoteJid ?? message.key.remoteJidAlt ?? '',
+      senderId,
       timestamp: new Date(Number(message.messageTimestamp) * 1000),
       content,
     };
+  }
+
+  private static resolveSenderId(message: WAMessage): string | null {
+    const key = message.key;
+
+    // Grupo
+    if (key.remoteJid?.endsWith('@g.us')) {
+      return key.participantAlt ?? key.participant ?? null;
+    }
+
+    // Chat privado
+    return key.remoteJidAlt ?? key.remoteJid ?? null;
   }
 
   private static mapContent(message: WAMessage): SentMessageContent | null {
@@ -357,7 +369,7 @@ export class BaileysMessageMapper {
           location.degreesClockwiseFromMagneticNorth != null
             ? Number(location.degreesClockwiseFromMagneticNorth)
             : undefined,
-        // eslint-disable-next-line
+
         sequenceNumber:
           location.sequenceNumber != null ? Number(location.sequenceNumber) : undefined,
       },

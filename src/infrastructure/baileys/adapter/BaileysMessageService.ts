@@ -8,7 +8,7 @@ import {
   WASocket,
 } from '@whiskeysockets/baileys';
 
-import { ISentMessage } from '@domain/messages/MessageTypes';
+import { ISentMessage, SentMessageContent } from '@domain/messages/MessageTypes';
 
 import { IMessageService } from '@infrastructure/baileys/adapter/IMessageService';
 
@@ -45,17 +45,16 @@ export class BaileysMessageService implements IMessageService {
     text: string,
     options?: MiscMessageGenerationOptions
   ): Promise<ISentMessage | undefined> {
-    const result = await this.send(to, { text }, options);
+    const message = await this.send(to, { text }, options);
 
-    return {
-      messageId: result?.key.id ?? '',
-      chatId: result?.key.remoteJidAlt ?? to,
-      timestamp: new Date(Number(result?.messageTimestamp) * 1000),
-      content: {
-        messageType: 'text',
-        text,
-      },
-    };
+    if (!message) {
+      return undefined;
+    }
+
+    return this.toSentMessage(message, {
+      messageType: 'text',
+      text,
+    });
   }
 
   async sendImage(
@@ -68,16 +67,11 @@ export class BaileysMessageService implements IMessageService {
 
     if (!message) return undefined;
 
-    return {
-      messageId: message.key.id ?? '',
-      chatId: message.key.remoteJid ?? to,
-      timestamp: new Date(Number(message.messageTimestamp) * 1000),
-      content: {
-        messageType: 'image',
-        caption,
-        media: {},
-      },
-    };
+    return this.toSentMessage(message, {
+      messageType: 'image',
+      caption,
+      media: {},
+    });
   }
 
   async sendVideo(
@@ -91,16 +85,11 @@ export class BaileysMessageService implements IMessageService {
 
     if (!message) return undefined;
 
-    return {
-      messageId: message.key.id ?? '',
-      chatId: message.key.remoteJid ?? to,
-      timestamp: new Date(Number(message.messageTimestamp) * 1000),
-      content: {
-        messageType: 'video',
-        caption,
-        media: {},
-      },
-    };
+    return this.toSentMessage(message, {
+      messageType: 'video',
+      caption,
+      media: {},
+    });
   }
 
   async sendAudio(
@@ -114,15 +103,10 @@ export class BaileysMessageService implements IMessageService {
 
     if (!message) return undefined;
 
-    return {
-      messageId: message.key.id ?? '',
-      chatId: message.key.remoteJid ?? to,
-      timestamp: new Date(Number(message.messageTimestamp) * 1000),
-      content: {
-        messageType: 'audio',
-        media: { mimeType: mimetype, ptt },
-      },
-    };
+    return this.toSentMessage(message, {
+      messageType: 'audio',
+      media: { mimeType: mimetype, ptt },
+    });
   }
 
   async sendDocument(
@@ -137,16 +121,11 @@ export class BaileysMessageService implements IMessageService {
 
     if (!message) return undefined;
 
-    return {
-      messageId: message.key.id ?? '',
-      chatId: message.key.remoteJid ?? to,
-      timestamp: new Date(Number(message.messageTimestamp) * 1000),
-      content: {
-        messageType: 'document',
-        caption,
-        media: { fileName, mimeType: mimetype },
-      },
-    };
+    return this.toSentMessage(message, {
+      messageType: 'document',
+      caption,
+      media: { fileName, mimeType: mimetype },
+    });
   }
 
   async sendSticker(
@@ -158,15 +137,10 @@ export class BaileysMessageService implements IMessageService {
 
     if (!message) return undefined;
 
-    return {
-      messageId: message.key.id ?? '',
-      chatId: message.key.remoteJid ?? to,
-      timestamp: new Date(Number(message.messageTimestamp) * 1000),
-      content: {
-        messageType: 'sticker',
-        media: {},
-      },
-    };
+    return this.toSentMessage(message, {
+      messageType: 'sticker',
+      media: {},
+    });
   }
 
   async sendLocation(
@@ -192,20 +166,15 @@ export class BaileysMessageService implements IMessageService {
 
     if (!message) return undefined;
 
-    return {
-      messageId: message.key.id ?? '',
-      chatId: message.key.remoteJid ?? to,
-      timestamp: new Date(Number(message.messageTimestamp) * 1000),
-      content: {
-        messageType: 'location',
-        location: {
-          latitude,
-          longitude,
-          name,
-          address,
-        },
+    return this.toSentMessage(message, {
+      messageType: 'location',
+      location: {
+        latitude,
+        longitude,
+        name,
+        address,
       },
-    };
+    });
   }
 
   async sendContact(
@@ -226,15 +195,10 @@ export class BaileysMessageService implements IMessageService {
 
     if (!message) return undefined;
 
-    return {
-      messageId: message.key.id ?? '',
-      chatId: message.key.remoteJid ?? to,
-      timestamp: new Date(Number(message.messageTimestamp) * 1000),
-      content: {
-        messageType: 'contact',
-        contacts,
-      },
-    };
+    return this.toSentMessage(message, {
+      messageType: 'contact',
+      contacts,
+    });
   }
 
   async sendReaction(
@@ -248,18 +212,13 @@ export class BaileysMessageService implements IMessageService {
 
     if (!message) return undefined;
 
-    return {
-      messageId: message.key.id ?? '',
-      chatId: message.key.remoteJid ?? to,
-      timestamp: new Date(Number(message.messageTimestamp) * 1000),
-      content: {
-        messageType: 'reaction',
-        reaction: {
-          emoji,
-          targetMessageId: key.remoteJid ?? '',
-        },
+    return this.toSentMessage(message, {
+      messageType: 'reaction',
+      reaction: {
+        emoji,
+        targetMessageId: key.id ?? '',
       },
-    };
+    });
   }
 
   async sendPoll(
@@ -273,19 +232,14 @@ export class BaileysMessageService implements IMessageService {
 
     if (!message) return undefined;
 
-    return {
-      messageId: message.key.id ?? '',
-      chatId: message.key.remoteJid ?? to,
-      timestamp: new Date(Number(message.messageTimestamp) * 1000),
-      content: {
-        messageType: 'poll',
-        poll: {
-          name,
-          values,
-          selectableCount,
-        },
+    return this.toSentMessage(message, {
+      messageType: 'poll',
+      poll: {
+        name,
+        values,
+        selectableCount,
       },
-    };
+    });
   }
 
   async forwardMessage(
@@ -296,17 +250,12 @@ export class BaileysMessageService implements IMessageService {
     const result = await this.send(to, { forward: message }, options);
     if (!result) return undefined;
 
-    return {
-      messageId: result.key.id ?? '',
-      chatId: result.key.remoteJid ?? to,
-      timestamp: new Date(Number(result.messageTimestamp) * 1000),
-      content: {
-        messageType: 'forward',
-        forward: {
-          originalMessageId: message.key.id ?? '',
-        },
+    return this.toSentMessage(result, {
+      messageType: 'forward',
+      forward: {
+        originalMessageId: message.key.id ?? '',
       },
-    };
+    });
   }
 
   async deleteMessage(to: string, key: WAMessageKey): Promise<void> {
@@ -314,7 +263,7 @@ export class BaileysMessageService implements IMessageService {
   }
 
   async editMessage(to: string, key: WAMessageKey, text: string): Promise<WAMessage | undefined> {
-    return this.send(to, { edit: key, text });
+    return await this.send(to, { edit: key, text });
   }
 
   async readMessages(keys: WAMessageKey[]): Promise<void> {
@@ -340,5 +289,27 @@ export class BaileysMessageService implements IMessageService {
         throw new Error('timeout');
       }),
     ]);
+  }
+  private getSenderId(): string {
+    const user = this.socket.user;
+
+    if (!user?.id) {
+      throw new WhatsAppConnectionError('WhatsApp user identity is not available');
+    }
+
+    return user.id;
+  }
+  private toSentMessage(message: WAMessage, content: SentMessageContent): ISentMessage {
+    if (!message.key.id) {
+      throw new WhatsAppConnectionError('Sent message does not contain a message id');
+    }
+
+    return {
+      messageId: message.key.id,
+      chatId: message.key.remoteJid ?? message.key.remoteJidAlt ?? '',
+      senderId: this.getSenderId(),
+      timestamp: new Date(Number(message.messageTimestamp) * 1000),
+      content,
+    };
   }
 }

@@ -15,7 +15,7 @@ interface IMessageProps {
   updatedAt?: Date;
 }
 
-type CreateMessage = Omit<IMessageProps, 'messageId'>;
+// type CreateMessage = Omit<IMessageProps, 'messageId'>;
 
 export class MessageAggregate extends AggregateRoot<string> {
   private readonly _messageId: string;

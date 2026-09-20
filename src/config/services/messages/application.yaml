@@ -170,3 +170,11 @@ services:
     tags:
       - { name: 'subscriber' }
     public: true
+
+  application.subscriber.store_message_received:
+    class: '../../../application/events/subscribers/StoreIncomingMessageSubscriber'
+    arguments:
+      - '@infrastructure.repository.mongo.message_repository'
+    tags:
+      - { name: 'subscriber' }
+    public: true

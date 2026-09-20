@@ -14,6 +14,7 @@ export interface ISentMessage {
   messageId: string;
   chatId: string;
   timestamp: Date;
+  senderId: string;
   content: SentMessageContent;
 }
 

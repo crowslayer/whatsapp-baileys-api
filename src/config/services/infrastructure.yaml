@@ -34,6 +34,14 @@ services:
     class: '../../infrastructure/persistence/mongo/repositories/MongoChatRepository'
     public: true
 
+  infrastructure.repository.mongo.message_repository:
+    class: '../../infrastructure/persistence/mongo/repositories/MongoMessageRepository'
+    public: true
+
+  infrastructure.repository.mongo.message_read_repository:
+    class: '../../infrastructure/persistence/mongo/repositories/MongoMessageReadRepository'
+    public: true
+
   # =============================================
   # Metrics
   # =============================================
