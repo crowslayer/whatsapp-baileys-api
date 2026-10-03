@@ -15,8 +15,6 @@ certs/
 .env.*.local
 .qodo
 .prettierignore
-.prettierrc
-eslint.config.js
 #pnpm-lock.yaml
 AGENTS.md
 

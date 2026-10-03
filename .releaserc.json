@@ -1,0 +1,74 @@
+{
+  "branches": ["main"],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "config": {
+          "types": [
+            { "type": "feat", "release": "minor" },
+            { "type": "fix", "release": "patch" },
+            { "type": "infra", "release": "patch" },
+            { "type": "app", "release": "patch" },
+            { "type": "domain", "release": "patch" },
+            { "type": "perf", "release": "patch" },
+            { "type": "refactor", "release": "patch" },
+            { "type": "docs", "release": false },
+            { "type": "style", "release": false },
+            { "type": "test", "release": false },
+            { "type": "build", "release": false },
+            { "type": "ci", "release": false },
+            { "type": "chore", "release": false }
+          ]
+        },
+        "releaseRules": [
+          { "type": "feat", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "infra", "release": "patch" },
+          { "type": "app", "release": "patch" },
+          { "type": "domain", "release": "patch" },
+          { "type": "perf", "release": "patch" },
+          { "type": "refactor", "release": "patch" }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "header": "# Changelog\n\nAll notable changes to this project will be automatically documented in this file.",
+          "types": [
+            { "type": "feat", "section": "New Features", "hidden": false },
+            { "type": "fix", "section": "Correction of Errors", "hidden": false },
+            { "type": "infra", "section": "Infrastructure and Adapters", "hidden": false },
+            { "type": "app", "section": "Application Layer (Use Cases)", "hidden": false },
+            { "type": "domain", "section": "Domain Core (DDD)", "hidden": false },
+            { "type": "docs", "section": "Documentation", "hidden": false },
+            { "type": "style", "section": "Styles and Formatting", "hidden": true },
+            { "type": "refactor", "section": "Code Refactoring", "hidden": false },
+            { "type": "perf", "section": "Performance Improvements", "hidden": false },
+            { "type": "test", "section": "Testing and Integration", "hidden": false },
+            { "type": "build", "section": "Build System (pnpm/ts)", "hidden": false },
+            { "type": "ci", "section": "Continuous Integration (CI/CD)", "hidden": false },
+            { "type": "chore", "hidden": true }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md", "package.json"],
+        "message": "chore(release): v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ]
+  ]
+}
