@@ -1,3 +1,14 @@
+## [1.5.0](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.4.0...v1.5.0) (2026-10-09)
+
+### New Features
+
+* add StoreOutgoingMessageSubscriber ([6e054e2](https://github.com/crowslayer/whatsapp-baileys-api/commit/6e054e2083bb7c32e80fe573558f6133ad14a82f))
+* enhance MessageOrchestrator to publish OutgoingWhatsAppMessage ([24f6e30](https://github.com/crowslayer/whatsapp-baileys-api/commit/24f6e30c45e2d5ab6b26eb696ba8afb6f0e93576))
+
+### Correction of Errors
+
+* correct spacing in package.json ([c9d9a5a](https://github.com/crowslayer/whatsapp-baileys-api/commit/c9d9a5a3a78818e796cd638a107b7617bb94a526))
+
 ## [1.4.0](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.3.0...v1.4.0) (2026-10-03)
 
 ### New Features
