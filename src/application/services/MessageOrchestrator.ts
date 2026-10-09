@@ -1,5 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 
+import { OutgoingWhatsAppMessage } from '@domain/events/OutgoingWhatsAppMessage';
 import { ISentMessage } from '@domain/messages/MessageTypes';
 
 import { RuntimeError } from '@application/runtime/errors/RuntimeError';
@@ -7,11 +8,14 @@ import { IRuntimeManager } from '@application/runtime/IRuntimeManager';
 import { HumanBehaviorService } from '@application/services/HumanBehaviorService';
 import { LimiterFactory } from '@application/services/LimiterFactory';
 
+import { IEventBus } from '@shared/domain/IEventBus';
+
 export class MessageOrchestrator {
   constructor(
     private readonly runtimeRegistry: IRuntimeManager,
     private readonly limiterFactory: LimiterFactory,
-    private readonly human: HumanBehaviorService
+    private readonly human: HumanBehaviorService,
+    private readonly eventBus: IEventBus
   ) {}
 
   // ===============================
@@ -26,6 +30,20 @@ export class MessageOrchestrator {
         await this.human.simulateTyping(runtime, to, text);
 
         const result = await this.withTimeout(runtime.messaging.sendText(to, text), 10000);
+        if (!result) {
+          throw new RuntimeError('Message was not sent');
+        }
+
+        this.eventBus.publish([
+          OutgoingWhatsAppMessage.create(result.messageId, {
+            instanceId,
+            chatId: result.chatId,
+            messageId: result.messageId,
+            senderId: result.senderId,
+            timestamp: result.timestamp,
+            content: result.content,
+          }),
+        ]);
 
         await this.human.simulateAfterSend(runtime, to);
 

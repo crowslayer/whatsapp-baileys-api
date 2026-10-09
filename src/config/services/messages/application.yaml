@@ -159,6 +159,7 @@ services:
       - '@application.runtime.runtime_manager'
       - '@application.service.limiter_factory'
       - '@application.service.human_behavior'
+      - '@shared.event_bus'
     public: true
   # =============================================
   # EventSubscribers
@@ -173,6 +174,14 @@ services:
 
   application.subscriber.store_message_received:
     class: '../../../application/events/subscribers/StoreIncomingMessageSubscriber'
+    arguments:
+      - '@infrastructure.repository.mongo.message_repository'
+    tags:
+      - { name: 'subscriber' }
+    public: true
+
+  application.subscriber.store_message_outgoing:
+    class: '../../../application/events/subscribers/StoreOutgoingMessageSubscriber'
     arguments:
       - '@infrastructure.repository.mongo.message_repository'
     tags:
