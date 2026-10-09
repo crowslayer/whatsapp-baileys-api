@@ -54,8 +54,8 @@ services:
   # =============================================
   config.webhook:
     factory:
-      class: ../../config/builders/WebhookConfigBuilder
-      method: build
+      class: '../../config/builders/WebhookConfigBuilder'
+      method: 'build'
 
   infrastructure.network.validator:
     class: '../../infrastructure/http/validators/network/NetworkUrlValidator'
@@ -82,6 +82,6 @@ services:
     public: true
 
   infrastructure.realtime.socket_authenticator:
-    class: ../../infrastructure/realtime/SocketAuthenticator
+    class: '../../infrastructure/realtime/SocketAuthenticator'
     arguments:
       - '@infrastructure.http.token_verifier'

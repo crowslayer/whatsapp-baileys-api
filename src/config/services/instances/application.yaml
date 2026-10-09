@@ -38,27 +38,27 @@ services:
     public: true
 
   application.instances.create.instances_creator:
-    class: ../../../application/instances/create/InstancesCreator
+    class: '../../../application/instances/create/InstancesCreator'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
       - '@application.runtime.runtime_manager'
     public: true
 
   application.instances.delete.instances_eraser:
-    class: ../../../application/instances/delete/InstancesEraser
+    class: '../../../application/instances/delete/InstancesEraser'
     arguments:
       - '@infrastructure.repository.whatsapp_instance'
       - '@application.runtime.runtime_manager'
     public: true
 
   application.instances.connect.instances_connect:
-    class: ../../../application/instances/connect/InstancesConnect
+    class: '../../../application/instances/connect/InstancesConnect'
     arguments:
       - '@application.runtime.runtime_manager'
     public: true
 
   application.instances.disconnect.instances_disconnect:
-    class: ../../../application/instances/disconnect/InstancesDisconnect
+    class: '../../../application/instances/disconnect/InstancesDisconnect'
     arguments:
       - '@application.runtime.runtime_manager'
     public: true
@@ -75,7 +75,7 @@ services:
     public: true
 
   application.intances.get.get_instance_query_handler:
-    class: ../../../application/instances/get/GetInstanceQueryHandler
+    class: '../../../application/instances/get/GetInstanceQueryHandler'
     arguments:
       - '@application.instances.get.find_instance'
     tags:
@@ -83,7 +83,7 @@ services:
     public: true
 
   application.instances.qr_code.status.query_handler:
-    class: ../../../application/instances/qr-code/status/GetQRCodeStatusQueryHandler
+    class: '../../../application/instances/qr-code/status/GetQRCodeStatusQueryHandler'
     arguments:
       - '@application.instances.qr_code.status'
     tags:
@@ -91,7 +91,7 @@ services:
     public: true
 
   application.instances.qr_code.query_handler:
-    class: ../../../application/instances/qr-code/get/GetQRCodeQueryHandler
+    class: '../../../application/instances/qr-code/get/GetQRCodeQueryHandler'
     arguments:
       - '@application.instances.qr_code.searcher'
     tags:
@@ -102,7 +102,7 @@ services:
   # CommandHandler
   # =============================================
   application.instances.create.command_handler:
-    class: ../../../application/instances/create/CreateInstanceCommandHandler
+    class: '../../../application/instances/create/CreateInstanceCommandHandler'
     arguments:
       - '@application.instances.create.instances_creator'
     tags:
@@ -110,7 +110,7 @@ services:
     public: true
 
   application.instances.delete.command_handler:
-    class: ../../../application/instances/delete/DeleteInstanceCommandHandler
+    class: '../../../application/instances/delete/DeleteInstanceCommandHandler'
     arguments:
       - '@application.instances.delete.instances_eraser'
     tags:
@@ -118,7 +118,7 @@ services:
     public: true
 
   application.instances.connect.command_handler:
-    class: ../../../application/instances/connect/ConnectInstanceCommandHandler
+    class: '../../../application/instances/connect/ConnectInstanceCommandHandler'
     arguments:
       - '@application.instances.connect.instances_connect'
     tags:
@@ -126,7 +126,7 @@ services:
     public: true
 
   application.instances.disconnect.command_handler:
-    class: ../../../application/instances/disconnect/DisconnectInstanceCommandHandler
+    class: '../../../application/instances/disconnect/DisconnectInstanceCommandHandler'
     arguments:
       - '@application.instances.disconnect.instances_disconnect'
     tags:
@@ -136,7 +136,7 @@ services:
   # EventSubscribers
   # =============================================
   application.subscriber.qr_code_generated:
-    class: ../../../application/instances/qr-code/save/StoreQRCodeGenerated
+    class: '../../../application/instances/qr-code/save/StoreQRCodeGenerated'
     arguments:
       - '@application.instances.qr_code.save.qrcode_persist'
     tags:
@@ -144,7 +144,7 @@ services:
     public: true
 
   application.events.subscribers.connection_event_subscriber:
-    class: ../../../application/events/subscribers/ConnectionEventsSubscriber
+    class: '../../../application/events/subscribers/ConnectionEventsSubscriber'
     arguments:
       - '@shared.event_bus'
       - '@infrastructure.repository.mongo.instance_read_repository'

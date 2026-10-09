@@ -3,12 +3,12 @@ services:
   # Controllers
   # =============================================
   http.controller.instances.get.instances:
-    class: ../../../infrastructure/http/controllers/instances/GetInstancesController
+    class: '../../../infrastructure/http/controllers/instances/GetInstancesController'
     arguments:
       - '@shared.query_bus'
 
   http.controller.instances.get.instance:
-    class: ../../../infrastructure/http/controllers/instances/GetInstanceController
+    class: '../../../infrastructure/http/controllers/instances/GetInstanceController'
     arguments:
       - '@shared.query_bus'
 

@@ -44,7 +44,7 @@ services:
   # Query Handler
   # =============================================
   shared.query_handler:
-    class: ../../shared/infrastructure/query-bus/QueryHandlers
+    class: '../../shared/infrastructure/query-bus/QueryHandlers'
     arguments:
       - '!tagged queryHandler'
     public: true
@@ -52,7 +52,7 @@ services:
   # Query Bus
   # =============================================
   shared.query_bus:
-    class: ../../shared/infrastructure/query-bus/in-memory/InMemoryQueryBus
+    class: '../../shared/infrastructure/query-bus/in-memory/InMemoryQueryBus'
     arguments:
       - '@shared.query_handler'
     public: true
@@ -60,17 +60,17 @@ services:
   # Event Bus
   # =============================================
   shared.event_bus:
-    class: ../../shared/infrastructure/event-bus/in-memory/NodeEventBus
+    class: '../../shared/infrastructure/event-bus/in-memory/NodeEventBus'
     public: true
 
   shared.domain.event_bus:
-    class: ../../shared/infrastructure/event-bus/in-memory/InMemoryEventBus
+    class: '../../shared/infrastructure/event-bus/in-memory/InMemoryEventBus'
     public: true
   # =============================================
   # Command Handler
   # =============================================
   shared.command_handler:
-    class: ../../shared/infrastructure/command-bus/CommandHandlers
+    class: '../../shared/infrastructure/command-bus/CommandHandlers'
     arguments:
       - '!tagged commandHandler'
     public: true
@@ -79,7 +79,7 @@ services:
   # Command Bus
   # =============================================
   shared.command_bus:
-    class: ../../shared/infrastructure/command-bus/in-memory/InMemoryCommandBus
+    class: '../../shared/infrastructure/command-bus/in-memory/InMemoryCommandBus'
     arguments:
       - '@shared.command_handler'
     public: true

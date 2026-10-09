@@ -6,49 +6,49 @@ services:
   # Uses cases
   # =============================================
   application.campaign.create.campaign_creator:
-    class: ../../../application/campaign/create/CampaignCreator
+    class: '../../../application/campaign/create/CampaignCreator'
     arguments:
       - '@infrastructure.persistence.mongo.repository.campaign_repository'
     public: true
 
   application.campaign.delete.campaign_eraser:
-    class: ../../../application/campaign/delete/CampaignEraser
+    class: '../../../application/campaign/delete/CampaignEraser'
     arguments:
       - '@infrastructure.persistence.mongo.repository.campaign_repository'
     public: true
 
   application.campaign.update.campaign_updater:
-    class: ../../../application/campaign/update/CampaignUpdater
+    class: '../../../application/campaign/update/CampaignUpdater'
     arguments:
       - '@infrastructure.persistence.mongo.repository.campaign_repository'
     public: true
 
   application.campaign.find.list.campaign_finder:
-    class: ../../../application/campaign/find/list/CampaignFinder
+    class: '../../../application/campaign/find/list/CampaignFinder'
     arguments:
       - '@infrastructure.persistence.mongo.repository.campaign_read_repository'
     public: true
 
   application.campaign.find.progress.progress_finder:
-    class: ../../../application/campaign/find/progress/ProgressFinder
+    class: '../../../application/campaign/find/progress/ProgressFinder'
     arguments:
       - '@infrastructure.persistence.mongo.repository.campaign_read_repository'
     public: true
 
   application.campaign.find.stats.stats_finder:
-    class: ../../../application/campaign/find/stats/StatsFinder
+    class: '../../../application/campaign/find/stats/StatsFinder'
     arguments:
       - '@infrastructure.persistence.mongo.repository.campaign_read_repository'
     public: true
 
   application.campaign.find.summary.summary_finder:
-    class: ../../../application/campaign/find/summary/SummaryFinder
+    class: '../../../application/campaign/find/summary/SummaryFinder'
     arguments:
       - '@infrastructure.persistence.mongo.repository.campaign_read_repository'
     public: true
 
   application.campaign.find.by-id.campaign_finder_by_id:
-    class: ../../../application/campaign/find/by-id/CampaignFinderById
+    class: '../../../application/campaign/find/by-id/CampaignFinderById'
     arguments:
       - '@infrastructure.persistence.mongo.repository.campaign_read_repository'
     public: true
@@ -57,7 +57,7 @@ services:
   # CommandHandlers
   # =============================================
   application.campaign.create.create_campaign_handler:
-    class: ../../../application/campaign/create/CreateCampaignCommandHandler
+    class: '../../../application/campaign/create/CreateCampaignCommandHandler'
     arguments:
       - '@application.campaign.create.campaign_creator'
     tags:
@@ -65,7 +65,7 @@ services:
     public: true
 
   application.campaign.delete.delete_campaign_handler:
-    class: ../../../application/campaign/delete/DeleteCampaignCommandHandler
+    class: '../../../application/campaign/delete/DeleteCampaignCommandHandler'
     arguments:
       - '@application.campaign.delete.campaign_eraser'
     tags:
@@ -73,7 +73,7 @@ services:
     public: true
 
   application.campaign.update.update_campaign_handler:
-    class: ../../../application/campaign/update/UpdateCampaignCommandHandler
+    class: '../../../application/campaign/update/UpdateCampaignCommandHandler'
     arguments:
       - '@application.campaign.update.campaign_updater'
     tags:
@@ -84,7 +84,7 @@ services:
   # QueryHandlers
   # =============================================
   application.campaign.find.list.list_campaign_handler:
-    class: ../../../application/campaign/find/list/ListCampaignQueryHandler
+    class: '../../../application/campaign/find/list/ListCampaignQueryHandler'
     arguments:
       - '@application.campaign.find.list.campaign_finder'
     tags:
@@ -92,7 +92,7 @@ services:
     public: true
 
   application.campaign.find.progress.campaign_progress_handler:
-    class: ../../../application/campaign/find/progress/CampaignProgressQueryHandler
+    class: '../../../application/campaign/find/progress/CampaignProgressQueryHandler'
     arguments:
       - '@application.campaign.find.progress.progress_finder'
     tags:
@@ -100,7 +100,7 @@ services:
     public: true
 
   application.campaign.find.stats.campaign_stats_handler:
-    class: ../../../application/campaign/find/stats/CampaignStatsQueryHandler
+    class: '../../../application/campaign/find/stats/CampaignStatsQueryHandler'
     arguments:
       - '@application.campaign.find.stats.stats_finder'
     tags:
@@ -108,7 +108,7 @@ services:
     public: true
 
   application.campaign.find.summary.campaign_summary_handler:
-    class: ../../../application/campaign/find/summary/CampaignSummaryQueryHandler
+    class: '../../../application/campaign/find/summary/CampaignSummaryQueryHandler'
     arguments:
       - '@application.campaign.find.summary.summary_finder'
     tags:
@@ -116,7 +116,7 @@ services:
     public: true
 
   application.campaign.find.by-id.campaign_finder_by_id_handler:
-    class: ../../../application/campaign/find/by-id/CampaignByIdQueryHandler
+    class: '../../../application/campaign/find/by-id/CampaignByIdQueryHandler'
     arguments:
       - '@application.campaign.find.by-id.campaign_finder_by_id'
     tags:
@@ -127,24 +127,24 @@ services:
   # Processors
   # =============================================
   application.campaign.processor.campaign_dispatcher:
-    class: ../../../application/campaign/processor/CampaignDispatcher
+    class: '../../../application/campaign/processor/CampaignDispatcher'
     arguments:
       - '@infrastructure.persistence.mongo.repository.campaign_repository'
     public: true
 
   application.campaign.processor.campaign_scheduler:
-    class: ../../../application/campaign/processor/CampaignScheduler
+    class: '../../../application/campaign/processor/CampaignScheduler'
     arguments:
       - '@infrastructure.persistence.mongo.repository.campaign_repository'
       - '@shared.logger'
     public: true
 
   application.campaign.processor.instance_rate_limter_factory:
-    class: ../../../application/campaign/processor/InstanceRateLimiterFactory
+    class: '../../../application/campaign/processor/InstanceRateLimiterFactory'
     public: true
 
   application.campaign.processor.campaign_process:
-    class: ../../../application/campaign/processor/CampaignProcessor
+    class: '../../../application/campaign/processor/CampaignProcessor'
     arguments:
       - '@infrastructure.persistence.mongo.repository.campaign_repository'
       - '@application.service.message_orchestrator'
@@ -155,7 +155,7 @@ services:
     public: true
 
   application.campaign.processor.campaign_retry_worker:
-    class: ../../../application/campaign/processor/CampaignRetryWorker
+    class: '../../../application/campaign/processor/CampaignRetryWorker'
     arguments:
       - '@infrastructure.persistence.mongo.repository.campaign_repository'
       - '@application.service.message_orchestrator'

@@ -6,6 +6,6 @@
 services:
   api.config:
     factory:
-      class: ../../config/FactoryConfig
+      class: '../../config/FactoryConfig'
       method: 'loadConfig'
     public: true

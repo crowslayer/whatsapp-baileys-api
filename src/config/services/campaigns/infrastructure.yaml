@@ -17,32 +17,32 @@ services:
   # Http
   # =============================================
   infrastructure.http.controller.campaign.create_campaign:
-    class: ../../../infrastructure/http/controllers/campaign/CreateCampaignController
+    class: '../../../infrastructure/http/controllers/campaign/CreateCampaignController'
     arguments:
       - '@shared.command_bus'
 
   infrastructure.http.controller.campaign.delete_campaign:
-    class: ../../../infrastructure/http/controllers/campaign/DeleteCampaignController
+    class: '../../../infrastructure/http/controllers/campaign/DeleteCampaignController'
     arguments:
       - '@shared.command_bus'
 
   infrastructure.http.controller.campaign.update_campaign:
-    class: ../../../infrastructure/http/controllers/campaign/UpdateCampaignController
+    class: '../../../infrastructure/http/controllers/campaign/UpdateCampaignController'
     arguments:
       - '@shared.command_bus'
 
   infrastructure.http.controller.campaign.list_campaign:
-    class: ../../../infrastructure/http/controllers/campaign/ListCampaignsController
+    class: '../../../infrastructure/http/controllers/campaign/ListCampaignsController'
     arguments:
       - '@shared.query_bus'
 
   infrastructure.http.controller.campaign.progress_campaign:
-    class: ../../../infrastructure/http/controllers/campaign/ProgressCampaignsController
+    class: '../../../infrastructure/http/controllers/campaign/ProgressCampaignsController'
     arguments:
       - '@shared.query_bus'
 
   infrastructure.http.controller.campaign.get_campaign_by_id:
-    class: ../../../infrastructure/http/controllers/campaign/FindCampaignByIdController
+    class: '../../../infrastructure/http/controllers/campaign/FindCampaignByIdController'
     arguments:
       - '@shared.query_bus'
 

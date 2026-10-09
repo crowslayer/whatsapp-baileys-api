@@ -3,21 +3,21 @@ services:
   # Controllers
   # =============================================
   http.controller.groups.create_group:
-    class: ../../../infrastructure/http/controllers/groups/CreateGroupController
+    class: '../../../infrastructure/http/controllers/groups/CreateGroupController'
     arguments:
       - '@shared.command_bus'
 
   http.controller.groups.add_participants:
-    class: ../../../infrastructure/http/controllers/groups/AddParticipantsController
+    class: '../../../infrastructure/http/controllers/groups/AddParticipantsController'
     arguments:
       - '@shared.command_bus'
 
   http.controller.groups.remove_participants:
-    class: ../../../infrastructure/http/controllers/groups/RemoveParticipantsController
+    class: '../../../infrastructure/http/controllers/groups/RemoveParticipantsController'
     arguments:
       - '@shared.command_bus'
 
   http.controller.groups.list_group:
-    class: ../../../infrastructure/http/controllers/groups/ListGroupsController
+    class: '../../../infrastructure/http/controllers/groups/ListGroupsController'
     arguments:
       - '@shared.query_bus'
