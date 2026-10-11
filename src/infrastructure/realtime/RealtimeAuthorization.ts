@@ -1,4 +1,4 @@
-import { ISocketUser } from '@infrastructure/realtime/SocketGateway';
+import { ISocketUser } from '@infrastructure/realtime/contracts/ISocketUser';
 
 export interface IRealtimeAuthorization {
   canSubscribeToInstance(user: ISocketUser, instanceId: string): Promise<boolean>;
