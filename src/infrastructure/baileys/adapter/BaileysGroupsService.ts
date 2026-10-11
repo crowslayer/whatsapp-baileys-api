@@ -1,6 +1,6 @@
 import { GroupMetadata, WASocket } from '@whiskeysockets/baileys';
 
-import { IGroupService } from '@infrastructure/baileys/adapter/IGroupService';
+import { IGroupDetails, IGroupService } from '@infrastructure/baileys/adapter/IGroupService';
 import { IBaileysChat } from '@infrastructure/baileys/IBaileysChat';
 
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
@@ -20,12 +20,13 @@ export class BaileysGroupsService implements IGroupService {
   /**
    * Obtiene la metadata completa de un grupo específico.
    */
-  async getGroupMetadata(groupId: string): Promise<GroupMetadata> {
+  async getGroupMetadata(groupId: string): Promise<IGroupDetails> {
     try {
       if (!this.isValidJid(groupId)) {
         throw new Error('GroudId not valid');
       }
-      return await this.socket.groupMetadata(groupId);
+      const groupMetadata = await this.socket.groupMetadata(groupId);
+      return this.toGroupDetails(groupMetadata);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to get group metadata for instance`, error);
     }
@@ -187,6 +188,26 @@ export class BaileysGroupsService implements IGroupService {
       throw new WhatsAppConnectionError(`Failed to update group settings for instance`, error);
     }
   }
+
+  private toGroupDetails(metadata: GroupMetadata): IGroupDetails {
+    const participants = metadata.participants.map((participant) => ({
+      id: participant.id,
+      isAdmin: participant.admin === 'admin',
+      isSuperAdmin: participant.admin === 'superadmin',
+    }));
+
+    return {
+      id: metadata.id,
+      subject: metadata.subject,
+      description: metadata.desc ?? undefined,
+      ownerId: metadata.owner ?? undefined,
+      participants,
+      creationDate: metadata.creation ? new Date(metadata.creation * 1000) : undefined,
+      participantCount: participants.length,
+      inviteCode: metadata.inviteCode,
+    };
+  }
+
   private isValidJid(jid: string): boolean {
     return jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
   }

@@ -1,10 +1,25 @@
-import { GroupMetadata } from '@whiskeysockets/baileys/lib/Types';
-
 import { IBaileysChat } from '@infrastructure/baileys/IBaileysChat';
+
+export interface IGroupParticipant {
+  id: string;
+  isAdmin: boolean;
+  isSuperAdmin: boolean;
+}
+
+export interface IGroupDetails {
+  id: string;
+  subject: string;
+  description?: string;
+  ownerId?: string;
+  participants: IGroupParticipant[];
+  creationDate?: Date;
+  participantCount: number;
+  inviteCode?: string;
+}
 
 export interface IGroupService {
   createGroup(name: string, participants: string[]): Promise<string>;
-  getGroupMetadata(groupId: string): Promise<GroupMetadata>;
+  getGroupMetadata(groupId: string): Promise<IGroupDetails>;
   syncGroupsMetadata(): Promise<IBaileysChat[]>;
   addParticipantsToGroup(groupId: string, participants: string[]): Promise<void>;
   removeParticipantsFromGroup(groupId: string, participants: string[]): Promise<void>;
