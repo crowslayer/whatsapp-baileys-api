@@ -1,9 +1,6 @@
 import { AnyMessageContent, LastMessageList, WASocket } from '@whiskeysockets/baileys';
 
-import {
-  IChatMessageReference,
-  IChatStateService,
-} from '@infrastructure/baileys/adapter/IChatStateService';
+import { IChatMessageReference, IChatStateService } from '@application/chats/IChatStateService';
 
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 

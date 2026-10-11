@@ -8,7 +8,12 @@ import {
   WASocket,
 } from '@whiskeysockets/baileys';
 
-import { ISentMessage, SentMessageContent } from '@domain/messages/MessageTypes';
+import {
+  IMessageReference,
+  IMessageSendOptions,
+  ISentMessage,
+  SentMessageContent,
+} from '@domain/messages/MessageTypes';
 
 import { IMessageService } from '@infrastructure/baileys/adapter/IMessageService';
 
@@ -43,9 +48,11 @@ export class BaileysMessageService implements IMessageService {
   async sendText(
     to: string,
     text: string,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined> {
-    const message = await this.send(to, { text }, options);
+    const baileysOption = this.toBaileysOptions(options);
+
+    const message = await this.send(to, { text }, baileysOption);
 
     if (!message) {
       return undefined;
@@ -61,9 +68,11 @@ export class BaileysMessageService implements IMessageService {
     to: string,
     image: Buffer | { url: string },
     caption?: string,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined> {
-    const message = await this.send(to, { image, caption }, options);
+    const baileysOption = this.toBaileysOptions(options);
+
+    const message = await this.send(to, { image, caption }, baileysOption);
 
     if (!message) return undefined;
 
@@ -79,9 +88,11 @@ export class BaileysMessageService implements IMessageService {
     video: Buffer | { url: string },
     caption?: string,
     gifPlayback = false,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined> {
-    const message = await this.send(to, { video, caption, gifPlayback }, options);
+    const baileysOption = this.toBaileysOptions(options);
+
+    const message = await this.send(to, { video, caption, gifPlayback }, baileysOption);
 
     if (!message) return undefined;
 
@@ -97,9 +108,11 @@ export class BaileysMessageService implements IMessageService {
     audio: Buffer | { url: string },
     ptt = false,
     mimetype = 'audio/mp4',
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined> {
-    const message = await this.send(to, { audio, ptt, mimetype }, options);
+    const baileysOption = this.toBaileysOptions(options);
+
+    const message = await this.send(to, { audio, ptt, mimetype }, baileysOption);
 
     if (!message) return undefined;
 
@@ -115,9 +128,11 @@ export class BaileysMessageService implements IMessageService {
     fileName: string,
     mimetype: string,
     caption?: string,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined> {
-    const message = await this.send(to, { document, fileName, mimetype, caption }, options);
+    const baileysOption = this.toBaileysOptions(options);
+
+    const message = await this.send(to, { document, fileName, mimetype, caption }, baileysOption);
 
     if (!message) return undefined;
 
@@ -131,9 +146,11 @@ export class BaileysMessageService implements IMessageService {
   async sendSticker(
     to: string,
     sticker: Buffer | { url: string },
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined> {
-    const message = await this.send(to, { sticker }, options);
+    const baileysOption = this.toBaileysOptions(options);
+
+    const message = await this.send(to, { sticker }, baileysOption);
 
     if (!message) return undefined;
 
@@ -149,8 +166,10 @@ export class BaileysMessageService implements IMessageService {
     longitude: number,
     name?: string,
     address?: string,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined> {
+    const baileysOption = this.toBaileysOptions(options);
+
     const message = await this.send(
       to,
       {
@@ -161,7 +180,7 @@ export class BaileysMessageService implements IMessageService {
           address,
         },
       },
-      options
+      baileysOption
     );
 
     if (!message) return undefined;
@@ -180,8 +199,10 @@ export class BaileysMessageService implements IMessageService {
   async sendContact(
     to: string,
     contacts: Array<{ displayName: string; vcard: string }>,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined> {
+    const baileysOption = this.toBaileysOptions(options);
+
     const message = await this.send(
       to,
       {
@@ -190,7 +211,7 @@ export class BaileysMessageService implements IMessageService {
           contacts: contacts.map((c) => ({ vcard: c.vcard })),
         },
       },
-      options
+      baileysOption
     );
 
     if (!message) return undefined;
@@ -203,9 +224,11 @@ export class BaileysMessageService implements IMessageService {
 
   async sendReaction(
     to: string,
-    key: WAMessageKey,
+    target: IMessageReference,
     emoji: string
   ): Promise<ISentMessage | undefined> {
+    const key = this.toBaileysMessageKey(target);
+
     const message = await this.send(to, {
       react: { text: emoji, key },
     });
@@ -226,9 +249,11 @@ export class BaileysMessageService implements IMessageService {
     name: string,
     values: string[],
     selectableCount = 1,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined> {
-    const message = await this.send(to, { poll: { name, values, selectableCount } }, options);
+    const baileysOption = this.toBaileysOptions(options);
+
+    const message = await this.send(to, { poll: { name, values, selectableCount } }, baileysOption);
 
     if (!message) return undefined;
 
@@ -310,6 +335,31 @@ export class BaileysMessageService implements IMessageService {
       senderId: this.getSenderId(),
       timestamp: new Date(Number(message.messageTimestamp) * 1000),
       content,
+    };
+  }
+
+  private toBaileysMessageKey(reference: IMessageReference): WAMessageKey {
+    return {
+      id: reference.messageId,
+      remoteJid: reference.chatId,
+      fromMe: reference.fromMe,
+      participant: reference.participantId,
+    };
+  }
+
+  private toBaileysOptions(
+    options?: IMessageSendOptions,
+    quotedMessage?: WAMessage
+  ): MiscMessageGenerationOptions | undefined {
+    if (!options && !quotedMessage) {
+      return undefined;
+    }
+    return {
+      messageId: options?.messageId,
+      timestamp: options?.timestamp,
+      ephemeralExpiration: options?.ephemeralExpiration,
+      useCachedGroupMetadata: options?.useCachedGroupMetadata,
+      quoted: quotedMessage,
     };
   }
 }

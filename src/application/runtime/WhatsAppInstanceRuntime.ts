@@ -7,6 +7,8 @@ import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
 import { IConnectionStateStore } from '@application/runtime/IConnectionStateStore';
 import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
 
+import { IChatStateService } from '@application/chats/IChatStateService';
+import { IGroupService } from '@application/groups/IGroupService';
 import { BaileysChatStateService } from '@infrastructure/baileys/adapter/BaileysChatStateService';
 import { BaileysConnection } from '@infrastructure/baileys/adapter/BaileysConnection';
 import { BaileysEventRouter } from '@infrastructure/baileys/adapter/BaileysEventRouter';
@@ -15,8 +17,6 @@ import { BaileysMessageService } from '@infrastructure/baileys/adapter/BaileysMe
 import { BaileysPresenceService } from '@infrastructure/baileys/adapter/BaileysPresenceService';
 import { BaileysPrivacyService } from '@infrastructure/baileys/adapter/BaileysPrivacyService';
 import { BaileysProfileService } from '@infrastructure/baileys/adapter/BaileysProfileService';
-import { IChatStateService } from '@infrastructure/baileys/adapter/IChatStateService';
-import { IGroupService } from '@infrastructure/baileys/adapter/IGroupService';
 import { IMessageService } from '@infrastructure/baileys/adapter/IMessageService';
 import { IPresenceService } from '@infrastructure/baileys/adapter/IPresenceService';
 import { IPrivacyService } from '@infrastructure/baileys/adapter/IPrivacyService';

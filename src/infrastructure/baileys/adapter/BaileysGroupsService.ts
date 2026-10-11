@@ -1,6 +1,7 @@
 import { GroupMetadata, WASocket } from '@whiskeysockets/baileys';
 
-import { IGroupDetails, IGroupService } from '@infrastructure/baileys/adapter/IGroupService';
+import { IGroupDetails, IGroupService } from '@application/groups/IGroupService';
+
 import { IBaileysChat } from '@infrastructure/baileys/IBaileysChat';
 
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';

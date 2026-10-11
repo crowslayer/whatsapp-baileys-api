@@ -1,19 +1,19 @@
 import { MiscMessageGenerationOptions, WAMessage, WAMessageKey } from '@whiskeysockets/baileys';
 
-import { ISentMessage } from '@domain/messages/MessageTypes';
+import { IMessageSendOptions, ISentMessage } from '@domain/messages/MessageTypes';
 
 export interface IMessageService {
   sendText(
     to: string,
     text: string,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined>;
 
   sendImage(
     to: string,
     image: Buffer | { url: string },
     caption?: string,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined>;
 
   sendVideo(
@@ -21,7 +21,7 @@ export interface IMessageService {
     video: Buffer | { url: string },
     caption?: string,
     gifPlayback?: boolean,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined>;
 
   sendAudio(
@@ -29,7 +29,7 @@ export interface IMessageService {
     audio: Buffer | { url: string },
     ptt: boolean,
     mimetype: string,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined>;
 
   sendDocument(
@@ -38,13 +38,13 @@ export interface IMessageService {
     fileName: string,
     mimetype: string,
     caption?: string,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined>;
 
   sendSticker(
     to: string,
     sticker: Buffer | { url: string },
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined>;
 
   sendLocation(
@@ -53,13 +53,13 @@ export interface IMessageService {
     longitude: number,
     name?: string,
     address?: string,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined>;
 
   sendContact(
     to: string,
     contacts: Array<{ displayName: string; vcard: string }>,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined>;
 
   sendReaction(to: string, key: WAMessageKey, emoji: string): Promise<ISentMessage | undefined>;
@@ -69,7 +69,7 @@ export interface IMessageService {
     name: string,
     values: string[],
     selectableCount: number,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined>;
 
   forwardMessage(

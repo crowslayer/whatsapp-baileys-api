@@ -6,6 +6,22 @@ export type BaseMessagePayload = {
   timestamp: Date;
 };
 
+export interface IMessageReference {
+  messageId: string;
+  chatId: string;
+  fromMe: boolean;
+  participantId?: string;
+}
+
+export interface IMessageSendOptions {
+  messageId?: string;
+  quotedMessage?: IMessageReference;
+  timestamp?: Date;
+  ephemeralExpiration?: number;
+  mediaUploadTimeoutMs?: number;
+  useCachedGroupMetadata?: boolean;
+}
+
 export type MessagePayload = BaseMessagePayload & {
   content: SentMessageContent;
 };

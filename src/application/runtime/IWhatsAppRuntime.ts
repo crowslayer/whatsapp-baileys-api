@@ -1,5 +1,5 @@
-import { IChatStateService } from '@infrastructure/baileys/adapter/IChatStateService';
-import { IGroupService } from '@infrastructure/baileys/adapter/IGroupService';
+import { IChatStateService } from '@application/chats/IChatStateService';
+import { IGroupService } from '@application/groups/IGroupService';
 import { IMessageService } from '@infrastructure/baileys/adapter/IMessageService';
 import { IPresenceService } from '@infrastructure/baileys/adapter/IPresenceService';
 import { IPrivacyService } from '@infrastructure/baileys/adapter/IPrivacyService';
