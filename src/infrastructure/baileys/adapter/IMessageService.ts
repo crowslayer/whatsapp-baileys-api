@@ -1,6 +1,10 @@
-import { MiscMessageGenerationOptions, WAMessage, WAMessageKey } from '@whiskeysockets/baileys';
+import { WAMessage } from '@whiskeysockets/baileys';
 
-import { IMessageSendOptions, ISentMessage } from '@domain/messages/MessageTypes';
+import {
+  IMessageReference,
+  IMessageSendOptions,
+  ISentMessage,
+} from '@domain/messages/MessageTypes';
 
 export interface IMessageService {
   sendText(
@@ -62,7 +66,11 @@ export interface IMessageService {
     options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined>;
 
-  sendReaction(to: string, key: WAMessageKey, emoji: string): Promise<ISentMessage | undefined>;
+  sendReaction(
+    to: string,
+    key: IMessageReference,
+    emoji: string
+  ): Promise<ISentMessage | undefined>;
 
   sendPoll(
     to: string,
@@ -75,11 +83,11 @@ export interface IMessageService {
   forwardMessage(
     to: string,
     message: WAMessage,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined>;
 
-  deleteMessage(to: string, key: WAMessageKey): Promise<void>;
-  editMessage(to: string, key: WAMessageKey, text: string): Promise<WAMessage | undefined>;
+  deleteMessage(target: IMessageReference): Promise<void>;
+  editMessage(target: IMessageReference, text: string): Promise<ISentMessage | undefined>;
 
-  readMessages(keys: WAMessageKey[]): Promise<void>;
+  readMessages(keys: IMessageReference[]): Promise<void>;
 }

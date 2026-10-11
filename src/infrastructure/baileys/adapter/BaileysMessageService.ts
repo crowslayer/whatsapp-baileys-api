@@ -201,8 +201,6 @@ export class BaileysMessageService implements IMessageService {
     contacts: Array<{ displayName: string; vcard: string }>,
     options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined> {
-    const baileysOption = this.toBaileysOptions(options);
-
     const message = await this.send(
       to,
       {
@@ -211,7 +209,7 @@ export class BaileysMessageService implements IMessageService {
           contacts: contacts.map((c) => ({ vcard: c.vcard })),
         },
       },
-      baileysOption
+      this.toBaileysOptions(options)
     );
 
     if (!message) return undefined;
@@ -227,10 +225,8 @@ export class BaileysMessageService implements IMessageService {
     target: IMessageReference,
     emoji: string
   ): Promise<ISentMessage | undefined> {
-    const key = this.toBaileysMessageKey(target);
-
     const message = await this.send(to, {
-      react: { text: emoji, key },
+      react: { text: emoji, key: this.toBaileysMessageKey(target) },
     });
 
     if (!message) return undefined;
@@ -239,7 +235,7 @@ export class BaileysMessageService implements IMessageService {
       messageType: 'reaction',
       reaction: {
         emoji,
-        targetMessageId: key.id ?? '',
+        targetMessageId: target.messageId ?? '',
       },
     });
   }
@@ -251,9 +247,11 @@ export class BaileysMessageService implements IMessageService {
     selectableCount = 1,
     options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined> {
-    const baileysOption = this.toBaileysOptions(options);
-
-    const message = await this.send(to, { poll: { name, values, selectableCount } }, baileysOption);
+    const message = await this.send(
+      to,
+      { poll: { name, values, selectableCount } },
+      this.toBaileysOptions(options)
+    );
 
     if (!message) return undefined;
 
@@ -270,7 +268,7 @@ export class BaileysMessageService implements IMessageService {
   async forwardMessage(
     to: string,
     message: WAMessage,
-    options?: MiscMessageGenerationOptions
+    options?: IMessageSendOptions
   ): Promise<ISentMessage | undefined> {
     const result = await this.send(to, { forward: message }, options);
     if (!result) return undefined;
@@ -283,17 +281,29 @@ export class BaileysMessageService implements IMessageService {
     });
   }
 
-  async deleteMessage(to: string, key: WAMessageKey): Promise<void> {
-    await this.send(to, { delete: key });
+  async deleteMessage(target: IMessageReference): Promise<void> {
+    await this.send(target.chatId, { delete: this.toBaileysMessageKey(target) });
   }
 
-  async editMessage(to: string, key: WAMessageKey, text: string): Promise<WAMessage | undefined> {
-    return await this.send(to, { edit: key, text });
+  async editMessage(target: IMessageReference, text: string): Promise<ISentMessage | undefined> {
+    const message = await this.send(target.chatId, {
+      edit: this.toBaileysMessageKey(target),
+      text,
+    });
+
+    if (!message) {
+      return undefined;
+    }
+
+    return this.toSentMessage(message, { messageType: 'text', text });
   }
 
-  async readMessages(keys: WAMessageKey[]): Promise<void> {
+  async readMessages(keys: IMessageReference[]): Promise<void> {
     try {
-      await this.socket.readMessages(keys);
+      const messages = keys.map((message) => {
+        return this.toBaileysMessageKey(message);
+      });
+      await this.socket.readMessages(messages);
     } catch (error) {
       throw new WhatsAppConnectionError('Failed to mark messages as read', error);
     }
