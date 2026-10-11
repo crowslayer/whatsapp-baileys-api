@@ -1,3 +1,23 @@
+## [1.6.0](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.5.0...v1.6.0) (2026-10-11)
+
+### New Features
+
+* add IChatStateService and IGroupService interfaces ([ef3e40a](https://github.com/crowslayer/whatsapp-baileys-api/commit/ef3e40a5b7caef65b4b65b562da24676150c59ac))
+
+### Code Refactoring
+
+* restructure SocketAuthenticator and SocketUser interfaces ([b67e5b0](https://github.com/crowslayer/whatsapp-baileys-api/commit/b67e5b0125f58cd7b5961e87d949cb82397f3267))
+* update BaileysChatStateService to use IChatMessageReference ([e7f8e1d](https://github.com/crowslayer/whatsapp-baileys-api/commit/e7f8e1dcbb8bf13cf1c66dc4a1155206768325e7))
+* update BaileysGroupsService to return IGroupDetails ([736d9a8](https://github.com/crowslayer/whatsapp-baileys-api/commit/736d9a8f5cfef5b20dcc10263e09688eca18cea4))
+* update BaileysMessageService to use IMessageReference ([ce5afb2](https://github.com/crowslayer/whatsapp-baileys-api/commit/ce5afb22e23b87bed485cd9495330175a919eb5c))
+* update import path for ISocketUser in RealtimeAuthorization ([0675684](https://github.com/crowslayer/whatsapp-baileys-api/commit/0675684aae3c2b1109479714880181bcbdf1385b))
+* update RealtimeAuthorization to use await for access checks ([a959282](https://github.com/crowslayer/whatsapp-baileys-api/commit/a959282673d9600c83066abc8a736546ae30f4f7))
+* update SendReactionCommand to use IMessageReference ([b9d767d](https://github.com/crowslayer/whatsapp-baileys-api/commit/b9d767dcb2e2725497bf2bb3bf12a5bfe25cef77))
+
+### Testing and Integration
+
+* enhance ReactionSender and SendReactionController tests ([e973b3c](https://github.com/crowslayer/whatsapp-baileys-api/commit/e973b3ce74528c02ec8afcfaad7b7e016abeb5c5))
+
 ## [1.5.0](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.4.0...v1.5.0) (2026-10-09)
 
 ### New Features
