@@ -40,12 +40,13 @@ export class ResponseHandler {
   static error(
     res: Response,
     statusCode: number = 500,
+    message: string = 'Operation failed',
     errors?: ApiError[],
     audit?: IAuditData
   ): void {
     const response: IApiResponse = {
       success: false,
-      message: 'Operation failed',
+      message,
       errors,
       metadata: {
         timestamp: new Date(),
@@ -76,11 +77,11 @@ export class ResponseHandler {
     errors?: ApiError[],
     audit?: IAuditData
   ): void {
-    this.error(res, 400, errors, audit);
+    this.error(res, 400, message, errors, audit);
   }
 
   static unauthorized(res: Response, message: string = 'Unauthorized', audit?: IAuditData): void {
-    this.error(res, 401, undefined, audit);
+    this.error(res, 401, message, undefined, audit);
   }
 
   static forbidden(
@@ -96,7 +97,7 @@ export class ResponseHandler {
     ],
     audit?: IAuditData
   ): void {
-    this.error(res, statusCode, errors, audit);
+    this.error(res, statusCode, 'Forbidden', errors, audit);
   }
 
   static notFound(
@@ -112,7 +113,7 @@ export class ResponseHandler {
     ],
     audit?: IAuditData
   ): void {
-    this.error(res, statusCode, errors, audit);
+    this.error(res, statusCode, 'Not found', errors, audit);
   }
 
   static conflict(
@@ -128,7 +129,7 @@ export class ResponseHandler {
     ],
     audit?: IAuditData
   ): void {
-    this.error(res, statusCode, errors, audit);
+    this.error(res, statusCode, 'Conflict', errors, audit);
   }
 
   static internalError(
@@ -144,7 +145,7 @@ export class ResponseHandler {
     ],
     audit?: IAuditData
   ): void {
-    this.error(res, statusCode, errors, audit);
+    this.error(res, statusCode, 'Internal Error', errors, audit);
   }
 
   private static generateRequestId(): string {

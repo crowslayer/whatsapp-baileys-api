@@ -31,6 +31,6 @@ export class ReactionSender {
       ]);
     }
 
-    await adapter.messaging.sendReaction(command.chatId, command.messageId, command.emoji);
+    await adapter.messaging.sendReaction(command.message.chatId, command.message, command.emoji);
   }
 }

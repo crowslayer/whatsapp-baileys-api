@@ -15,7 +15,7 @@ export class SendReactionController {
   async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { instanceId } = req.params;
-      const { messageId, emoji, chatId } = req.body;
+      const { messageId, emoji, chatId, fromMe } = req.body;
 
       if (!messageId) {
         throw new ValidationError([{ field: 'messageId', message: 'messageId is required' }]);
@@ -30,7 +30,16 @@ export class SendReactionController {
         .withDetails({ messageId, emoji, chatId })
         .build();
 
-      const command = new SendReactionCommand(instanceId, messageId, emoji, chatId);
+      const command = new SendReactionCommand(
+        instanceId,
+        {
+          messageId,
+          chatId,
+          fromMe,
+        },
+        emoji
+      );
+
       await this.commandBus.dispatch(command);
 
       ResponseHandler.success(

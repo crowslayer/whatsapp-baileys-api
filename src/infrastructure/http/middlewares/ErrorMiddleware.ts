@@ -144,7 +144,7 @@ function sendErrorResponse(
     .withRequest(req.ip, req.get('user-agent'))
     .build();
 
-  return ResponseHandler.error(res, statusCode, payload, audit);
+  return ResponseHandler.internalError(res, statusCode, payload, audit);
 }
 
 function normalizeError(error: unknown): ErrorPayload {
