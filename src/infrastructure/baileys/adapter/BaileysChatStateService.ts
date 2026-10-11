@@ -1,6 +1,9 @@
 import { AnyMessageContent, LastMessageList, WASocket } from '@whiskeysockets/baileys';
 
-import { IChatStateService } from '@infrastructure/baileys/adapter/IChatStateService';
+import {
+  IChatMessageReference,
+  IChatStateService,
+} from '@infrastructure/baileys/adapter/IChatStateService';
 
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 
@@ -39,12 +42,18 @@ export class BaileysChatStateService implements IChatStateService {
   /**
    * Marca un chat como leído o no leído.
    */
-  async markChatRead(jid: string, lastMessages: LastMessageList, read: boolean): Promise<void> {
+  async markChatRead(
+    jid: string,
+    lastMessages: IChatMessageReference[],
+    read: boolean
+  ): Promise<void> {
     try {
       if (!this.isValidJid(jid)) {
         throw new Error('Jid invalid');
       }
-      await this.socket.chatModify({ markRead: read, lastMessages }, jid);
+      const baileysMessages = this.toBaileysLastMessages(lastMessages);
+
+      await this.socket.chatModify({ markRead: read, lastMessages: baileysMessages }, jid);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to mark chat as read for instance ${jid}`, error);
     }
@@ -91,5 +100,19 @@ export class BaileysChatStateService implements IChatStateService {
 
   private isValidJid(jid: string): boolean {
     return jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
+  }
+
+  private toBaileysLastMessages(messages: IChatMessageReference[]): LastMessageList {
+    const lastMessages: LastMessageList = messages.map((message) => ({
+      key: {
+        remoteJid: message.chatId,
+        id: message.id,
+        fromMe: message.fromMe,
+        participant: message.participantId,
+      },
+      messageTimestamp: message.timestamp,
+    }));
+
+    return lastMessages;
   }
 }
