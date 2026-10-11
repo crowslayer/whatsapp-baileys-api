@@ -25,7 +25,7 @@ export class RealtimeAuthorization implements IRealtimeAuthorization {
       return false;
     }
 
-    return this.instanceAccessChecker.canRead(user.userId, instanceId);
+    return await this.instanceAccessChecker.canRead(user.userId, instanceId);
   }
 
   async canSubscribeToCampaign(user: ISocketUser, campaignId: string): Promise<boolean> {
@@ -33,6 +33,6 @@ export class RealtimeAuthorization implements IRealtimeAuthorization {
       return false;
     }
 
-    return this.campaignAccessChecker.canRead(user.userId, campaignId);
+    return await this.campaignAccessChecker.canRead(user.userId, campaignId);
   }
 }
