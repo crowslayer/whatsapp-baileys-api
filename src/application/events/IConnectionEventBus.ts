@@ -1,4 +1,4 @@
-import { WAMessage } from '@whiskeysockets/baileys';
+import { MessagePayload } from '@domain/messages/MessageTypes';
 
 type DisconnectType = 'TRANSIENT' | 'INVALID_SESSION' | 'LOGGED_OUT';
 
@@ -36,7 +36,7 @@ export type ConnectionEvents = {
   };
   message: {
     instanceId: string;
-    message: WAMessage;
+    message: MessagePayload;
   };
 };
 

@@ -1,11 +1,8 @@
 import { ITokenVerifier } from '@infrastructure/http/validators/token/Index';
-import { ISocketUser } from '@infrastructure/realtime/SocketGateway';
+import { ISocketAuthenticator } from '@infrastructure/realtime/contracts/ISocketAuthenticator';
+import { ISocketUser } from '@infrastructure/realtime/contracts/ISocketUser';
 
 import { UnauthorizedError } from '@shared/infrastructure/errors/UnauthorizedError';
-
-export interface ISocketAuthenticator {
-  authenticate(token: string): ISocketUser;
-}
 
 export class SocketAuthenticator implements ISocketAuthenticator {
   constructor(private readonly tokenVerifier: ITokenVerifier) {}

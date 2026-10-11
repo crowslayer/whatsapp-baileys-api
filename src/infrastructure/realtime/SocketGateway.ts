@@ -5,14 +5,10 @@ import { Server, Socket } from 'socket.io';
 import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
 
 import { ILogger } from '@infrastructure/loggers/Logger';
-import { ISocketAuthenticator } from '@infrastructure/realtime/SocketAuthenticator';
+import { ISocketAuthenticator } from '@infrastructure/realtime/contracts/ISocketAuthenticator';
+import { ISocketUser } from '@infrastructure/realtime/contracts/ISocketUser';
 
 import { UnauthorizedError } from '@shared/infrastructure/errors/UnauthorizedError';
-
-export interface ISocketUser {
-  userId: string;
-  tenantId?: string;
-}
 
 interface ISubscribeInstancePayload {
   type: 'instance';
@@ -404,7 +400,7 @@ export class SocketGateway {
 
       this._io.to(this.instanceRoom(data.instanceId)).emit('pairingCode', data);
     });
-    // eslint-disable-next-line
+
     this.eventBus.on('campaignProgress', (data: ICampaignProgressEvent) => {
       if (!this.isValidCampaignEvent(data)) {
         return;
