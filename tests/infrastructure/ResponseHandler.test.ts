@@ -74,7 +74,9 @@ describe('ResponseHandler', () => {
   // ERROR RESPONSE
   // ======================
   test('error response structure is correct', () => {
-    ResponseHandler.error(res, 500, [{ code: 1, type: 'X', name: 'E', description: 'D' }]);
+    ResponseHandler.error(res, 500, 'Internal failure', [
+      { code: 1, type: 'X', name: 'E', description: 'D' },
+    ]);
 
     const response = res.json.mock.calls[0][0];
 
