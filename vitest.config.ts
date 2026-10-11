@@ -26,6 +26,7 @@ export default defineConfig({
         'src/infrastructure/Http/ExpressApp.ts',
         'src/infrastructure/Http/StatusCode.ts',
         'src/index.ts',
+        'src/performance/**/*.js',
       ],
     },
   },
