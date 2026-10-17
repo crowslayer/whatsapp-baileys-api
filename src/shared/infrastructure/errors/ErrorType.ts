@@ -14,4 +14,5 @@ export enum ErrorType {
   BAD_REQUEST = 'bad request',
   NOT_FOUND = 'not found',
   EVENT = 'event',
+  INFRASTRUCTURE = 'infrastructure',
 }

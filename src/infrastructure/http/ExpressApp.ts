@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import { ContainerBuilder } from 'node-dependency-injection';
 
 import { createAuthMiddleware } from '@infrastructure/http/middlewares/AuthMiddleware';
+import { BackpressureMiddleware } from '@infrastructure/http/middlewares/BackpressureMiddleware';
 import { createCorsMiddleware } from '@infrastructure/http/middlewares/CorsMiddleware';
 import { errorMiddleware } from '@infrastructure/http/middlewares/ErrorMiddleware';
 import { loggerMiddleware } from '@infrastructure/http/middlewares/LoggerMiddleware';
@@ -66,7 +67,8 @@ export class ExpressApp {
     this._app.use(express.json({ limit: '1mb' }));
     this._app.use(express.urlencoded({ extended: true, limit: '1mb' }));
     this._app.set('trust proxy', 1); // agregar config.http.trustproxy
-    this.initRateLimit(this._config.security?.enabledRateLimit ?? false);
+    // this.initRateLimit(this._config.security?.enabledRateLimit ?? false);
+    this.initBackpressureMiddleware();
     this.initLogger();
   }
 
@@ -103,16 +105,25 @@ export class ExpressApp {
   }
 
   private initRateLimit(enabledRateLimit: boolean): void {
-    if (enabledRateLimit) {
-      const globalLimiter = rateLimit({
-        windowMs: 15 * 60 * 1000,
-        max: 100,
-        standardHeaders: true,
-        legacyHeaders: false,
-        message: { error: 'Too many requests, please try again later' },
-      });
-      this._app.use('/api/', globalLimiter);
+    if (!enabledRateLimit) {
+      return;
     }
+
+    const globalLimiter = rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 100,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: { error: 'Too many requests, please try again later' },
+    });
+
+    const apiPrefix = `/${this._config.api.path}/`.replace(/\/+/g, '/');
+
+    this._app.use(apiPrefix, globalLimiter);
+  }
+
+  private initBackpressureMiddleware(): void {
+    this._app.use(BackpressureMiddleware.concurrencyLimiter());
   }
 
   private initLogger(): void {
@@ -128,7 +139,7 @@ export class ExpressApp {
       });
     });
     const config = this._config;
-    const base = `/${config.api.path}/${config.api.version}`;
+    const base = `/${config.api.path}/${config.api.version}`.replace(/\/+/g, '/');
 
     // Auth
     if (config.security?.protectRoutes) {

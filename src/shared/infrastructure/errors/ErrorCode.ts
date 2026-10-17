@@ -20,6 +20,7 @@ export enum ErrorCode {
 
   // Rate limit
   TOO_MANY_REQUESTS = 4001,
+  SERVICE_OVERLOADED = 4002,
 
   // Internal
   INTERNAL_ERROR = 5000,

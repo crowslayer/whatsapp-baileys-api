@@ -10,6 +10,7 @@ import { DomainError } from '@shared/infrastructure/errors/DomainError';
 import { ErrorCode } from '@shared/infrastructure/errors/ErrorCode';
 import { ErrorType } from '@shared/infrastructure/errors/ErrorType';
 import { InfrastructureError } from '@shared/infrastructure/errors/InfrastructureError';
+import { ServiceOverloadedError } from '@shared/infrastructure/errors/ServiceOverloadError';
 import { UnauthorizedError } from '@shared/infrastructure/errors/UnauthorizedError';
 import { ValidationError } from '@shared/infrastructure/errors/ValidationError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
@@ -44,6 +45,18 @@ const ERROR_HANDLERS: ErrorHandler[] = [
         res,
         req,
         StatusCode.ClientErrorUnauthorized,
+        buildApplicationErrorPayload(error)
+      );
+    },
+  },
+  {
+    supports: (e): e is ServiceOverloadedError => e instanceof ServiceOverloadedError,
+    handle: (error, req: Request, res: Response, _logger?: ILogger) => {
+      if (!(error instanceof ServiceOverloadedError)) return;
+      sendErrorResponse(
+        res,
+        req,
+        StatusCode.ServerErrorServiceUnavailable,
         buildApplicationErrorPayload(error)
       );
     },
