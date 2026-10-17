@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.7.0...v1.7.1) (2026-10-17)
+
+### Code Refactoring
+
+* remove unused CreateMessage ([175b63c](https://github.com/crowslayer/whatsapp-baileys-api/commit/175b63cde3e012877cf8e7469fa36537087d50f2))
+* update ILogger interface and PinoLogger ([4c0bf3c](https://github.com/crowslayer/whatsapp-baileys-api/commit/4c0bf3cc199d5a9fb9d39f0c8e34b9a74eab5df7))
+
 ## [1.7.0](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.6.0...v1.7.0) (2026-10-17)
 
 ### New Features
