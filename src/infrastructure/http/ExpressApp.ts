@@ -67,7 +67,7 @@ export class ExpressApp {
     this._app.use(express.json({ limit: '1mb' }));
     this._app.use(express.urlencoded({ extended: true, limit: '1mb' }));
     this._app.set('trust proxy', 1); // agregar config.http.trustproxy
-    // this.initRateLimit(this._config.security?.enabledRateLimit ?? false);
+    this.initRateLimit(this._config.security?.enabledRateLimit ?? false);
     this.initBackpressureMiddleware();
     this.initLogger();
   }
