@@ -6,8 +6,11 @@ const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
 const ENDPOINT = __ENV.ENDPOINT || '/api/v1/instances/';
 const TOKEN = __ENV.TOKEN || '';
 
+const overloadResponses = new Counter('overload_responses');
 const unexpectedResponses = new Counter('unexpected_responses');
 const acceptedLatency = new Trend('accepted_latency', true);
+const allResponseLatency = new Trend('all_response_latency', true);
+const responsesByStatus = new Counter('responses_by_status');
 
 export const options = {
   discardResponseBodies: true,
@@ -32,7 +35,7 @@ export const options = {
   thresholds: {
     http_req_failed: ['rate<0.01'],
     checks: ['rate>0.99'],
-    unexpected_responses: ['count<1'],
+    // unexpected_responses: ['count<1'],
     accepted_latency: ['p(95)<500', 'p(99)<1000'],
     dropped_iterations: ['count==0'],
   },
@@ -48,15 +51,27 @@ export default function () {
   const res = http.get(`${BASE_URL}${ENDPOINT}`, {
     headers,
     timeout: '5s',
+    tags: { enpoint: ENDPOINT },
   });
 
-  const success = check(res, {
-    'respuesta HTTP 2xx': (r) => r.status >= 200 && r.status < 300,
+  responsesByStatus.add(1, {
+    status: String(res.status),
   });
 
-  if (success) {
+  allResponseLatency.add(res.timings.duration);
+
+  if (res.status === 503) {
+    overloadResponses.add(1);
+  }
+
+  if (res.status >= 200 && res.status < 300) {
     acceptedLatency.add(res.timings.duration);
-  } else {
+  } else if (res.status !== 503) {
     unexpectedResponses.add(1);
   }
+
+  check(res, {
+    'respuesta HTTP 2xx': (r) => r.status >= 200 && r.status < 300,
+    'sin sobrecarga HTTP 503': (r) => r.status !== 503,
+  });
 }

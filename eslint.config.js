@@ -347,6 +347,7 @@ export default [
       'coverage/',
       'logs/',
       'sessions/',
+      'performance/',
       '*.min.js',
       '*.d.ts',
       '*.test.ts',

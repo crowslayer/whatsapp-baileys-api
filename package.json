@@ -29,7 +29,9 @@
     "test:unit": "vitest run --exclude tests/integration",
     "test:integration": "vitest run tests/integration",
     "test:coverage": "vitest run --coverage",
-    "prepare": "husky"
+    "prepare": "husky",
+    "performance:load": "start \"\" pnpm run dev & start \"\" cmd /k k6 run ./performance/k6/load-test.js",
+    "performance:stress": "start \"\" pnpm run dev & start \"\" cmd /k k6 run ./performance/k6/stress-test.js"
   },
   "keywords": [
     "whatsapp",
