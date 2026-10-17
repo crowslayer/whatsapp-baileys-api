@@ -15,8 +15,6 @@ interface IMessageProps {
   updatedAt?: Date;
 }
 
-// type CreateMessage = Omit<IMessageProps, 'messageId'>;
-
 export class MessageAggregate extends AggregateRoot<string> {
   private readonly _messageId: string;
   private readonly _instanceId: string;
@@ -102,7 +100,7 @@ export class MessageAggregate extends AggregateRoot<string> {
     return this._status;
   }
 
-  toPrimitives() {
+  toPrimitives(): IMessageProps {
     return {
       messageId: this._messageId,
       instanceId: this._instanceId,
