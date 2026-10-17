@@ -1,3 +1,16 @@
+## [1.7.0](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.6.0...v1.7.0) (2026-10-17)
+
+### New Features
+
+* add BackpressureMiddleware and ServiceOverloadedError ([9925dbe](https://github.com/crowslayer/whatsapp-baileys-api/commit/9925dbe560cbca1c9a4d4ac7405263ac31edbd07))
+* add performance testing scripts ([6477f49](https://github.com/crowslayer/whatsapp-baileys-api/commit/6477f496daf79614ee1ceca01fafe31615c177db))
+* implement BoundedQueue and ConcurrencyLimiter classes ([9a1a930](https://github.com/crowslayer/whatsapp-baileys-api/commit/9a1a930b9e1e1a6630f4b64c6340a70878a17b44))
+* integrate BackpressureMiddleware and enhance error ([27d6da0](https://github.com/crowslayer/whatsapp-baileys-api/commit/27d6da0c62fa6fbbaee2fab7beaed2d354660936))
+
+### Correction of Errors
+
+* enable rate limiting in ExpressApp initialization ([b75e4bf](https://github.com/crowslayer/whatsapp-baileys-api/commit/b75e4bfdf51bdf0b72c66f0a0ef1392409827869))
+
 ## [1.6.0](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.5.0...v1.6.0) (2026-10-11)
 
 ### New Features
