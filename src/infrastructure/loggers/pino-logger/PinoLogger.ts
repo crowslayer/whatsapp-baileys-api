@@ -40,8 +40,7 @@ export class PinoLogger implements ILogger {
         ],
       },
     };
-    // const initOptions = Object.assign(optionsDefault, options);
-    // console.log(initOptions)
+
     const initOptions = deepMerge(optionsDefault, options);
     this._logger = pino(initOptions);
   }
@@ -51,55 +50,55 @@ export class PinoLogger implements ILogger {
       this._logger.trace(args[0], message);
       return;
     }
-    this._logger.trace(message, '', ...args);
+    this._logger.trace(message, ...(args as never[]));
   }
 
-  info(message: string | Error | object, ...args: any[]): void {
+  info(message: string | Error | object, ...args: unknown[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.info(args[0], message);
       return;
     }
-    this._logger.info(message, ...args);
+    this._logger.info(message, ...(args as never[]));
   }
 
-  warn(message: string | Error | object, ...args: any[]): void {
+  warn(message: string | Error | object, ...args: unknown[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.warn(args[0], message);
       return;
     }
-    this._logger.warn(message, ...args);
+    this._logger.warn(message, ...(args as never[]));
   }
 
-  error(message: string | Error | object, ...args: any[]): void {
+  error(message: string | Error | object, ...args: unknown[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.error(args[0], message);
       return;
     }
-    this._logger.error(message, ...args);
+    this._logger.error(message, ...(args as never[]));
   }
 
-  fatal(message: string | Error | object, ...args: any[]): void {
+  fatal(message: string | Error | object, ...args: unknown[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.fatal(args[0], message);
       return;
     }
-    this._logger.fatal(message, ...args);
+    this._logger.fatal(message, ...(args as never[]));
   }
 
-  debug(message: string | Error | object, ...args: any[]): void {
+  debug(message: string | Error | object, ...args: unknown[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.debug(args[0], message);
       return;
     }
-    this._logger.debug(message, ...args);
+    this._logger.debug(message, ...(args as never[]));
   }
 
-  log(message: string | Error | object, ...args: any[]): void {
+  log(message: string | Error | object, ...args: unknown[]): void {
     if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
       this._logger.info(args[0], message);
       return;
     }
-    this._logger.info(message, ...args);
+    this._logger.info(message, ...(args as never[]));
   }
 
   getLogger(): PinoLoggerType {
@@ -111,11 +110,21 @@ export class PinoLogger implements ILogger {
   }
 }
 
-function deepMerge(target: any, source: any): LoggerOptions {
-  for (const key of Object.keys(source)) {
-    if (source[key] instanceof Object && key in target) {
-      Object.assign(source[key], deepMerge(target[key], source[key]));
+function deepMerge(target: LoggerOptions, source: LoggerOptions): LoggerOptions {
+  const targetRecord = target as Record<string, unknown>;
+  const sourceRecord = source as Record<string, unknown>;
+
+  for (const key of Object.keys(sourceRecord)) {
+    const sourceValue = sourceRecord[key];
+    const targetValue = targetRecord[key];
+
+    if (sourceValue instanceof Object && targetValue instanceof Object) {
+      Object.assign(
+        sourceValue,
+        deepMerge(targetValue as LoggerOptions, sourceValue as LoggerOptions)
+      );
     }
   }
+
   return { ...target, ...source };
 }
