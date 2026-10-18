@@ -33,7 +33,7 @@ export interface IJwtConfig {
   expires: number | string;
   refreshExpires: number | string;
   issuer: string;
-  auddience: string;
+  audience: string;
 }
 // TypeORM Configuration
 export interface ITypeORMConfig extends IBaseDatabaseConfig {

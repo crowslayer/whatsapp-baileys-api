@@ -42,7 +42,7 @@ export class SecurityConfigBuilder {
               process.env.JWT_REFRESH_EXPIRES || '7d'
             ),
             issuer: envString('JWT_ISSUER'),
-            auddience: envString('JWT_AUDIENCE'),
+            audience: envString('JWT_AUDIENCE'),
           },
         };
 
