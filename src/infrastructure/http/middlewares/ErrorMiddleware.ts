@@ -126,20 +126,44 @@ const ERROR_HANDLERS: ErrorHandler[] = [
 ];
 
 export function errorMiddleware(logger: ILogger) {
-  return (error: unknown, req: IRequestContext, res: Response, _next: NextFunction): void => {
-    logError(logger, req, error);
-
-    const handler = ERROR_HANDLERS.find((h) => h.supports(error));
-    if (!handler) {
-      return sendErrorResponse(
-        res,
-        req,
-        StatusCode.ServerErrorInternal,
-        buildUnknownErrorPayload()
-      );
+  return (error: unknown, req: IRequestContext, res: Response, next: NextFunction): void => {
+    if (res.headersSent) {
+      next(error);
+      return;
     }
 
-    return handler.handle(error, req, res, logger);
+    logError(logger, req, error);
+
+    if (isMalformedJsonError(error)) {
+      sendErrorResponse(res, req, StatusCode.ClientErrorBadRequest, [
+        {
+          code: ErrorCode.INTERNAL_ERROR,
+          type: ErrorType.INTERNAL,
+          name: 'Invalid JSON',
+          description: 'Request body contains invalid JSON',
+        },
+      ]);
+      return;
+    }
+
+    if (isPayloadTooLargeError(error)) {
+      sendErrorResponse(res, req, StatusCode.ClientErrorPayloadTooLarge, [
+        {
+          code: ErrorCode.INTERNAL_ERROR,
+          type: ErrorType.INTERNAL,
+          name: 'Payload Too Large',
+          description: 'Request body exceeds the allowed size',
+        },
+      ]);
+      return;
+    }
+
+    const handler = ERROR_HANDLERS.find((h) => h.supports(error));
+    if (handler) {
+      handler.handle(error, req, res, logger);
+      return;
+    }
+    sendErrorResponse(res, req, StatusCode.ServerErrorInternal, buildUnknownErrorPayload());
   };
 }
 
@@ -161,6 +185,17 @@ function sendErrorResponse(
 }
 
 function normalizeError(error: unknown): ErrorPayload {
+  if (error instanceof DomainError) {
+    return {
+      code: ErrorCode.DOMAIN_ERROR,
+      type: ErrorType.DOMAIN,
+      name: error.name,
+      message: error.message,
+      description: error.message,
+      stack: error.stack,
+    };
+  }
+
   if (error instanceof ApplicationError) {
     return {
       code: error.code,
@@ -172,16 +207,7 @@ function normalizeError(error: unknown): ErrorPayload {
       stack: error.stack,
     };
   }
-  if (error instanceof DomainError) {
-    return {
-      code: ErrorCode.DOMAIN_ERROR,
-      type: ErrorType.DOMAIN,
-      name: error.name,
-      message: error.message,
-      description: error.message,
-      stack: error.stack,
-    };
-  }
+
   if (error instanceof Error) {
     return {
       code: ErrorCode.INTERNAL_ERROR,
@@ -189,9 +215,11 @@ function normalizeError(error: unknown): ErrorPayload {
       name: error.name,
       message: error.message,
       description: error.message,
+      cause: error.cause,
       stack: error.stack,
     };
   }
+
   return {
     code: ErrorCode.INTERNAL_ERROR,
     type: ErrorType.INTERNAL,
@@ -214,7 +242,7 @@ function logError(logger: ILogger, req: IRequestContext, error: unknown): void {
     type: normalized.type,
     name: normalized.name,
     description: normalized.message,
-    cuase: normalized.cause ?? undefined,
+    cause: normalized.cause ?? undefined,
     stack: normalized.stack ?? undefined,
   };
 
@@ -261,4 +289,22 @@ function buildUnknownErrorPayload(): ApiError[] {
       description: 'Unexpected error occurred',
     },
   ];
+}
+
+function isMalformedJsonError(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'type' in error &&
+    error.type === 'entity.parse.failed'
+  );
+}
+
+function isPayloadTooLargeError(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'type' in error &&
+    error.type === 'entity.too.large'
+  );
 }
