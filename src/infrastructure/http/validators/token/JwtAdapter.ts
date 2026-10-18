@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 
 import {
   IAuthenticatedUser,
@@ -24,30 +24,52 @@ export class JwtAdapter implements ITokenVerifier {
     this._privateKey = fs.readFileSync(path.resolve(config.keys.privateKeyPath), 'utf8');
 
     this._publicKey = fs.readFileSync(path.resolve(config.keys.publicKeyPath), 'utf8');
+
+    if (!this._privateKey.includes('PRIVATE KEY')) {
+      throw new Error('La clave privada JWT no parece válida');
+    }
+
+    if (!this._publicKey.includes('PUBLIC KEY')) {
+      throw new Error('La clave pública JWT no parece válida');
+    }
   }
 
   generate(payload: IAuthenticatedUser): string {
-    if (!payload) {
+    if (!payload || typeof payload !== 'object') {
       throw new Error('Payload not be  null');
     }
 
-    return jwt.sign(payload, this._privateKey, {
+    const options: SignOptions = {
       algorithm: 'RS256',
-      expiresIn: this._config.expires ?? '1h',
+      expiresIn: (this._config.expires ?? '15m') as SignOptions['expiresIn'],
       issuer: this._config.issuer,
-      audience: this._config.auddience,
-    } as jwt.SignOptions);
+      audience: this._config.audience,
+    };
+
+    return jwt.sign(payload, this._privateKey, options);
   }
 
   verify(token: string): IJwtPayload {
     try {
+      if (typeof token !== 'string' || token.length == 0) {
+        throw new UnauthorizedError('Invalid JWT');
+      }
+
       const payload = jwt.verify(token, this._publicKey, {
         algorithms: ['RS256'],
         issuer: this._config.issuer,
-        audience: this._config.auddience,
+        audience: this._config.audience,
+        maxAge: this._config.expires ?? '15m',
+        clockTolerance: 5,
       });
 
-      if (typeof payload === 'string' || !payload.sub) {
+      if (
+        typeof payload === 'string' ||
+        typeof payload.sub !== 'string' ||
+        payload.sub.trim() === '' ||
+        typeof payload.exp !== 'number' ||
+        typeof payload.iat !== 'number'
+      ) {
         throw new UnauthorizedError('Invalid JWT payload');
       }
 
