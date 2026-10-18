@@ -1,3 +1,19 @@
+## [1.7.2](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.7.1...v1.7.2) (2026-10-18)
+
+### Correction of Errors
+
+* correct spelling of 'audience' in JWT configuration ([6ec2465](https://github.com/crowslayer/whatsapp-baileys-api/commit/6ec2465cff325f760b58f292010d4c85686943ee))
+* ensure proper disconnection handling by awaiting socket ([47373c4](https://github.com/crowslayer/whatsapp-baileys-api/commit/47373c4ce09d329eef0787bca312cc66534b9a8d))
+
+### Code Refactoring
+
+* enhance CORS middleware configuration and error handling ([37b1f88](https://github.com/crowslayer/whatsapp-baileys-api/commit/37b1f8833e4faa4206ec3df3e4e35174ce56bb0a))
+* improve error handling in ErrorMiddleware ([6daf7a5](https://github.com/crowslayer/whatsapp-baileys-api/commit/6daf7a5ca16920509664849d5b7c1ee8a67e2a6f))
+* reorganize imports in WhatsApp runtime files ([0f3862f](https://github.com/crowslayer/whatsapp-baileys-api/commit/0f3862fcc371d4e52c97bd21b75ff71b87da6dd5))
+* restructure AuthMiddleware to use class-based approach ([a6280e6](https://github.com/crowslayer/whatsapp-baileys-api/commit/a6280e68253fc09b85acf7f1d56d2e17c59da7d8))
+* update ExpressApp improve middleware configurations ([6337af5](https://github.com/crowslayer/whatsapp-baileys-api/commit/6337af564ccaf79403db25c505e534335ddbe4ef))
+* update imports and enhance JWT validation in JwtAdapter ([ebb7854](https://github.com/crowslayer/whatsapp-baileys-api/commit/ebb785402c0bb2fd1d96de37523a233da61b2d57))
+
 ## [1.7.1](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.7.0...v1.7.1) (2026-10-17)
 
 ### Code Refactoring
