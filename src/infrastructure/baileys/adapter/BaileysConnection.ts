@@ -179,7 +179,7 @@ export class BaileysConnection {
   async disconnect(): Promise<void> {
     this._intentionalClose = true;
     if (!this._socket) return;
-    this._socket.end(new Boom('Manual disconnect'));
+    await this._socket.end(new Boom('Manual disconnect'));
   }
 
   // ===============================
