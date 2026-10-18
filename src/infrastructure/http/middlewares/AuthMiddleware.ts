@@ -4,32 +4,56 @@ import { ITokenVerifier } from '@infrastructure/http/validators/token/Index';
 
 import { UnauthorizedError } from '@shared/infrastructure/errors/UnauthorizedError';
 
-export function createAuthMiddleware(tokenVerifier: ITokenVerifier): RequestHandler {
-  return (req: Request, _res: Response, next: NextFunction): void => {
-    const header = req.headers.authorization;
+export class AuthMiddleware {
+  static authenticate(
+    tokenVerifier: ITokenVerifier,
+    publicPaths: { method: string; path: string }[]
+  ): RequestHandler {
+    return (req: Request, _res: Response, next: NextFunction): void => {
+      const header = req.headers.authorization;
 
-    if (!header?.startsWith('Bearer ')) {
-      next(new UnauthorizedError('Missing or malformed Authorization header'));
-      return;
-    }
+      const isPublic = publicPaths.some(
+        (route) => route.method === req.method && route.path === req.path
+      );
 
-    const token = header.slice(7);
-
-    try {
-      const decoded = tokenVerifier.verify(token);
-
-      const user = decoded.sub;
-      if (!user) {
-        throw new UnauthorizedError('Unauthorized user');
+      if (isPublic) {
+        next();
+        return;
       }
-      req.user = { userId: user, iss: decoded.iss, aud: decoded.aud };
-      next();
-    } catch (error) {
-      if (error instanceof UnauthorizedError) {
-        next(error);
-      } else {
+
+      const match = typeof header === 'string' ? /^Bearer ([^\s]+)$/i.exec(header) : null;
+
+      if (!match) {
+        next(new UnauthorizedError('Missing or malformed Authorization header'));
+        return;
+      }
+
+      const token = match[1];
+
+      let decoded;
+
+      try {
+        decoded = tokenVerifier.verify(token);
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          next(error);
+          return;
+        }
         next(new UnauthorizedError('Invalid or expired token'));
+        return;
       }
-    }
-  };
+
+      if (typeof decoded.sub !== 'string' || !decoded.sub.trim()) {
+        next(new UnauthorizedError('Unauthorized user'));
+        return;
+      }
+
+      req.user = {
+        userId: decoded.sub,
+        iss: decoded.iss,
+        aud: decoded.aud,
+      };
+      next();
+    };
+  }
 }
