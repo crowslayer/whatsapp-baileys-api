@@ -7,7 +7,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { ContainerBuilder } from 'node-dependency-injection';
 
-import { createAuthMiddleware } from '@infrastructure/http/middlewares/AuthMiddleware';
+import { AuthMiddleware } from '@infrastructure/http/middlewares/AuthMiddleware';
 import { BackpressureMiddleware } from '@infrastructure/http/middlewares/BackpressureMiddleware';
 import { createCorsMiddleware } from '@infrastructure/http/middlewares/CorsMiddleware';
 import { errorMiddleware } from '@infrastructure/http/middlewares/ErrorMiddleware';
@@ -23,6 +23,8 @@ import { createMultimediaRouter } from '@infrastructure/http/routes/multimedia.r
 import { ITokenVerifier } from '@infrastructure/http/validators/token/Index';
 import { ILogger } from '@infrastructure/loggers/Logger';
 
+import { NotFoundError } from '@shared/infrastructure/errors/NotFoundError';
+
 import { IConfig } from '@config/index';
 
 const _filename = fileURLToPath(import.meta.url);
@@ -31,7 +33,7 @@ const _dirname = dirname(_filename);
 export class ExpressApp {
   private _app: express.Application;
   private _config: IConfig;
-  logger: ILogger;
+  private _logger: ILogger;
 
   constructor(
     config: IConfig,
@@ -39,7 +41,7 @@ export class ExpressApp {
     readonly container: ContainerBuilder
   ) {
     this._config = config;
-    this.logger = logger;
+    this._logger = logger;
 
     this._app = express();
     this.initialize();
@@ -61,19 +63,20 @@ export class ExpressApp {
   }
 
   private initMiddlewares(): void {
+    this._app.set('trust proxy', 1); // agregar config.http.trustproxy
     this._app.use(requestIdMiddleware());
     this.initHelmet();
     this.initCors();
     this._app.use(express.json({ limit: '1mb' }));
     this._app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-    this._app.set('trust proxy', 1); // agregar config.http.trustproxy
     this.initRateLimit(this._config.security?.enabledRateLimit ?? false);
     this.initBackpressureMiddleware();
     this.initLogger();
+    this.registerAuthMiddleware();
   }
 
   private errorMiddleware(): void {
-    this._app.use(errorMiddleware(this.logger));
+    this._app.use(errorMiddleware(this._logger));
   }
   private initHelmet(): void {
     this._app.use(
@@ -82,8 +85,16 @@ export class ExpressApp {
           directives: {
             defaultSrc: ["'none'"],
             scriptSrc: ["'none'"],
+            scriptSrcAttr: ["'none'"],
+            styleSrc: ["'self'"],
+            imgSrc: ["'self'"],
+            fontSrc: ["'self'"],
+            connectSrc: ["'self'"],
             objectSrc: ["'none'"],
+            baseUri: ["'none'"],
+            formAction: ["'none'"],
             frameAncestors: ["'none'"],
+            upgradeInsecureRequests: [],
           },
         },
         hsts: {
@@ -91,17 +102,18 @@ export class ExpressApp {
           includeSubDomains: true,
           preload: true,
         },
-        referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-        crossOriginEmbedderPolicy: true,
+        referrerPolicy: { policy: 'no-referrer' },
+        crossOriginEmbedderPolicy: false,
         crossOriginOpenerPolicy: { policy: 'same-origin' },
         crossOriginResourcePolicy: { policy: 'cross-origin' }, // API pública
-        dnsPrefetchControl: { allow: false },
+        xContentTypeOptions: true,
+        xDnsPrefetchControl: { allow: false },
       })
     );
     this._app.disable('x-powered-by');
   }
   private initCors(): void {
-    this._app.use(createCorsMiddleware(this._config, this.logger));
+    this._app.use(createCorsMiddleware(this._config, this._logger));
   }
 
   private initRateLimit(enabledRateLimit: boolean): void {
@@ -109,17 +121,31 @@ export class ExpressApp {
       return;
     }
 
+    const apiPrefix = `/${this._config.api.path}/`.replace(/\/+/g, '/');
+
     const globalLimiter = rateLimit({
       windowMs: 15 * 60 * 1000,
-      max: 100,
-      standardHeaders: true,
+      limit: 300,
+      standardHeaders: 'draft-8',
       legacyHeaders: false,
       message: { error: 'Too many requests, please try again later' },
     });
 
-    const apiPrefix = `/${this._config.api.path}/`.replace(/\/+/g, '/');
+    const authLimiter = rateLimit({
+      windowMs: 15 * 60 * 1000,
+      limit: 10,
+      standardHeaders: 'draft-8',
+      legacyHeaders: false,
+      message: {
+        error: 'Too many authentication attempts',
+      },
+    });
 
     this._app.use(apiPrefix, globalLimiter);
+
+    this._app.use(`${apiPrefix}/auth/login`, authLimiter);
+
+    this._app.use(`${apiPrefix}/auth/refresh`, authLimiter);
   }
 
   private initBackpressureMiddleware(): void {
@@ -127,7 +153,27 @@ export class ExpressApp {
   }
 
   private initLogger(): void {
-    this._app.use(loggerMiddleware(this.logger));
+    this._app.use(loggerMiddleware(this._logger));
+  }
+
+  private registerAuthMiddleware(): void {
+    if (this._config.security?.protectRoutes) {
+      const tokenVerifier = this.container.get<ITokenVerifier>(
+        'infrastructure.http.token_verifier'
+      );
+      const apiPrefix = `/${this._config.api.path}/${this._config.api.version}`.replace(
+        /\/+/g,
+        '/'
+      );
+      this._app.use(
+        AuthMiddleware.authenticate(tokenVerifier, [
+          { method: 'GET', path: '/health' },
+          { method: 'POST', path: `${apiPrefix}/auth/login` },
+          { method: 'POST', path: `${apiPrefix}/auth/refresh` },
+          { method: 'POST', path: `${apiPrefix}/auth/logout` },
+        ])
+      );
+    }
   }
 
   private initRoutes(): void {
@@ -141,14 +187,6 @@ export class ExpressApp {
     const config = this._config;
     const base = `/${config.api.path}/${config.api.version}`.replace(/\/+/g, '/');
 
-    // Auth
-    if (config.security?.protectRoutes) {
-      const tokenVerifier = this.container.get<ITokenVerifier>(
-        'infrastructure.http.token_verifier'
-      );
-      this._app.use(`${base}`, createAuthMiddleware(tokenVerifier));
-    }
-
     // Routes
     this._app.use(`${base}/instances`, createInstanceRouter(this.container));
     this._app.use(`${base}/instances`, createGroupRouter(this.container));
@@ -161,6 +199,10 @@ export class ExpressApp {
       express.json({ limit: '50mb' }), // límite alto solo donde se necesita
       createMultimediaRouter(this.container)
     );
+
+    this._app.use((req, _res, next) => {
+      next(new NotFoundError(`Route ${req.method} not found`));
+    });
   }
 
   static create(config: IConfig, logger: ILogger, container: ContainerBuilder): Application {
