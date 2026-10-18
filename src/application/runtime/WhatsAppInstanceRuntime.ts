@@ -2,13 +2,13 @@ import { WhatsAppInstanceAggregate } from '@domain/aggregates/WhatsAppInstanceAg
 import { QRCodeGeneratedEvent } from '@domain/events/QRCodeGeneratedEvent';
 import { IWhatsAppInstanceRepository } from '@domain/repositories/IWhatsAppInstanceRepository';
 
+import { IChatStateService } from '@application/chats/IChatStateService';
 import { IBaileysEventHandlers } from '@application/events/IBaileysEventHandlers';
 import { IConnectionEventBus } from '@application/events/IConnectionEventBus';
+import { IGroupService } from '@application/groups/IGroupService';
 import { IConnectionStateStore } from '@application/runtime/IConnectionStateStore';
 import { IWhatsAppRuntime } from '@application/runtime/IWhatsAppRuntime';
 
-import { IChatStateService } from '@application/chats/IChatStateService';
-import { IGroupService } from '@application/groups/IGroupService';
 import { BaileysChatStateService } from '@infrastructure/baileys/adapter/BaileysChatStateService';
 import { BaileysConnection } from '@infrastructure/baileys/adapter/BaileysConnection';
 import { BaileysEventRouter } from '@infrastructure/baileys/adapter/BaileysEventRouter';
