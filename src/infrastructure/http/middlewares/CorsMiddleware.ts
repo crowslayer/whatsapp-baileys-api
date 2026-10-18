@@ -3,8 +3,6 @@ import { RequestHandler } from 'express';
 
 import { ILogger } from '@infrastructure/loggers/Logger';
 
-import { UnauthorizedError } from '@shared/infrastructure/errors/UnauthorizedError';
-
 import { IConfig } from '@config/index';
 
 export function createCorsMiddleware(config: IConfig, logger: ILogger): RequestHandler {
@@ -13,29 +11,39 @@ export function createCorsMiddleware(config: IConfig, logger: ILogger): RequestH
   }
 
   const { origins } = config.security.cors;
+
+  if (!origins?.length) {
+    throw new Error('CORS origins not configured');
+  }
+
+  const allowedOrigins = new Set(origins);
   const isProd = config.environment === 'production';
 
   const corsOptions: CorsOptions = {
     origin: (origin, callback) => {
       if (!origin) {
-        if (isProd) return callback(new UnauthorizedError('Origin header is required'));
         return callback(null, true);
       }
 
-      if (origins.includes(origin)) return callback(null, true);
+      if (allowedOrigins.has(origin)) {
+        return callback(null, origin);
+      }
 
       logger.warn('CORS blocked request', {
         origin,
         allowedOrigins: origins,
         environment: config.environment,
       });
-      return callback(new UnauthorizedError('Not allowed by CORS'));
+
+      return callback(null, false);
     },
+
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['X-Request-Id'],
+    exposedHeaders: ['X-Request-Id', 'X-Correlation-Id'],
     maxAge: isProd ? 1800 : 300,
-    credentials: true,
+    credentials: false,
+    optionsSuccessStatus: 204,
   };
 
   return cors(corsOptions);
