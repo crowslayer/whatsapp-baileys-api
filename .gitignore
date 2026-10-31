@@ -15,7 +15,6 @@ certs/
 .env.*.local
 .qodo
 .prettierignore
-.vscode/
 #pnpm-lock.yaml
 AGENTS.md
 
@@ -38,6 +37,8 @@ logs/
 #IA
 .agents/
 skills-lock.json
+
+
 # OS
 .DS_Store
 Thumbs.db
