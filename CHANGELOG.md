@@ -1,3 +1,13 @@
+## [1.7.3](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.7.2...v1.7.3) (2026-11-17)
+
+### Correction of Errors
+
+* **ci:** resolve type-check and lint failures ([d0abcfc](https://github.com/crowslayer/whatsapp-baileys-api/commit/d0abcfcd724d777fbf98d43eba7da84af5b8a0c4))
+
+### Code Refactoring
+
+* **project-structure:** reorganize modules and mirror unit tests ([d57f83e](https://github.com/crowslayer/whatsapp-baileys-api/commit/d57f83e9a8f56c234ab36df19fd0753572c77f75))
+
 ## [1.7.2](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.7.1...v1.7.2) (2026-10-18)
 
 ### Correction of Errors

@@ -1,6 +1,6 @@
 {
   "name": "whatsapp-baileys-api",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "WhatsApp Multi-Instance API with Baileys",
   "packageManager": "pnpm@9.12.3",
   "pnpm": {
