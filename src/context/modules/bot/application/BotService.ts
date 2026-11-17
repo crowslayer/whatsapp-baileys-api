@@ -1,0 +1,86 @@
+import { MessageOrchestrator } from '@shared/application/services/MessageOrchestrator';
+import { ILogger } from '@shared/domain/Logger';
+
+import { FlowEngine } from '@modules/bot/application/FlowEngine';
+import { FlowTriggerResolver } from '@modules/bot/application/FlowTriggerResolver';
+import { IProcessBotMessageRequest } from '@modules/bot/domain/IProcessBotMessageRequest';
+import { IConversationStore } from '@modules/bot/domain/types/IConversationStore';
+import { IFlow } from '@modules/flows/domain/FlowTypes';
+import { IFlowReadRepository } from '@modules/flows/domain/IFlowReadRepository';
+
+export class BotService {
+  constructor(
+    private readonly flowEngine: FlowEngine,
+    private readonly tiggerResolver: FlowTriggerResolver,
+    private readonly store: IConversationStore,
+    private readonly messaging: MessageOrchestrator,
+    private readonly flowRepository: IFlowReadRepository,
+    private readonly logger: ILogger
+  ) {}
+
+  async handleMessage(request: IProcessBotMessageRequest): Promise<void> {
+    const { instanceId, conversationId, text } = request;
+
+    let state = await this.store.get(instanceId, conversationId);
+    let isNewFlow = false;
+
+    this.logger.info('Conversation initialized');
+
+    if (!state) {
+      state = {
+        instanceId,
+        conversationId,
+        currentFlowId: undefined,
+        currentNodeId: undefined,
+        variables: {},
+      };
+    }
+
+    let flow: IFlow | null = null;
+
+    // si no hay flujo activo, resolver uno por defecto
+    if (!state?.currentFlowId) {
+      const flows = await this.flowRepository.findActiveByInstance(instanceId);
+      flow = this.tiggerResolver.resolve(flows, text);
+
+      if (!flow) return;
+
+      state.currentFlowId = flow.flowId;
+      state.currentNodeId = flow.start;
+
+      isNewFlow = true;
+    } else {
+      flow = await this.flowRepository.findById(state.currentFlowId);
+    }
+
+    if (!flow || !flow.nodes) {
+      this.logger.warn('Flow missing nodes', {
+        instanceId,
+        conversationId,
+        flowid: state.currentNodeId,
+      });
+      state.currentFlowId = undefined;
+      state.currentNodeId = undefined;
+
+      await this.store.set(instanceId, conversationId, state);
+      return;
+    }
+
+    const result = this.flowEngine.execute(flow, state, isNewFlow ? undefined : text);
+
+    if (!state.currentNodeId) {
+      state.currentFlowId = undefined;
+    }
+
+    // actualizar estado
+    state.variables = result.variables ?? state.variables;
+
+    await this.store.set(instanceId, conversationId, state);
+
+    // responder si hay mensaje
+    if (result.reply) {
+      this.logger.info('bot response in instance', { instanceId });
+      await this.messaging.send(instanceId, conversationId, result.reply);
+    }
+  }
+}

@@ -1,0 +1,61 @@
+services:
+  # =============================================
+  # Persistence Repositories
+  # =============================================
+
+  infrastructure.repository.whatsapp_instance:
+    class: 'context/modules/instances/infrastructure/persistence/mongo/MongoInstanceRepository'
+    public: true
+
+  infrastructure.repository.mongo.instance_read_repository:
+    class: 'context/modules/instances/infrastructure/persistence/mongo/MongoInstanceReadRepository'
+    public: true
+
+  # =============================================
+  # Controllers
+  # =============================================
+  http.controller.instances.get.instances:
+    class: 'apps/backend/http/controllers/instances/GetInstancesController'
+    arguments:
+      - '@shared.query_bus'
+
+  http.controller.instances.get.instance:
+    class: 'apps/backend/http/controllers/instances/GetInstanceController'
+    arguments:
+      - '@shared.query_bus'
+
+  http.controller.get_qr:
+    class: 'apps/backend/http/controllers/instances/GetQRController'
+    arguments:
+      - '@shared.query_bus'
+    public: true
+
+  http.controller.qr_status:
+    class: 'apps/backend/http/controllers/instances/GetQRStatusController'
+    arguments:
+      - '@shared.query_bus'
+    public: true
+
+  http.controller.instance.creator:
+    class: 'apps/backend/http/controllers/instances/CreateInstanceController'
+    arguments:
+      - '@shared.command_bus'
+    public: true
+
+  http.controller.instance.eraser:
+    class: 'apps/backend/http/controllers/instances/DeleteInstanceController'
+    arguments:
+      - '@shared.command_bus'
+    public: true
+
+  http.controller.instance.disconect:
+    class: 'apps/backend/http/controllers/instances/DisconnectInstanceController'
+    arguments:
+      - '@shared.command_bus'
+    public: true
+
+  http.controller.instance.connect:
+    class: 'apps/backend/http/controllers/instances/ConnectInstanceController'
+    arguments:
+      - '@shared.command_bus'
+    public: true

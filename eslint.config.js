@@ -1,4 +1,3 @@
-// eslint.config.js
 import eslintRecommended from '@eslint/js';
 import typescriptEslintPlugin from '@typescript-eslint/eslint-plugin';
 import typescriptEslintParser from '@typescript-eslint/parser';
@@ -18,8 +17,8 @@ export default [
       sourceType: 'module',
       parser: typescriptEslintParser,
       parserOptions: {
-        project: './tsconfig.json',
-        // tsconfigRootDir: '.',
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
       globals: {
         // Globales de Node.js
@@ -187,27 +186,17 @@ export default [
           },
           pathGroups: [
             {
-              pattern: '@domain/**',
+              pattern: '@apps/**',
               group: 'internal',
               position: 'before',
             },
             {
-              pattern: '@application/**',
-              group: 'internal',
-              position: 'before',
-            },
-            {
-              pattern: '@infrastructure/**',
+              pattern: '@context/**',
               group: 'internal',
               position: 'before',
             },
             {
               pattern: '@shared/**',
-              group: 'internal',
-              position: 'before',
-            },
-            {
-              pattern: '@config/**',
               group: 'internal',
               position: 'before',
             },
@@ -244,7 +233,7 @@ export default [
       'prefer-template': 'warn',
       'object-shorthand': 'warn',
       'no-param-reassign': 'warn',
-      // 'no-return-await': 'warn',
+      'no-return-await': 'warn',
       'require-await': 'warn',
       'no-throw-literal': 'error',
       'prefer-promise-reject-errors': 'error',
@@ -313,8 +302,15 @@ export default [
   // ========================================
   // Configuración específica para archivos de test
   // ========================================
+
   {
-    files: ['**/*.test.ts', '**/*.spec.ts', '**/__tests__/**/*.ts'],
+    files: ['**/*.test.ts', '**/*.spec.ts', '**/__tests__/**/*.ts', 'tests/**/*.test.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.eslint.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       'max-lines-per-function': 'off',
@@ -355,5 +351,157 @@ export default [
       '.env.*',
       'vitest.*',
     ],
+  },
+  // ========================================================================
+  // Reglas de Restricción de Capas (Arquitectura Hexagonal en Módulos)
+  // ========================================================================
+  {
+    files: ['src/context/modules/**/domain/**/*.ts'],
+    plugins: { import: eslintPluginImport },
+    rules: {
+      'import/no-restricted-paths': [
+        'error',
+        {
+          zones: [
+            {
+              target: './src/context/modules/*/domain/**/*',
+              from: './src/context/modules/*/application/**/*',
+              message: 'La capa de Dominio no puede depender de la capa de Aplicación.',
+            },
+            {
+              target: './src/context/modules/*/domain/**/*',
+              from: './src/context/modules/*/infrastructure/**/*',
+              message: 'La capa de Dominio no puede depender de la capa de Infraestructura.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/context/modules/**/application/**/*.ts'],
+    plugins: { import: eslintPluginImport },
+    rules: {
+      // La aplicación orquesta los casos de uso: Puede importar de domain pero NUNCA de infraestructura
+      'import/no-restricted-paths': [
+        'error',
+        {
+          zones: [
+            {
+              target: './src/context/modules/*/application/**/*',
+              from: './src/context/modules/*/infrastructure/**/*',
+              message: 'La capa de Aplicación no puede depender de la capa de Infraestructura.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // ========================================================================
+  // Reglas de Restricción de Capas para el Contexto Compartido (Shared)
+  // ========================================================================
+  {
+    files: ['src/context/shared/**/*.ts'],
+    plugins: { import: eslintPluginImport },
+    rules: {
+      'import/no-restricted-paths': [
+        'error',
+        {
+          zones: [
+            // Código compartido es genérico: NUNCA debe importar de un módulo de negocio específico
+            {
+              target: './src/context/shared/**/*',
+              from: './src/context/modules/**/*',
+              message:
+                'El código en Shared es genérico y no puede importar de módulos específicos de negocio.',
+            },
+            // El dominio compartido es puro
+            {
+              target: './src/context/shared/domain/**/*',
+              from: './src/context/shared/application/**/*',
+              message: 'Shared Domain no puede depender de Shared Application.',
+            },
+            {
+              target: './src/context/shared/domain/**/*',
+              from: './src/context/shared/infrastructure/**/*',
+              message: 'Shared Domain no puede depender de Shared Infrastructure.',
+            },
+            // La aplicación compartida no conoce la infraestructura
+            {
+              target: './src/context/shared/application//*',
+              from: './src/context/shared/infrastructure//*',
+              message: 'Shared Application no puede depender de Shared Infrastructure.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // ========================================================================
+  // Reglas de Restricción de Capas para la Infraestructura de Módulos
+  // ========================================================================
+  {
+    files: ['src/context/modules/**/infrastructure/**/*.ts'],
+    plugins: { import: eslintPluginImport },
+    rules: {
+      'import/no-restricted-paths': [
+        'error',
+        {
+          zones: [
+            // 1. Evitar acoplamiento con la capa de entrega (apps)
+            {
+              target: './src/context/modules/*/infrastructure/**/*',
+              from: './src/apps/**/*',
+              message:
+                'La capa de Infraestructura no puede importar elementos de la capa de entrega (src/apps/).',
+            },
+            // 2. Evitar que la infraestructura de un módulo importe de la infraestructura de OTRO módulo
+            {
+              target: './src/context/modules/([a-zA-Z0-9_-]+)/infrastructure/**/*',
+              from: './src/context/modules/!( $1 )/infrastructure/**/*',
+              message:
+                'La infraestructura de un módulo no puede depender de la infraestructura de otro módulo diferente.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // ========================================================================
+  // Reglas de Restricción para la Infraestructura Compartida (Shared Infra)
+  // ========================================================================
+  {
+    files: ['src/context/shared/infrastructure/**/*.ts'],
+    plugins: { import: eslintPluginImport },
+    rules: {
+      'import/no-restricted-paths': [
+        'error',
+        {
+          zones: [
+            // 1. Evitar acoplamiento con la capa de entrega global
+            {
+              target: './src/context/shared/infrastructure/**/*',
+              from: './src/apps/**/*',
+              message:
+                'Shared Infrastructure es agnóstica y no puede importar nada de la capa de entrega (src/apps/).',
+            },
+            // 2. Evitar que herramientas compartidas conozcan las aplicaciones de los módulos
+            {
+              target: './src/context/shared/infrastructure/**/*',
+              from: './src/context/modules/*/application/**/*',
+              message:
+                'Shared Infrastructure no puede orquestar casos de uso de ningún módulo de negocio.',
+            },
+            // 3. Evitar que herramientas compartidas conozcan la infraestructura de un módulo específico
+            {
+              target: './src/context/shared/infrastructure/**/*',
+              from: './src/context/modules/*/infrastructure/**/*',
+              message:
+                'Shared Infrastructure no puede depender de implementaciones particulares de la infraestructura de un módulo.',
+            },
+          ],
+        },
+      ],
+    },
   },
 ];

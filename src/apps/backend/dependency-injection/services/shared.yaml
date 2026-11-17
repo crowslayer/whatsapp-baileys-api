@@ -1,0 +1,74 @@
+# config/services/shared.yaml
+# =============================================
+# Servicios compartidos (Shared Layer)
+# =============================================
+
+parameters:
+  api.logger.config:
+    level: 'info'
+    transport:
+      targets:
+        - target: 'pino-pretty'
+          options:
+            colorize: 'true'
+            translateTime: 'SYS:standard'
+            ignore: 'pid,hostname'
+        - target: 'pino/file'
+          level: 'debug'
+          options:
+            # destination: "./logs/log.debug.file.log"
+            mkdir: 'true'
+
+services:
+  # =============================================
+  # Services
+  # =============================================
+  shared.logger:
+    class: 'context/shared/infrastructure/logger/pino/PinoLogger'
+    arguments:
+      - '%api.logger.config%'
+    public: true
+
+  # =============================================
+  # Query Handler
+  # =============================================
+  shared.query_handler:
+    class: 'context/shared/infrastructure/query-bus/QueryHandlers'
+    arguments:
+      - '!tagged queryHandler'
+    public: true
+  # =============================================
+  # Query Bus
+  # =============================================
+  shared.query_bus:
+    class: 'context/shared/infrastructure/query-bus/in-memory/InMemoryQueryBus'
+    arguments:
+      - '@shared.query_handler'
+    public: true
+  # =============================================
+  # Event Bus
+  # =============================================
+  shared.event_bus:
+    class: 'context/shared/infrastructure/event-bus/in-memory/NodeEventBus'
+    public: true
+
+  shared.domain.event_bus:
+    class: 'context/shared/infrastructure/event-bus/in-memory/InMemoryEventBus'
+    public: true
+  # =============================================
+  # Command Handler
+  # =============================================
+  shared.command_handler:
+    class: 'context/shared/infrastructure/command-bus/CommandHandlers'
+    arguments:
+      - '!tagged commandHandler'
+    public: true
+
+  # =============================================
+  # Command Bus
+  # =============================================
+  shared.command_bus:
+    class: 'context/shared/infrastructure/command-bus/in-memory/InMemoryCommandBus'
+    arguments:
+      - '@shared.command_handler'
+    public: true

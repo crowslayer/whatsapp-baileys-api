@@ -1,0 +1,34 @@
+# config/services/infrastructure.yaml
+# Servicios de Infrastructure Layer
+# =============================================
+# Infrastructure Services
+# =============================================
+services:
+  # =============================================
+  # Persistence - MongoDB
+  # =============================================
+  infrastructure.database.connection:
+    factory:
+      class: 'context/shared/infrastructure/persistence/DatabaseConnectionFactory'
+      method: 'create'
+    arguments:
+      - '@api.config'
+      - '@shared.logger'
+    # calls:
+    #   - [connect, []]
+    public: true
+
+  # =============================================
+  # Metrics
+  # =============================================
+  # infrastructure.metrics.message_metric:
+  #   class: '../../infrastructure/metrics/MessageMetrics'
+  #   public: true
+
+  # =============================================
+  # Services
+  # =============================================
+
+  infrastructure.cache.nodecache_connection_store:
+    class: 'context/shared/infrastructure/cache/NodeCacheConnectionStateStore'
+    public: true

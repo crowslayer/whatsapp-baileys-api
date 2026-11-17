@@ -1,0 +1,16 @@
+import { Command } from '@shared/domain/command/Command';
+import { ICommandBus } from '@shared/domain/command/CommandBus';
+import { CommandHandlers } from '@shared/infrastructure/command-bus/CommandHandlers';
+
+export class InMemoryCommandBus implements ICommandBus {
+  constructor(private commandHandlers: CommandHandlers) {}
+
+  dispatch<TResponse>(command: Command<TResponse>): Promise<TResponse> {
+    try {
+      const handler = this.commandHandlers.get(command);
+      return handler.handle(command);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+}

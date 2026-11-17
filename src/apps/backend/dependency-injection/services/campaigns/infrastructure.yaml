@@ -1,0 +1,63 @@
+# =============================================
+# Infrastructure Services
+# =============================================
+services:
+  # =============================================
+  #  Repositories
+  # =============================================
+  infrastructure.persistence.mongo.repository.campaign_repository:
+    class: 'context/modules/campaign/infrastructure/persistence/mongo/MongoCampaignRepository'
+    public: true
+
+  infrastructure.persistence.mongo.repository.campaign_read_repository:
+    class: 'context/modules/campaign/infrastructure/persistence/mongo/MongoCampaignReadRepository'
+    public: true
+
+  # =============================================
+  # Http
+  # =============================================
+  infrastructure.http.controller.campaign.create_campaign:
+    class: 'apps/backend/http/controllers/campaign/CreateCampaignController'
+    arguments:
+      - '@shared.command_bus'
+
+  infrastructure.http.controller.campaign.delete_campaign:
+    class: 'apps/backend/http/controllers/campaign/DeleteCampaignController'
+    arguments:
+      - '@shared.command_bus'
+
+  infrastructure.http.controller.campaign.update_campaign:
+    class: 'apps/backend/http/controllers/campaign/UpdateCampaignController'
+    arguments:
+      - '@shared.command_bus'
+
+  infrastructure.http.controller.campaign.list_campaign:
+    class: 'apps/backend/http/controllers/campaign/ListCampaignsController'
+    arguments:
+      - '@shared.query_bus'
+
+  infrastructure.http.controller.campaign.progress_campaign:
+    class: 'apps/backend/http/controllers/campaign/ProgressCampaignsController'
+    arguments:
+      - '@shared.query_bus'
+
+  infrastructure.http.controller.campaign.get_campaign_by_id:
+    class: 'apps/backend/http/controllers/campaign/FindCampaignByIdController'
+    arguments:
+      - '@shared.query_bus'
+
+  # =============================================
+  #
+  # =============================================
+  application.campaign.processor.campaign_dispatcher:
+    class: 'context/modules/campaign/infrastructure/dispatchers/CampaignDispatcher'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.campaign_repository'
+    public: true
+
+  application.campaign.processor.campaign_scheduler:
+    class: 'context/modules/campaign/infrastructure/schedulers/CampaignScheduler'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.campaign_repository'
+      - '@shared.logger'
+    public: true

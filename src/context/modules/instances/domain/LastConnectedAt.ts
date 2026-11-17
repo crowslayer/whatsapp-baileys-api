@@ -1,0 +1,32 @@
+import { DateValueObject } from '@shared/domain/value-object/DateValueObject';
+import { InvalidArgumentError } from '@shared/domain/value-object/InvalidArgumentError';
+
+import { CreatedAt } from '@modules/shared/domain/CreatedAt';
+
+export class LastConnectedAt extends DateValueObject {
+  protected validate(): void {
+    if (!(this.value instanceof Date) || isNaN(this.value.getTime())) {
+      throw new InvalidArgumentError('Invalid Date value');
+    }
+  }
+
+  private constructor(value: Date) {
+    super(value);
+  }
+
+  static create(value: Date): LastConnectedAt {
+    return new LastConnectedAt(value);
+  }
+
+  toISOString(): string {
+    return this.value.toDateString();
+  }
+
+  isBefore(other: CreatedAt): boolean {
+    return this.value < other.value;
+  }
+
+  isAfter(other: CreatedAt): boolean {
+    return this.value > other.value;
+  }
+}

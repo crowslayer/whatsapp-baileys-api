@@ -1,0 +1,41 @@
+# config/services/parameters.yaml
+# Parámetros globales de la aplicación
+# =============================================
+# Factory Config
+# =============================================
+services:
+  api.config:
+    factory:
+      class: 'apps/backend/config/FactoryConfig'
+      method: 'loadConfig'
+    public: true
+
+  config.webhook:
+    factory:
+      class: 'apps/backend/config/builders/WebhookConfigBuilder'
+      method: 'build'
+
+  network.validator:
+    class: 'apps/backend/http/validators/network/NetworkUrlValidator'
+    arguments:
+      - '@config.webhook'
+
+  http.webhooks.webhook_service:
+    class: 'apps/backend/http/webhooks/WebhookService'
+    arguments:
+      - '@config.webhook'
+      - '@network.validator'
+      - '@shared.logger'
+
+  http.token_verifier:
+    factory:
+      class: 'apps/backend/http/validators/token/TokenVerifierFactory'
+      method: 'createTokenVerifier'
+    arguments:
+      - '@api.config'
+    public: true
+
+  realtime.socket_authenticator:
+    class: 'apps/backend/realtime/SocketAuthenticator'
+    arguments:
+      - '@http.token_verifier'

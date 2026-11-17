@@ -1,0 +1,157 @@
+# =============================================
+# Services
+# =============================================
+services:
+  # =============================================
+  # Uses cases
+  # =============================================
+  application.campaign.create.campaign_creator:
+    class: 'context/modules/campaign/application/create/CampaignCreator'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.campaign_repository'
+    public: true
+
+  application.campaign.delete.campaign_eraser:
+    class: 'context/modules/campaign/application/delete/CampaignEraser'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.campaign_repository'
+    public: true
+
+  application.campaign.update.campaign_updater:
+    class: 'context/modules/campaign/application/update/CampaignUpdater'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.campaign_repository'
+    public: true
+
+  application.campaign.find.list.campaign_finder:
+    class: 'context/modules/campaign/application/find/list/CampaignFinder'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.campaign_read_repository'
+    public: true
+
+  application.campaign.find.progress.progress_finder:
+    class: 'context/modules/campaign/application/find/progress/ProgressFinder'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.campaign_read_repository'
+    public: true
+
+  application.campaign.find.stats.stats_finder:
+    class: 'context/modules/campaign/application/find/stats/StatsFinder'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.campaign_read_repository'
+    public: true
+
+  application.campaign.find.summary.summary_finder:
+    class: 'context/modules/campaign/application/find/summary/SummaryFinder'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.campaign_read_repository'
+    public: true
+
+  application.campaign.find.by-id.campaign_finder_by_id:
+    class: 'context/modules/campaign/application/find/by-id/CampaignFinderById'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.campaign_read_repository'
+    public: true
+
+  # =============================================
+  # CommandHandlers
+  # =============================================
+  application.campaign.create.create_campaign_handler:
+    class: 'context/modules/campaign/application/create/CreateCampaignCommandHandler'
+    arguments:
+      - '@application.campaign.create.campaign_creator'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.campaign.delete.delete_campaign_handler:
+    class: 'context/modules/campaign/application/delete/DeleteCampaignCommandHandler'
+    arguments:
+      - '@application.campaign.delete.campaign_eraser'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.campaign.update.update_campaign_handler:
+    class: 'context/modules/campaign/application/update/UpdateCampaignCommandHandler'
+    arguments:
+      - '@application.campaign.update.campaign_updater'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  # =============================================
+  # QueryHandlers
+  # =============================================
+  application.campaign.find.list.list_campaign_handler:
+    class: 'context/modules/campaign/application/find/list/ListCampaignQueryHandler'
+    arguments:
+      - '@application.campaign.find.list.campaign_finder'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  application.campaign.find.progress.campaign_progress_handler:
+    class: 'context/modules/campaign/application/find/progress/CampaignProgressQueryHandler'
+    arguments:
+      - '@application.campaign.find.progress.progress_finder'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  application.campaign.find.stats.campaign_stats_handler:
+    class: 'context/modules/campaign/application/find/stats/CampaignStatsQueryHandler'
+    arguments:
+      - '@application.campaign.find.stats.stats_finder'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  application.campaign.find.summary.campaign_summary_handler:
+    class: 'context/modules/campaign/application/find/summary/CampaignSummaryQueryHandler'
+    arguments:
+      - '@application.campaign.find.summary.summary_finder'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  application.campaign.find.by-id.campaign_finder_by_id_handler:
+    class: 'context/modules/campaign/application/find/by-id/CampaignByIdQueryHandler'
+    arguments:
+      - '@application.campaign.find.by-id.campaign_finder_by_id'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  # =============================================
+  # Processors
+  # =============================================
+  application.campaign.processor.instance_rate_limter_factory:
+    class: 'context/modules/campaign/application/processor/InstanceRateLimiterFactory'
+    public: true
+
+  application.campaign.processor.campaign_process:
+    class: 'context/modules/campaign/application/processor/CampaignProcessor'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.campaign_repository'
+      - '@application.service.message_orchestrator'
+      - '@application.campaign.processor.instance_rate_limter_factory'
+      - '@application.campaign.processor.campaign_dispatcher'
+      - '@shared.event_bus'
+      - '@shared.logger'
+    public: true
+
+  application.campaign.processor.campaign_retry_worker:
+    class: 'context/modules/campaign/application/processor/CampaignRetryWorker'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.campaign_repository'
+      - '@application.service.message_orchestrator'
+      - '@application.campaign.processor.instance_rate_limter_factory'
+      - '@application.campaign.processor.campaign_dispatcher'
+      - '@shared.event_bus'
+      - '@shared.logger'
+    public: true
+
+  application.service.limiter_factory:
+    class: 'context/modules/campaign/application/LimiterFactory'
+    public: true

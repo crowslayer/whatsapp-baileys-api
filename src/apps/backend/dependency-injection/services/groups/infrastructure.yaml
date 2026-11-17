@@ -1,0 +1,23 @@
+services:
+  # =============================================
+  # Controllers
+  # =============================================
+  http.controller.groups.create_group:
+    class: 'apps/backend/http/controllers/groups/CreateGroupController'
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.groups.add_participants:
+    class: 'apps/backend/http/controllers/groups/AddParticipantsController'
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.groups.remove_participants:
+    class: 'apps/backend/http/controllers/groups/RemoveParticipantsController'
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.groups.list_group:
+    class: 'apps/backend/http/controllers/groups/ListGroupsController'
+    arguments:
+      - '@shared.query_bus'

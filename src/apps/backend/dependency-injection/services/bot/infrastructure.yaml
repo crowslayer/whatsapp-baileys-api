@@ -1,0 +1,21 @@
+# =============================================
+# Infrastructure Services
+# =============================================
+services:
+  # =============================================
+  #  Repositories
+  # =============================================
+  infrastructure.persistence.mongo.repository.mongo_flow_repository:
+    class: 'context/modules/flows/infrastructure/persistence/mongo/MongoFlowRepository'
+    public: true
+
+  infrastructure.persistence.mongo.repository.mongo_flow_read_repository:
+    class: 'context/modules/flows/infrastructure/persistence/mongo/MongoFlowReadRepository'
+    public: true
+
+  infrastructure.cache.node_cache_conversation_store:
+    class: 'context/shared/infrastructure/cache/NodeCacheConversationStore'
+    public: true
+  # =============================================
+  #  Controllers
+  # =============================================
