@@ -1,3 +1,9 @@
+## [1.7.4](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.7.3...v1.7.4) (2026-11-17)
+
+### Correction of Errors
+
+* **ci:** allow integration workflow without tests ([b4a9c9e](https://github.com/crowslayer/whatsapp-baileys-api/commit/b4a9c9e0e6285646788ba10b246d31de182390fd))
+
 ## [1.7.3](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.7.2...v1.7.3) (2026-11-17)
 
 ### Correction of Errors
