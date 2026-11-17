@@ -1,6 +1,7 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { Router } from 'express';
 import { ContainerBuilder } from 'node-dependency-injection';
 
+import { ControllerAdapter } from '@apps/backend/http/controllers/ControllerAdapter';
 import { validate } from '@apps/backend/http/middlewares/ValidationMiddleware';
 import {
   campaignIdSchema,
@@ -30,43 +31,28 @@ export const createCampaignRouter = (container: ContainerBuilder): Router => {
     'infrastructure.http.controller.campaign.get_campaign_by_id'
   );
 
-  router.get('/', (req: Request, res: Response, next: NextFunction) =>
-    listCampaignController.handle(req, res, next)
-  );
+  router.get('/', ControllerAdapter(listCampaignController));
 
-  router.get(
-    '/:campaignId',
-    validate(campaignIdSchema),
-    (req: Request, res: Response, next: NextFunction) =>
-      campaignByIdController.handle(req, res, next)
-  );
+  router.get('/:campaignId', validate(campaignIdSchema), ControllerAdapter(campaignByIdController));
 
-  router.post(
-    '/',
-    validate(createCampaignSchema),
-    (req: Request, res: Response, next: NextFunction) =>
-      CreateCampaignController.handle(req, res, next)
-  );
+  router.post('/', validate(createCampaignSchema), ControllerAdapter(CreateCampaignController));
 
   router.get(
     '/:campaignId/progress',
     validate(campaignIdSchema),
-    (req: Request, res: Response, next: NextFunction) =>
-      progressCampaignController.handle(req, res, next)
+    ControllerAdapter(progressCampaignController)
   );
 
   router.put(
     '/:campaignId',
     validate(updateCampaignSchema),
-    (req: Request, res: Response, next: NextFunction) =>
-      updateCampaignController.handle(req, res, next)
+    ControllerAdapter(updateCampaignController)
   );
 
   router.delete(
     '/:campaignId',
     validate(campaignIdSchema),
-    (req: Request, res: Response, next: NextFunction) =>
-      deleteCampaignController.handle(req, res, next)
+    ControllerAdapter(deleteCampaignController)
   );
 
   return router;

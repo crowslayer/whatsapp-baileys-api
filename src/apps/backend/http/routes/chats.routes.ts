@@ -1,6 +1,7 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { Router } from 'express';
 import { ContainerBuilder } from 'node-dependency-injection';
 
+import { ControllerAdapter } from '@apps/backend/http/controllers/ControllerAdapter';
 import { validate } from '@apps/backend/http/middlewares/ValidationMiddleware';
 import { instanceIdSchema } from '@apps/backend/http/validators/express/schemas/instanceSchema';
 
@@ -11,7 +12,7 @@ export const createChatsRouter = (container: ContainerBuilder): Router => {
   router.get(
     '/:instanceId/chats',
     validate(instanceIdSchema),
-    (req: Request, res: Response, next: NextFunction) => qetLisChatontroller.handle(req, res, next)
+    ControllerAdapter(qetLisChatontroller)
   );
 
   return router;

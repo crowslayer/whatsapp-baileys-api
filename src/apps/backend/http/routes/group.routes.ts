@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { ContainerBuilder } from 'node-dependency-injection';
 
+import { ControllerAdapter } from '@apps/backend/http/controllers/ControllerAdapter';
 import { validate } from '@apps/backend/http/middlewares/ValidationMiddleware';
 import {
   addParticipantsSchema,
@@ -25,7 +26,7 @@ export const createGroupRouter = (container: ContainerBuilder): Router => {
   router.post(
     '/:instanceId/groups',
     validate(createGroupSchema),
-    (req: Request, res: Response, next: NextFunction) => createController.handle(req, res, next)
+    ControllerAdapter(createController)
   );
 
   router.post(
@@ -37,7 +38,7 @@ export const createGroupRouter = (container: ContainerBuilder): Router => {
   router.post(
     '/:instanceId/groups/:groupId/participants/remove',
     validate(removeParticipantsSchema),
-    (req: Request, res: Response, next: NextFunction) => removeParticipants.handle(req, res, next)
+    ControllerAdapter(removeParticipants)
   );
 
   return router;

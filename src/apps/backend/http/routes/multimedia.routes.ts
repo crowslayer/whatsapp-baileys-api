@@ -1,7 +1,8 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { Router } from 'express';
 import multer from 'multer';
 import { ContainerBuilder } from 'node-dependency-injection';
 
+import { ControllerAdapter } from '@apps/backend/http/controllers/ControllerAdapter';
 import { validate } from '@apps/backend/http/middlewares/ValidationMiddleware';
 import {
   audioSchema,
@@ -81,7 +82,7 @@ export const createMultimediaRouter = (container: ContainerBuilder): Router => {
     upload.single('image'),
     parseUploadedFile('image'),
     validate(imageSchema),
-    (req: Request, res: Response, next: NextFunction) => imageController.handle(req, res, next)
+    ControllerAdapter(imageController)
   );
 
   // Enviar documento
@@ -90,7 +91,7 @@ export const createMultimediaRouter = (container: ContainerBuilder): Router => {
     upload.single('document'),
     parseUploadedFile('document'),
     validate(documentSchema),
-    (req: Request, res: Response, next: NextFunction) => documentController.handle(req, res, next)
+    ControllerAdapter(documentController)
   );
 
   // Enviar audio
@@ -99,7 +100,7 @@ export const createMultimediaRouter = (container: ContainerBuilder): Router => {
     upload.single('audio'),
     parseUploadedFile('audio'),
     validate(audioSchema),
-    (req: Request, res: Response, next: NextFunction) => audioController.handle(req, res, next)
+    ControllerAdapter(audioController)
   );
 
   // Enviar video
@@ -108,28 +109,28 @@ export const createMultimediaRouter = (container: ContainerBuilder): Router => {
     upload.single('video'),
     parseUploadedFile('video'),
     validate(videoSchema),
-    (req: Request, res: Response, next: NextFunction) => videoController.handle(req, res, next)
+    ControllerAdapter(videoController)
   );
 
   // Enviar ubicación
   router.post(
     '/:instanceId/send/location',
     validate(locationSchema),
-    (req: Request, res: Response, next: NextFunction) => locationController.handle(req, res, next)
+    ControllerAdapter(locationController)
   );
 
   // Enviar reacción (emoji)
   router.post(
     '/:instanceId/send/reaction',
     validate(reactionSchema),
-    (req: Request, res: Response, next: NextFunction) => reactionController.handle(req, res, next)
+    ControllerAdapter(reactionController)
   );
 
   // Enviar contacto(s)
   router.post(
     '/:instanceId/send/contact',
     validate(contactSchema),
-    (req: Request, res: Response, next: NextFunction) => conctactController.handle(req, res, next)
+    ControllerAdapter(conctactController)
   );
 
   // Enviar sticker (imagen WebP)
@@ -138,7 +139,7 @@ export const createMultimediaRouter = (container: ContainerBuilder): Router => {
     upload.single('sticker'),
     parseUploadedFile('sticker'),
     validate(stickerSchema),
-    (req: Request, res: Response, next: NextFunction) => stickerController.handle(req, res, next)
+    ControllerAdapter(stickerController)
   );
 
   return router;

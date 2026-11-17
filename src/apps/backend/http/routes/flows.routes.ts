@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { ContainerBuilder } from 'node-dependency-injection';
 
+import { ControllerAdapter } from '@apps/backend/http/controllers/ControllerAdapter';
 import { validate } from '@apps/backend/http/middlewares/ValidationMiddleware';
 import {
   createFlowSchema,
@@ -23,43 +24,22 @@ export const createFlowsRouter = (container: ContainerBuilder): Router => {
   router.get(
     '/:instanceId/flows',
     validate(instanceIdSchema),
-    (req: Request, res: Response, next: NextFunction) =>
-      qetListFlowsController.handle(req, res, next)
+    ControllerAdapter(qetListFlowsController)
   );
 
-  router.get(
-    '/:flowId',
-    validate(flowIdSchema),
-    (req: Request, res: Response, next: NextFunction) => getFlowcontroller.handle(req, res, next)
-  );
+  router.get('/:flowId', validate(flowIdSchema), ControllerAdapter(getFlowcontroller));
 
-  router.post('/', validate(createFlowSchema), (req: Request, res: Response, next: NextFunction) =>
-    createFlowController.handle(req, res, next)
-  );
+  router.post('/', validate(createFlowSchema), ControllerAdapter(createFlowController));
 
-  router.post(
-    '/nodes',
-    validate(createNodesSchema),
-    (req: Request, res: Response, next: NextFunction) =>
-      createNodesController.handle(req, res, next)
-  );
+  router.post('/nodes', validate(createNodesSchema), ControllerAdapter(createNodesController));
 
   router.put('/', validate(updateFlowSchema), (req: Request, res: Response, next: NextFunction) =>
     updateFlowController.handle(req, res, next)
   );
 
-  router.delete(
-    '/:flowId',
-    validate(flowIdSchema),
-    (req: Request, res: Response, next: NextFunction) => deleteFlowController.handle(req, res, next)
-  );
+  router.delete('/:flowId', validate(flowIdSchema), ControllerAdapter(deleteFlowController));
 
-  router.delete(
-    '/:flowId/nodes',
-    validate(flowIdSchema),
-    (req: Request, res: Response, next: NextFunction) =>
-      deleteNodesController.handle(req, res, next)
-  );
+  router.delete('/:flowId/nodes', validate(flowIdSchema), ControllerAdapter(deleteNodesController));
 
   return router;
 };
