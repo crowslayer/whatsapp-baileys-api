@@ -1,12 +1,12 @@
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   resolve: {
     alias: {
-      '@apps': resolve(__dirname, './src/apps'),
-      '@modules': resolve(__dirname, './src/context/modules'),
-      '@shared': resolve(__dirname, './src/context/shared'),
+      '@apps': resolve(import.meta.dirname, './src/apps'),
+      '@modules': resolve(import.meta.dirname, './src/context/modules'),
+      '@shared': resolve(import.meta.dirname, './src/context/shared'),
     },
   },
   test: {
