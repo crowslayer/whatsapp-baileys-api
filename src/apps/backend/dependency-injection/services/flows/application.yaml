@@ -1,0 +1,110 @@
+# =============================================
+# Services
+# =============================================
+services:
+  # =============================================
+  # Uses cases
+  # =============================================
+  application.flows.create.flow_creator:
+    class: 'context/modules/flows/application/create/FlowCreator'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_repository'
+    public: true
+
+  application.flows.delete.flow_eraser:
+    class: 'context/modules/flows/application/delete/FlowEraser'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_repository'
+    public: true
+
+  application.flows.update.flow_updater:
+    class: 'context/modules/flows/application/update/FlowUpdater'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_repository'
+    public: true
+
+  application.flows.nodes.create.nodes_creator:
+    class: 'context/modules/flows/application/nodes/create/NodesCreator'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_repository'
+    public: true
+
+  application.flows.nodes.delete.nodes_eraser:
+    class: 'context/modules/flows/application/nodes/delete/NodesEraser'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_repository'
+    public: true
+
+  application.flows.list.list_flows:
+    class: 'context/modules/flows/application/list/ListFlows'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_read_repository'
+    public: true
+
+  application.flows.get.get_flow:
+    class: 'context/modules/flows/application/get/GetFlow'
+    arguments:
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_read_repository'
+    public: true
+
+  # =============================================
+  # CommandHandlers
+  # =============================================
+  application.flows.create.create_flow_command_handler:
+    class: 'context/modules/flows/application/create/CreateFlowCommandHandler'
+    arguments:
+      - '@application.flows.create.flow_creator'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.flows.delete.delete_flow_command_handler:
+    class: 'context/modules/flows/application/delete/DeleteFlowCommandHandler'
+    arguments:
+      - '@application.flows.delete.flow_eraser'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.flows.update.update_flow_command_handler:
+    class: 'context/modules/flows/application/update/UpdateFlowCommandHandler'
+    arguments:
+      - '@application.flows.update.flow_updater'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.flows.nodes.create.create_nodes_command_handler:
+    class: 'context/modules/flows/application/nodes/create/CreateNodesCommandHandler'
+    arguments:
+      - '@application.flows.nodes.create.nodes_creator'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.flows.nodes.delete.delete_nodes_command_handler:
+    class: 'context/modules/flows/application/nodes/delete/DeleteNodesCommandHandler'
+    arguments:
+      - '@application.flows.nodes.delete.nodes_eraser'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  # =============================================
+  # QueryHandlers
+  # =============================================
+  application.flows.list.list_flows_query_handler:
+    class: 'context/modules/flows/application/list/ListFlowsQueryHandler'
+    arguments:
+      - '@application.flows.list.list_flows'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  application.flows.get.get_flow_query_handler:
+    class: 'context/modules/flows/application/get/GetFlowQueryHandler'
+    arguments:
+      - '@application.flows.get.get_flow'
+    tags:
+      - { name: 'queryHandler' }
+    public: true

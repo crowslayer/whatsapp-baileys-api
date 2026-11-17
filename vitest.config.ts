@@ -4,11 +4,10 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   resolve: {
     alias: {
-      '@domain': resolve(__dirname, './src/domain'),
-      '@application': resolve(__dirname, './src/application'),
-      '@infrastructure': resolve(__dirname, './src/infrastructure'),
-      '@shared': resolve(__dirname, './src/shared'),
-      '@config': resolve(__dirname, './src/config'),
+      '@apps': resolve(__dirname, './src/apps'),
+      '@modules': resolve(__dirname, './src/context/modules'),
+      '@shared': resolve(__dirname, './src/context/shared'),
+      'context': resolve(__dirname, './src/context'),
     },
   },
   test: {
@@ -22,10 +21,10 @@ export default defineConfig({
       exclude: [
         'src/**/*.test.ts',
         'src/**/*.d.ts',
-        'src/config/**',
-        'src/infrastructure/Http/ExpressApp.ts',
-        'src/infrastructure/Http/StatusCode.ts',
-        'src/index.ts',
+        'src/apps/backend/config/**',
+        // 'src/infrastructure/Http/ExpressApp.ts',
+        // 'src/infrastructure/Http/StatusCode.ts',
+        // 'src/index.ts',
         'src/performance/**/*.js',
       ],
     },

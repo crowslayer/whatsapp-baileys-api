@@ -1,0 +1,16 @@
+# config/services/application.yaml
+# =============================================
+# Import services
+# =============================================
+# Handlers y servicios del Application Layer
+imports:
+  - { resource: ./parameters.yaml }
+  - { resource: ./shared.yaml }
+  - { resource: ./infrastructure.yaml }
+  - { resource: ./bot/index.yaml }
+  - { resource: ./campaigns/index.yaml }
+  - { resource: ./chats/index.yaml }
+  - { resource: ./flows/index.yaml }
+  - { resource: ./groups/index.yaml }
+  - { resource: ./instances/index.yaml }
+  - { resource: ./messages/index.yaml }

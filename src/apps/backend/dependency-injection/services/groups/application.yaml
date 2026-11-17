@@ -1,0 +1,70 @@
+services:
+  # =============================================
+  # UsesCase
+  # =============================================
+  application.groups.create.group_creator:
+    class: 'context/modules/groups/application/create/GroupCreator'
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@application.runtime.runtime_manager'
+    public: true
+
+  application.groups.participants.participants_aggregator:
+    class: 'context/modules/groups/application/participants/add/ParticipantsAggregator'
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@application.runtime.runtime_manager'
+    public: true
+
+  application.groups.participants.participants_remover:
+    class: 'context/modules/groups/application/participants/remove/ParticipantsRemover'
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@application.runtime.runtime_manager'
+    public: true
+
+  application.groups.list.groups_finder:
+    class: 'context/modules/groups/application/list/GroupsFinder'
+    arguments:
+      - '@infrastructure.repository.mongo.chat_read_repository'
+      - '@application.runtime.runtime_manager'
+      - '@application.chats.sincronizer'
+    public: true
+
+  # =============================================
+  # CommandHandlers
+  # =============================================
+  application.group.create.create_group_command_handler:
+    class: 'context/modules/groups/application/create/CreateGroupCommandHandler'
+    arguments:
+      - '@application.groups.create.group_creator'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.group.participants.add.add_participants_group_command_handler:
+    class: 'context/modules/groups/application/participants/add/AddParticipantGroupCommandHandler'
+    arguments:
+      - '@application.groups.participants.participants_aggregator'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.group.participants.remove.remove_participants_group_command_handler:
+    class: 'context/modules/groups/application/participants/remove/RemoveParticipantsGroupCommandHandler'
+    arguments:
+      - '@application.groups.participants.participants_remover'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  # =============================================
+  # QueryHandlers
+  # =============================================
+  application.group.list.groups_query_handler:
+    class: 'context/modules/groups/application/list/GroupsQueryHandler'
+    arguments:
+      - '@application.groups.list.groups_finder'
+    tags:
+      - { name: 'queryHandler' }
+    public: true

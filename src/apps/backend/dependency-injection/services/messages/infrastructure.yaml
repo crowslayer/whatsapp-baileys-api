@@ -1,0 +1,58 @@
+services:
+  # =============================================
+  # Repositories
+  # =============================================
+  infrastructure.repository.mongo.message_repository:
+    class: 'context/modules/messages/infrastructure/persistence/mongo/MongoMessageRepository'
+    public: true
+
+  infrastructure.repository.mongo.message_read_repository:
+    class: 'context/modules/messages/infrastructure/persistence/mongo/MongoMessageReadRepository'
+    public: true
+  # =============================================
+  # Controllers
+  # =============================================
+  http.controller.messages.send_audio:
+    class: 'apps/backend/http/controllers/messages/SendAudioController'
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_contact:
+    class: 'apps/backend/http/controllers/messages/SendContactController'
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_document:
+    class: 'apps/backend/http/controllers/messages/SendDocumentController'
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_image:
+    class: 'apps/backend/http/controllers/messages/SendImageController'
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_location:
+    class: 'apps/backend/http/controllers/messages/SendLocationController'
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_reaction:
+    class: 'apps/backend/http/controllers/messages/SendReactionController'
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_sticker:
+    class: 'apps/backend/http/controllers/messages/SendStickerController'
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_text_message:
+    class: 'apps/backend/http/controllers/messages/SendTextController'
+    arguments:
+      - '@shared.command_bus'
+
+  http.controller.messages.send_video_message:
+    class: 'apps/backend/http/controllers/messages/SendVideoController'
+    arguments:
+      - '@shared.command_bus'

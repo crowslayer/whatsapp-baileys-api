@@ -1,0 +1,185 @@
+# =============================================
+# Instances Services
+# =============================================
+services:
+  # =============================================
+  # UsesCase
+  # =============================================
+  application.instance.list.instances_searcher:
+    class: 'context/modules/instances/application/list/InstancesSearcher'
+    arguments:
+      - '@infrastructure.repository.mongo.instance_read_repository'
+    public: true
+
+  application.instances.get.find_instance:
+    class: 'context/modules/instances/application/get/FindInstance'
+    arguments:
+      - '@infrastructure.repository.mongo.instance_read_repository'
+    public: true
+
+  application.instances.qr_code.status:
+    class: 'context/modules/instances/application/qr-code/status/QRCodeStatus'
+    arguments:
+      - '@infrastructure.repository.mongo.instance_read_repository'
+      - '@infrastructure.cache.nodecache_connection_store'
+    public: true
+
+  application.instances.qr_code.searcher:
+    class: 'context/modules/instances/application/qr-code/get/QRCodeSearcher'
+    arguments:
+      - '@infrastructure.repository.mongo.instance_read_repository'
+      - '@infrastructure.cache.nodecache_connection_store'
+    public: true
+
+  application.instances.qr_code.save.qrcode_persist:
+    class: 'context/modules/instances/application/qr-code/save/QRCodePersist'
+    arguments:
+      - '@infrastructure.cache.nodecache_connection_store'
+    public: true
+
+  application.instances.create.instances_creator:
+    class: 'context/modules/instances/application/create/InstancesCreator'
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@application.runtime.runtime_manager'
+    public: true
+
+  application.instances.delete.instances_eraser:
+    class: 'context/modules/instances/application/delete/InstancesEraser'
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@application.runtime.runtime_manager'
+    public: true
+
+  application.instances.connect.instances_connect:
+    class: 'context/modules/instances/application/connect/InstancesConnect'
+    arguments:
+      - '@application.runtime.runtime_manager'
+    public: true
+
+  application.instances.disconnect.instances_disconnect:
+    class: 'context/modules/instances/application/disconnect/InstancesDisconnect'
+    arguments:
+      - '@application.runtime.runtime_manager'
+    public: true
+
+  # =============================================
+  # QueryHandler
+  # =============================================
+  application.instances.list.list_instances_query_handler:
+    class: 'context/modules/instances/application/list/ListInstancesQueryHandler'
+    arguments:
+      - '@application.instance.list.instances_searcher'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  application.intances.get.get_instance_query_handler:
+    class: 'context/modules/instances/application/get/GetInstanceQueryHandler'
+    arguments:
+      - '@application.instances.get.find_instance'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  application.instances.qr_code.status.query_handler:
+    class: 'context/modules/instances/application/qr-code/status/GetQRCodeStatusQueryHandler'
+    arguments:
+      - '@application.instances.qr_code.status'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  application.instances.qr_code.query_handler:
+    class: 'context/modules/instances/application/qr-code/get/GetQRCodeQueryHandler'
+    arguments:
+      - '@application.instances.qr_code.searcher'
+    tags:
+      - { name: 'queryHandler' }
+    public: true
+
+  # =============================================
+  # CommandHandler
+  # =============================================
+  application.instances.create.command_handler:
+    class: 'context/modules/instances/application/create/CreateInstanceCommandHandler'
+    arguments:
+      - '@application.instances.create.instances_creator'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.instances.delete.command_handler:
+    class: 'context/modules/instances/application/delete/DeleteInstanceCommandHandler'
+    arguments:
+      - '@application.instances.delete.instances_eraser'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.instances.connect.command_handler:
+    class: 'context/modules/instances/application/connect/ConnectInstanceCommandHandler'
+    arguments:
+      - '@application.instances.connect.instances_connect'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+
+  application.instances.disconnect.command_handler:
+    class: 'context/modules/instances/application/disconnect/DisconnectInstanceCommandHandler'
+    arguments:
+      - '@application.instances.disconnect.instances_disconnect'
+    tags:
+      - { name: 'commandHandler' }
+    public: true
+  # =============================================
+  # EventSubscribers
+  # =============================================
+  application.subscriber.qr_code_generated:
+    class: 'context/modules/instances/application/qr-code/save/StoreQRCodeGenerated'
+    arguments:
+      - '@application.instances.qr_code.save.qrcode_persist'
+    tags:
+      - { name: 'subscriber' }
+    public: true
+
+  application.events.subscribers.connection_event_subscriber:
+    class: 'context/modules/instances/application/events/subscribers/ConnectionEventsSubscriber'
+    arguments:
+      - '@shared.event_bus'
+      - '@infrastructure.repository.mongo.instance_read_repository'
+      - '@infrastructure.cache.nodecache_connection_store'
+      - '@shared.domain.event_bus'
+    public: true
+
+  # =============================================
+  # Runtime Managers
+  # =============================================
+  application.runtime.runtime_manager:
+    class: 'context/modules/instances/application/runtime/RuntimeManager'
+    arguments:
+      - '@application.runtime.runtime_registry'
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@application.runtime.whatsapp_runtime_factory'
+      - '@shared.logger'
+    public: true
+
+  application.runtime.runtime_registry:
+    class: 'context/modules/instances/application/runtime/RuntimeRegistry'
+    arguments: []
+    public: true
+
+  application.runtime.whatsapp_runtime_factory:
+    class: 'context/modules/instances/application/runtime/WhatsAppRuntimeFactory'
+    arguments:
+      - '@infrastructure.repository.whatsapp_instance'
+      - '@application.chats.sincronizer'
+      - '@http.webhooks.webhook_service'
+      - '@shared.logger'
+      - '@infrastructure.cache.nodecache_connection_store'
+      - '@shared.event_bus'
+      - '@shared.domain.event_bus'
+
+  # =============================================
+  # Runtime Managers
+  # =============================================

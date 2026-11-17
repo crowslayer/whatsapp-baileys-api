@@ -1,0 +1,27 @@
+services:
+  # =============================================
+  # Sinchronize
+  # =============================================
+  application.chats.sincronizer:
+    class: 'context/modules/chats/application/synchronize/ChatSynchronizeService'
+    arguments:
+      - '@infrastructure.repository.mongo.chat_repository'
+      - '@shared.logger'
+    public: true
+
+  application.chats.list.chats_finder:
+    class: 'context/modules/chats/application/list/ChatsFinder'
+    arguments:
+      - '@infrastructure.repository.mongo.chat_read_repository'
+    public: true
+
+  # =============================================
+  # QuerHandler
+  # =============================================
+  application.chats.list.get_chats_query_handler:
+    class: 'context/modules/chats/application/list/GetChatsQueryHandler'
+    arguments:
+      - '@application.chats.list.chats_finder'
+    tags:
+      - { name: 'queryHandler' }
+    public: true

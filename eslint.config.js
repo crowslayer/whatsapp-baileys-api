@@ -1,4 +1,3 @@
-// eslint.config.js
 import eslintRecommended from '@eslint/js';
 import typescriptEslintPlugin from '@typescript-eslint/eslint-plugin';
 import typescriptEslintParser from '@typescript-eslint/parser';
@@ -18,8 +17,8 @@ export default [
       sourceType: 'module',
       parser: typescriptEslintParser,
       parserOptions: {
-        project: './tsconfig.json',
-        // tsconfigRootDir: '.',
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
       globals: {
         // Globales de Node.js
@@ -187,27 +186,17 @@ export default [
           },
           pathGroups: [
             {
-              pattern: '@domain/**',
+              pattern: '@apps/**',
               group: 'internal',
               position: 'before',
             },
             {
-              pattern: '@application/**',
-              group: 'internal',
-              position: 'before',
-            },
-            {
-              pattern: '@infrastructure/**',
+              pattern: '@context/**',
               group: 'internal',
               position: 'before',
             },
             {
               pattern: '@shared/**',
-              group: 'internal',
-              position: 'before',
-            },
-            {
-              pattern: '@config/**',
               group: 'internal',
               position: 'before',
             },
@@ -244,7 +233,7 @@ export default [
       'prefer-template': 'warn',
       'object-shorthand': 'warn',
       'no-param-reassign': 'warn',
-      // 'no-return-await': 'warn',
+      'no-return-await': 'warn',
       'require-await': 'warn',
       'no-throw-literal': 'error',
       'prefer-promise-reject-errors': 'error',
@@ -313,8 +302,15 @@ export default [
   // ========================================
   // Configuración específica para archivos de test
   // ========================================
+
   {
-    files: ['**/*.test.ts', '**/*.spec.ts', '**/__tests__/**/*.ts'],
+    files: ['**/*.test.ts', '**/*.spec.ts', '**/__tests__/**/*.ts', 'tests/**/*.test.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.eslint.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       'max-lines-per-function': 'off',

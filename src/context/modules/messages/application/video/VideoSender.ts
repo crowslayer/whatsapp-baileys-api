@@ -1,0 +1,41 @@
+import { ValidationError } from '@shared/domain/error/ValidationError';
+import { IRuntimeManager } from '@shared/domain/whatsapp/IRuntimeManager';
+
+import { IInstanceRepository } from '@modules/instances/domain/IInstanceRepository';
+import { InstanceId } from '@modules/instances/domain/InstanceId';
+import { InstanceNotFoundError } from '@modules/instances/domain/InstanceNotFoundError';
+import { SendVideoCommand } from '@modules/messages/application/video/SendVideoCommand';
+
+export class VideoSender {
+  constructor(
+    private readonly repository: IInstanceRepository,
+    private readonly runtimeManager: IRuntimeManager
+  ) {}
+
+  async execute(command: SendVideoCommand): Promise<void> {
+    const instance = await this.repository.findById(InstanceId.fromString(command.instanceId));
+    if (!instance) {
+      throw new InstanceNotFoundError(`Instance ${command.instanceId} not found`);
+    }
+
+    if (!instance.canSendMessages()) {
+      throw new ValidationError([
+        { field: 'instance', message: `Instance ${command.instanceId} is not connected` },
+      ]);
+    }
+
+    const adapter = this.runtimeManager.get(command.instanceId);
+    if (!adapter) {
+      throw new ValidationError([
+        { field: 'instance', message: `Instance ${command.instanceId} adapter not found` },
+      ]);
+    }
+
+    await adapter.messaging.sendVideo(
+      command.to,
+      command.video,
+      command.caption,
+      command.gifPlayback
+    );
+  }
+}

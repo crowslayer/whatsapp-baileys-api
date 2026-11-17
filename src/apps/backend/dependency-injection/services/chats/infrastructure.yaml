@@ -1,0 +1,20 @@
+services:
+  # =============================================
+  # Repositories
+  # =============================================
+
+  infrastructure.repository.mongo.chat_read_repository:
+    class: 'context/modules/chats/infrastructure/persistence/mongo/MongoChatReadRepository'
+    public: true
+
+  infrastructure.repository.mongo.chat_repository:
+    class: 'context/modules/chats/infrastructure/persistence/mongo/MongoChatRepository'
+    public: true
+
+  # =============================================
+  # Controllers
+  # =============================================
+  http.controller.chats.list_chats:
+    class: 'apps/backend/http/controllers/chats/list/ListChatsController'
+    arguments:
+      - '@shared.query_bus'

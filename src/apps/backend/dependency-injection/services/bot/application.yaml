@@ -1,0 +1,64 @@
+# =============================================
+# Services
+# =============================================
+services:
+  # =============================================
+  # Uses cases
+  # =============================================
+
+  # =============================================
+  # Ejecutors
+  # =============================================
+  application.bot.executors.condition_node_executor:
+    class: 'context/modules/bot/application/executors/ConditionNodeExecutor'
+    tags:
+      - { name: 'nodeExecutor' }
+    public: true
+
+  application.bot.executors.input_node_executor:
+    class: 'context/modules/bot/application/executors/InputNodeExecutor'
+    tags:
+      - { name: 'nodeExecutor' }
+    public: true
+
+  application.bot.executors.message_node_executor:
+    class: 'context/modules/bot/application/executors/MessageNodeExecutor'
+    tags:
+      - { name: 'nodeExecutor' }
+    public: true
+
+  # =============================================
+  # Services
+  # =============================================
+  application.bot.flow_engine:
+    class: 'context/modules/bot/application/FlowEngine'
+    arguments:
+      - '!tagged nodeExecutor'
+      - '@shared.logger'
+    public: true
+
+  application.bot.flow_trigger_resolver:
+    class: 'context/modules/bot/application/FlowTriggerResolver'
+    public: true
+
+  application.bot.bot_service:
+    class: 'context/modules/bot/application/BotService'
+    arguments:
+      - '@application.bot.flow_engine'
+      - '@application.bot.flow_trigger_resolver'
+      - '@infrastructure.cache.node_cache_conversation_store'
+      - '@application.service.message_orchestrator'
+      - '@infrastructure.persistence.mongo.repository.mongo_flow_read_repository'
+      - '@shared.logger'
+    public: true
+
+  # =============================================
+  # EventSubscribers
+  # =============================================
+  application.subscriber.message_received:
+    class: 'context/modules/bot/application/events/subscribers/IncomingMessageBotSubscriber'
+    arguments:
+      - '@application.bot.bot_service'
+    tags:
+      - { name: 'subscriber' }
+    public: true

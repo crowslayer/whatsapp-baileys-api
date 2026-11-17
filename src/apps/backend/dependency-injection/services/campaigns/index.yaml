@@ -1,0 +1,7 @@
+# Controllers y servicios HTTP
+# =============================================
+# Controllers y servicios HTTP
+# =============================================
+imports:
+  - { resource: ./application.yaml }
+  - { resource: ./infrastructure.yaml }
