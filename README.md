@@ -8,7 +8,7 @@ Built with Baileys, TypeScript, Clean Architecture & DDD
 A professional REST API for interacting with WhatsApp using the Baileys library, built with Node.js, TypeScript, and following Hexagonal Architecture, DDD, CQRS, and enterprise design patterns.
 
 - **Releases (tags)**: `v1.0.1`, `v1.1.0`, `v1.3.0`
-- **Current version**: 1.3.0
+- **Current version**: 1.7.2
 - **Tags**: use `v1.1.0` format for publishing releases
 - **Changelog**: see `CHANGELOG.md`
 
@@ -47,8 +47,7 @@ A professional REST API for interacting with WhatsApp using the Baileys library,
 
 - Node.js >= 20.x (recommended for ESM)
 - MongoDB >= 6.x
-- npm >= 9.x
-- **pnpm** (recommended): the `npm run build` script internally runs `pnpm run build:di`; `npm run validate` also uses pnpm. With Node 16+ you can enable Corepack: `corepack enable` then `corepack prepare pnpm@latest --activate`
+- **pnpm 9.12.3** (declared in `package.json`)
 
 ## 🛠️ Installation
 
@@ -62,7 +61,7 @@ cd whatsapp-baileys-api
 ### 2. Install dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 3. Configure environment variables
@@ -115,37 +114,37 @@ Notes:
 
 ### Useful scripts (`package.json`)
 
-| Script                            | Description                                                                                                       |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`                     | Hot-reload server with `tsx watch`                                                                                |
-| `npm run build`                   | Compiles TypeScript, runs `tsc-alias`, and copies assets (`build:di` via pnpm)                                    |
-| `npm start`                       | Runs `dist/index.js` (after `build`)                                                                              |
-| `npm run type-check`              | `tsc --noEmit`                                                                                                    |
-| `npm run lint` / `lint:fix`       | ESLint                                                                                                            |
-| `npm run format` / `format:check` | Prettier on `src/**`                                                                                              |
-| `npm run validate`                | `type-check` + `lint` + `format:check` (uses pnpm)                                                                |
-| `npm run clean`                   | Removes `dist/` via `rm -rf` (on Windows, if it fails, delete the `dist` folder manually or use a Git Bash shell) |
+| Script                             | Description                                              |
+| ---------------------------------- | -------------------------------------------------------- |
+| `pnpm run dev`                     | Hot-reload server with `tsx watch`                       |
+| `pnpm run build`                   | Compiles TypeScript, resolves aliases, and copies assets |
+| `pnpm start`                       | Runs `dist/apps/backend/index.js` after a build          |
+| `pnpm run type-check`              | Runs `tsc --noEmit`                                      |
+| `pnpm run lint` / `lint:fix`       | Runs ESLint                                              |
+| `pnpm run format` / `format:check` | Runs Prettier on `src/**`                                |
+| `pnpm run validate`                | Runs type-check, lint, and format checks                 |
+| `pnpm run clean`                   | Removes the generated `dist/` directory                  |
 
 ### 4. Compile TypeScript
 
 ```bash
-npm run build
+pnpm run build
 ```
 
-The build script runs TypeScript, resolves aliases (`tsc-alias`), copies assets to `dist/`, and requires **`pnpm`** for the `build:di` step. If it fails due to missing `pnpm`, install it globally or use `corepack enable` depending on your environment.
+The build script compiles TypeScript, resolves aliases with `tsc-alias`, and copies assets to `dist/`.
 
 ### 5. Start the application
 
 **Development:**
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 **Production:**
 
 ```bash
-npm start
+pnpm start
 ```
 
 ## 🔌 API Endpoints
@@ -436,6 +435,28 @@ Content-Type: application/json
 
 ## 🏗️ Architecture
 
+### Source layout
+
+```text
+src/
+  apps/backend/                 # HTTP delivery, application startup, and dependency wiring
+  context/
+    modules/<module>/           # Business modules, each organized by layer
+      domain/
+      application/
+      infrastructure/
+    shared/                     # Contracts and adapters shared across modules
+      domain/
+      application/
+      infrastructure/
+tests/                          # Mirrors the source hierarchy
+  context/
+    modules/<module>/...        # For example: tests/context/modules/messages/application/...
+    shared/...                  # For example: tests/context/shared/infrastructure/...
+```
+
+The TypeScript aliases are `@apps/*` → `src/apps/*`, `@modules/*` → `src/context/modules/*`, and `@shared/*` → `src/context/shared/*`. Unit tests use the same relative layout under `tests/` and are named `*.test.ts`.
+
 ### Hexagonal Architecture (Ports & Adapters)
 
 The project follows hexagonal architecture with three main layers:
@@ -576,19 +597,19 @@ Typed and hierarchical errors:
 
 ```bash
 # Run all tests
-npm test
+pnpm test
 
 # Run unit tests only
-npm run test:unit
+pnpm run test:unit
 
 # Run integration tests only
-npm run test:integration
+pnpm run test:integration
 
 # Run tests with coverage
-npm run test:coverage
+pnpm run test:coverage
 ```
 
-The project uses **Vitest** as the test runner. Tests are located under the `tests/` directory.
+The project uses **Vitest**. Test files live under `tests/` and mirror their source paths. For example, `src/context/modules/messages/application/text/TextMessageSender.ts` is tested in `tests/context/modules/messages/application/text/TextMessageSender.test.ts`.
 
 ## 📝 Complete Usage Example
 

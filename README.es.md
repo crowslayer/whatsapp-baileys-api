@@ -3,7 +3,7 @@
 API REST profesional para interactuar con WhatsApp usando la librería Baileys, construida con Node.js, TypeScript y siguiendo principios de arquitectura hexagonal, DDD, CQRS y patrones de diseño empresariales.
 
 - **Releases (tags)**: `v1.0.1`, `v1.1.0`, `v1.3.0`
-- **Current version**: 1.3.0
+- **Versión actual**: 1.7.2
 - **Tags**: use v1.1.0 formato para publicar releases
 - **Historial de cambios**: ver `CHANGELOG.md`
 
@@ -42,8 +42,7 @@ API REST profesional para interactuar con WhatsApp usando la librería Baileys, 
 
 - Node.js >= 20.x (recomendado para ESM)
 - MongoDB >= 6.x
-- npm >= 9.x
-- **pnpm** (recomendado): el script `npm run build` ejecuta internamente `pnpm run build:di`; `npm run validate` también usa pnpm. Con Node 16+ puedes activar Corepack: `corepack enable` y luego `corepack prepare pnpm@latest --activate`
+- **pnpm 9.12.3** (declarado en `package.json`)
 
 ## 🛠️ Instalación
 
@@ -57,7 +56,7 @@ cd whatsapp-baileys-api
 ### 2. Instalar dependencias
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 3. Configurar variables de entorno
@@ -110,37 +109,37 @@ Notas:
 
 ### Scripts útiles (`package.json`)
 
-| Script                            | Descripción                                                                                                           |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`                     | Servidor en caliente con `tsx watch`                                                                                  |
-| `npm run build`                   | Compila TypeScript, `tsc-alias` y copia assets (`build:di` vía pnpm)                                                  |
-| `npm start`                       | Ejecuta `dist/index.js` (tras `build`)                                                                                |
-| `npm run type-check`              | `tsc --noEmit`                                                                                                        |
-| `npm run lint` / `lint:fix`       | ESLint                                                                                                                |
-| `npm run format` / `format:check` | Prettier sobre `src/**`                                                                                               |
-| `npm run validate`                | `type-check` + `lint` + `format:check` (usa pnpm)                                                                     |
-| `npm run clean`                   | Borra `dist/` con `rm -rf` (en Windows, si falla, elimina la carpeta `dist` manualmente o usa un shell tipo Git Bash) |
+| Script                             | Descripción                                        |
+| ---------------------------------- | -------------------------------------------------- |
+| `pnpm run dev`                     | Servidor en caliente con `tsx watch`               |
+| `pnpm run build`                   | Compila TypeScript, resuelve alias y copia assets  |
+| `pnpm start`                       | Ejecuta `dist/apps/backend/index.js` tras compilar |
+| `pnpm run type-check`              | Ejecuta `tsc --noEmit`                             |
+| `pnpm run lint` / `lint:fix`       | Ejecuta ESLint                                     |
+| `pnpm run format` / `format:check` | Ejecuta Prettier sobre `src/**`                    |
+| `pnpm run validate`                | Ejecuta type-check, lint y formato                 |
+| `pnpm run clean`                   | Elimina el directorio generado `dist/`             |
 
 ### 4. Compilar TypeScript
 
 ```bash
-npm run build
+pnpm run build
 ```
 
-El script de compilación ejecuta TypeScript, resuelve alias (`tsc-alias`), copia assets al `dist/` y requiere **`pnpm`** para el paso `build:di`. Si falla por falta de `pnpm`, instálalo globalmente o usa `corepack enable` según tu entorno.
+El script compila TypeScript, resuelve alias con `tsc-alias` y copia assets al directorio `dist/`.
 
 ### 5. Iniciar la aplicación
 
 **Desarrollo:**
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 **Producción:**
 
 ```bash
-npm start
+pnpm start
 ```
 
 ## 🔌 API Endpoints
@@ -431,6 +430,28 @@ Content-Type: application/json
 
 ## 🏗️ Arquitectura
 
+### Estructura del código fuente
+
+```text
+src/
+  apps/backend/                 # Entrega HTTP, arranque y configuración de dependencias
+  context/
+    modules/<modulo>/           # Módulos de negocio organizados por capa
+      domain/
+      application/
+      infrastructure/
+    shared/                     # Contratos y adaptadores compartidos entre módulos
+      domain/
+      application/
+      infrastructure/
+tests/                          # Espejo de la jerarquía del código fuente
+  context/
+    modules/<modulo>/...        # Ejemplo: tests/context/modules/messages/application/...
+    shared/...                  # Ejemplo: tests/context/shared/infrastructure/...
+```
+
+Los alias de TypeScript son `@apps/*` → `src/apps/*`, `@modules/*` → `src/context/modules/*` y `@shared/*` → `src/context/shared/*`. Las pruebas unitarias mantienen la ruta relativa del código bajo `tests/` y usan el sufijo `*.test.ts`.
+
 ### Hexagonal Architecture (Ports & Adapters)
 
 El proyecto sigue arquitectura hexagonal con tres capas principales:
@@ -569,7 +590,21 @@ Errores tipados y jerárquicos:
 
 ## 🧪 Tests
 
-En el estado actual del repositorio **no hay suite de tests configurada** en `package.json` (no existe script `test` ni dependencias Jest/Vitest). Si quieres añadir tests, configura el runner que prefieras e incorpora el script correspondiente.
+El proyecto usa **Vitest**. Los tests viven en `tests/` y replican la ruta de los archivos fuente. Por ejemplo, `src/context/modules/messages/application/text/TextMessageSender.ts` tiene su prueba en `tests/context/modules/messages/application/text/TextMessageSender.test.ts`.
+
+```bash
+# Ejecutar toda la suite
+pnpm test
+
+# Ejecutar solo tests unitarios
+pnpm run test:unit
+
+# Ejecutar solo tests de integración
+pnpm run test:integration
+
+# Ejecutar tests con cobertura
+pnpm run test:coverage
+```
 
 ## 📝 Ejemplo de Uso Completo
 

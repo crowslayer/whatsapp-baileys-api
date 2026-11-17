@@ -7,7 +7,6 @@ export default defineConfig({
       '@apps': resolve(__dirname, './src/apps'),
       '@modules': resolve(__dirname, './src/context/modules'),
       '@shared': resolve(__dirname, './src/context/shared'),
-      'context': resolve(__dirname, './src/context'),
     },
   },
   test: {
