@@ -1,4 +1,5 @@
 import { ICommandHandler } from '@shared/domain/command/CommandHandler';
+import { ISentMessage } from '@shared/domain/whatsapp/MessageTypes';
 import { PhoneNormalizer } from '@shared/infrastructure/utils/PhoneNormalizer';
 
 import { SendMessageCommand } from '@modules/messages/application/text/SendMessageCommand';
@@ -11,12 +12,16 @@ export class SendMessageCommandHandler implements ICommandHandler<SendMessageCom
     return SendMessageCommand;
   }
 
-  async handle(command: SendMessageCommand): Promise<void> {
+  async handle(command: SendMessageCommand): Promise<ISentMessage | undefined> {
     const normalizer = new PhoneNormalizer();
     const jid = normalizer.toJid(command.to);
     if (!jid) {
       throw new Error('Phone invalid');
     }
-    await this.useCase.execute({ instanceId: command.instanceId, jid, message: command.message });
+    return this.useCase.execute({
+      instanceId: command.instanceId,
+      jid,
+      message: command.message,
+    });
   }
 }

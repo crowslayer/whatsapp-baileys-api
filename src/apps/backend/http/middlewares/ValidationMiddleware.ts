@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { Schema, ValidationChain, checkSchema, validationResult } from 'express-validator';
 
+import { ExpressResponseAdapter } from '@shared/infrastructure/http/express/ExpressResponseAdapter';
 import { ErrorContent } from '@shared/infrastructure/http/response/HttpResponse';
 import { ResponseBuilder } from '@shared/infrastructure/http/response/ResponseBuilder';
 import { StatusCode } from '@shared/infrastructure/http/status/StatusCode';
@@ -33,7 +34,10 @@ export const validate = (validations: ValidationInput) => {
       }
     });
 
-    ResponseBuilder.error(errorMessages, StatusCode.ClientErrorBadRequest);
-    // ExpressResponseAdapter.send(req, res, errorResponse);
+    ExpressResponseAdapter.send(
+      req,
+      res,
+      ResponseBuilder.error(errorMessages, StatusCode.ClientErrorBadRequest)
+    );
   };
 };

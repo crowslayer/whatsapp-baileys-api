@@ -10,12 +10,10 @@ import { InstanceReadModel } from '@modules/instances/domain/IInstanceReadReposi
 
 interface ICreateInstanceRequest extends IHttpRequest {
   body: {
-    instance: {
-      name: string;
-      webhookUrl?: string;
-      usePairingCode?: boolean;
-      phoneNumber?: string;
-    };
+    name: string;
+    webhookUrl?: string;
+    usePairingCode?: boolean;
+    phoneNumber?: string;
   };
 }
 
@@ -23,7 +21,7 @@ export class CreateInstanceController implements IController {
   constructor(private readonly commandBus: ICommandBus) {}
 
   async handle(req: ICreateInstanceRequest): Promise<HttpResponse<InstanceReadModel>> {
-    const { name, webhookUrl, usePairingCode = false, phoneNumber } = req.body.instance;
+    const { name, webhookUrl, usePairingCode = false, phoneNumber } = req.body;
 
     const command = new CreateInstanceCommand(name, webhookUrl, usePairingCode, phoneNumber);
 

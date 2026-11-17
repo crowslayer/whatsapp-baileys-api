@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { validate } from '@apps/backend/http/middlewares/ValidationMiddleware';
 
 import { ResponseBuilder } from '@shared/infrastructure/http/response/ResponseBuilder';
+import { ExpressResponseAdapter } from '@shared/infrastructure/http/express/ExpressResponseAdapter';
 
 import { checkSchema, validationResult } from 'express-validator';
 import type { Schema, ValidationChain } from 'express-validator';
@@ -17,6 +18,10 @@ vi.mock('@shared/infrastructure/http/response/ResponseBuilder', () => ({
   ResponseBuilder: {
     error: vi.fn(),
   },
+}));
+
+vi.mock('@shared/infrastructure/http/express/ExpressResponseAdapter', () => ({
+  ExpressResponseAdapter: { send: vi.fn() },
 }));
 
 const createRes = (): Response => ({}) as unknown as Response;
@@ -38,11 +43,7 @@ describe('validate', () => {
 
     const chains = [{ run: runOne }, { run: runTwo }] as unknown as ValidationChain[];
 
-    await validate(chains)(
-      createReq(),
-      createRes(),
-      vi.fn() as unknown as NextFunction
-    );
+    await validate(chains)(createReq(), createRes(), vi.fn() as unknown as NextFunction);
 
     expect(runOne).toHaveBeenCalledTimes(1);
     expect(runTwo).toHaveBeenCalledTimes(1);
@@ -73,11 +74,7 @@ describe('validate', () => {
 
     const chains = [{ run: vi.fn().mockResolvedValue(undefined) }] as unknown as ValidationChain[];
 
-    await validate(chains)(
-      createReq(),
-      createRes(),
-      next
-    );
+    await validate(chains)(createReq(), createRes(), next);
 
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith();
@@ -85,6 +82,10 @@ describe('validate', () => {
   });
 
   it('maps the field errors into the response builder', async () => {
+    const request = createReq();
+    const response = createRes();
+    const errorResponse = { body: { status: 400 } };
+    vi.mocked(ResponseBuilder.error).mockReturnValue(errorResponse as never);
     vi.mocked(validationResult).mockReturnValue({
       isEmpty: () => false,
       array: () => [
@@ -96,11 +97,7 @@ describe('validate', () => {
 
     const chains = [{ run: vi.fn().mockResolvedValue(undefined) }] as unknown as ValidationChain[];
 
-    await validate(chains)(
-      createReq(),
-      createRes(),
-      next
-    );
+    await validate(chains)(request, response, next);
 
     expect(ResponseBuilder.error).toHaveBeenCalledWith(
       [
@@ -110,9 +107,14 @@ describe('validate', () => {
       400
     );
     expect(next).not.toHaveBeenCalled();
+    expect(ExpressResponseAdapter.send).toHaveBeenCalledWith(request, response, errorResponse);
   });
 
   it('ignores errors that are not of field type', async () => {
+    const request = createReq();
+    const response = createRes();
+    const errorResponse = { body: { status: 400 } };
+    vi.mocked(ResponseBuilder.error).mockReturnValue(errorResponse as never);
     vi.mocked(validationResult).mockReturnValue({
       isEmpty: () => false,
       array: () => [
@@ -123,15 +125,12 @@ describe('validate', () => {
 
     const chains = [{ run: vi.fn().mockResolvedValue(undefined) }] as unknown as ValidationChain[];
 
-    await validate(chains)(
-      createReq(),
-      createRes(),
-      vi.fn() as unknown as NextFunction
-    );
+    await validate(chains)(createReq(), createRes(), vi.fn() as unknown as NextFunction);
 
     expect(ResponseBuilder.error).toHaveBeenCalledWith(
       [{ type: 'field', code: 2001, name: 'email', description: 'Email is required' }],
       400
     );
+    expect(ExpressResponseAdapter.send).toHaveBeenCalledWith(request, response, errorResponse);
   });
 });

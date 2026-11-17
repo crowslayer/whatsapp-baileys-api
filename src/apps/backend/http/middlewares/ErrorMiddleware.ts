@@ -160,7 +160,7 @@ export function errorMiddleware(logger: ILogger) {
         },
       ];
     }
-    sendErrorResponse(res, req, StatusCode.ServerErrorInternal, payload);
+    sendErrorResponse(res, req, statusCode, payload);
   };
 }
 

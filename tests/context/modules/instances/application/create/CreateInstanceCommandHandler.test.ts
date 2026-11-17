@@ -10,15 +10,25 @@ describe('CreateInstanceCommandHandler', () => {
 
   it('delegates instance creation to the use case', async () => {
     // Arrange
-    const creator = { execute: vi.fn().mockResolvedValue(undefined) } as unknown as InstancesCreator;
+    const primitives = {
+      instanceId: '7d148fe2-8d50-45fa-940c-5904c38c87cf',
+      name: 'Support',
+      status: 'disconnected',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const creator = {
+      execute: vi.fn().mockResolvedValue({ toPrimitives: () => primitives }),
+    } as unknown as InstancesCreator;
     const handler = new CreateInstanceCommandHandler(creator);
     const command = new CreateInstanceCommand('Support');
 
     // Act
-    await handler.handle(command);
+    const result = await handler.handle(command);
 
     // Assert
     expect(handler.subscribedTo()).toBe(CreateInstanceCommand);
     expect(creator.execute).toHaveBeenCalledWith(command);
+    expect(result.content).toEqual(primitives);
   });
 });

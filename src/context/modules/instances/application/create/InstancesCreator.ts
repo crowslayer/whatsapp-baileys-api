@@ -7,7 +7,7 @@ import { PhoneNumber } from '@modules/instances/domain/PhoneNumber';
 export class InstancesCreator {
   constructor(private readonly repository: IInstanceRepository) {}
 
-  async execute(command: CreateInstanceCommand): Promise<void> {
+  async execute(command: CreateInstanceCommand): Promise<InstanceAggregate> {
     const name = Name.create(command.name);
 
     const instance = InstanceAggregate.create({
@@ -16,5 +16,6 @@ export class InstancesCreator {
       phoneNumber: command.phoneNumber ? PhoneNumber.create(command.phoneNumber) : undefined,
     });
     await this.repository.save(instance);
+    return instance;
   }
 }

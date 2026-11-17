@@ -37,7 +37,7 @@ export class MessageOrchestrator {
           throw new RuntimeError('Message was not sent');
         }
 
-        this.eventBus.publish([
+        await this.eventBus.publish([
           OutgoingWhatsAppMessage.create({
             aggregateId: result.messageId,
             eventId: EventId.create().value,

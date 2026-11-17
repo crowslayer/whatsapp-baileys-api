@@ -1,5 +1,6 @@
 import { MessageOrchestrator } from '@shared/application/services/MessageOrchestrator';
 import { ValidationError } from '@shared/domain/error/ValidationError';
+import { ISentMessage } from '@shared/domain/whatsapp/MessageTypes';
 
 import { IInstanceRepository } from '@modules/instances/domain/IInstanceRepository';
 import { InstanceId } from '@modules/instances/domain/InstanceId';
@@ -14,7 +15,7 @@ export class TextMessageSender {
     private readonly messageOrchestrator: MessageOrchestrator
   ) {}
 
-  async execute(command: MessageData): Promise<void> {
+  async execute(command: MessageData): Promise<ISentMessage | undefined> {
     const instance = await this.repository.findById(InstanceId.fromString(command.instanceId));
     if (!instance) {
       throw new InstanceNotFoundError(`Instance ${command.instanceId} not found`);
@@ -26,6 +27,6 @@ export class TextMessageSender {
       ]);
     }
 
-    this.messageOrchestrator.send(instance.instanceId, command.jid, command.message);
+    return this.messageOrchestrator.send(instance.instanceId, command.jid, command.message);
   }
 }

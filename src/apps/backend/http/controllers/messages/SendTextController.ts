@@ -23,7 +23,7 @@ type TextRequest = IHttpRequest & TextRequestParams;
 export class SendTextController implements IController {
   constructor(private readonly commandBus: ICommandBus) {}
 
-  async handle(req: TextRequest): Promise<HttpResponse<ISentMessage>> {
+  async handle(req: TextRequest): Promise<HttpResponse<ISentMessage | undefined>> {
     const { instanceId } = req.params;
     const { to, message } = req.body;
 
@@ -34,7 +34,7 @@ export class SendTextController implements IController {
     }
 
     const command = new SendMessageCommand(instanceId, jid, message);
-    const content = await this.commandBus.dispatch<ISentMessage>(command);
+    const content = await this.commandBus.dispatch<ISentMessage | undefined>(command);
 
     return ResponseBuilder.ok(content);
   }

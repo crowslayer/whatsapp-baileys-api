@@ -9,7 +9,6 @@ import {
   instanceIdSchema,
 } from '@apps/backend/http/validators/express/schemas/instanceSchema';
 
-// eslint-disable-next-line
 export const createInstanceRouter = (container: ContainerBuilder): Router => {
   const router = Router();
   const getQRController = container.get('http.controller.get_qr');
@@ -25,17 +24,12 @@ export const createInstanceRouter = (container: ContainerBuilder): Router => {
     '/',
     validate(createInstanceSchema),
     validate(createInstanceSchemaWithWebhookValidation),
-    (req: Request, res: Response, next: NextFunction) => createController.handle(req, res, next)
+    ControllerAdapter(createController)
   );
 
   router.get('/', ControllerAdapter(listController));
 
-  router.get(
-    '/:instanceId',
-    validate(instanceIdSchema),
-    (req: Request, res: Response, next: NextFunction) =>
-      getInstanceController.handle(req, res, next)
-  );
+  router.get('/:instanceId', validate(instanceIdSchema), ControllerAdapter(getInstanceController));
   // Vista HTML del QR
   router.get(
     '/:instanceId/qr/view',
@@ -48,31 +42,26 @@ export const createInstanceRouter = (container: ContainerBuilder): Router => {
   router.get(
     '/:instanceId/qr/status',
     validate(instanceIdSchema),
-    (req: Request, res: Response, next: NextFunction) => qrStatusController.handle(req, res, next)
+    ControllerAdapter(qrStatusController)
   );
-  router.get(
-    '/:instanceId/qr',
-    validate(instanceIdSchema),
-    (req: Request, res: Response, next: NextFunction) => getQRController.handle(req, res, next)
-  );
+  router.get('/:instanceId/qr', validate(instanceIdSchema), ControllerAdapter(getQRController));
 
   router.delete(
     '/:instanceId',
     validate(instanceIdSchema),
-    (req: Request, res: Response, next: NextFunction) =>
-      deleteInstanceController.handle(req, res, next)
+    ControllerAdapter(deleteInstanceController)
   );
 
   router.post(
     '/:instanceId/disconnect',
     validate(instanceIdSchema),
-    (req: Request, res: Response, next: NextFunction) => disconnectController.handle(req, res, next)
+    ControllerAdapter(disconnectController)
   );
 
   router.post(
     '/:instanceId/connect',
     validate(instanceIdSchema),
-    (req: Request, res: Response, next: NextFunction) => connectController.handle(req, res, next)
+    ControllerAdapter(connectController)
   );
 
   return router;
