@@ -1,3 +1,18 @@
+## [1.7.5](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.7.4...v1.7.5) (2026-11-19)
+
+### Correction of Errors
+
+* **api:** make instance and message endpoints respond correctly ([214e268](https://github.com/crowslayer/whatsapp-baileys-api/commit/214e2684b1a31d95eb50249ba6e7aacd370619e4))
+
+### Code Refactoring
+
+* **routes:** simplify route handlers using ControllerAdapter ([99da3ab](https://github.com/crowslayer/whatsapp-baileys-api/commit/99da3abac5b9a89197d572a5da0069db3b7d6de2))
+
+### Testing and Integration
+
+* **integration:** add integration tests for RuntimeManager ([3b860a8](https://github.com/crowslayer/whatsapp-baileys-api/commit/3b860a8e044f950d4764f910879878b41f4cc669))
+* **integration:** add MongoDB persistence baseline ([dd08ddd](https://github.com/crowslayer/whatsapp-baileys-api/commit/dd08ddda6d87a9286ac6cfb5b2379aa3a3771bcc))
+
 ## [1.7.4](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.7.3...v1.7.4) (2026-11-17)
 
 ### Correction of Errors
