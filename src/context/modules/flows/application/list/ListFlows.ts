@@ -3,7 +3,7 @@ import { Flow, IFlowReadRepository } from '@modules/flows/domain/IFlowReadReposi
 export class ListFlows {
   constructor(private readonly repository: IFlowReadRepository) {}
 
-  async execute(instanceId: string): Promise<Flow[]> {
-    return await this.repository.findByInstance(instanceId);
+  execute(instanceId: string): Promise<Flow[]> {
+    return this.repository.findByInstance(instanceId);
   }
 }

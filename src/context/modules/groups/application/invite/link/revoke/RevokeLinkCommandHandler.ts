@@ -11,9 +11,9 @@ export class RevokeLinkCommandHandler implements ICommandHandler<RevokeLinkComma
     return RevokeLinkCommand;
   }
 
-  async handle(command: RevokeLinkCommand): Promise<string | undefined> {
+  handle(command: RevokeLinkCommand): Promise<string | undefined> {
     const instanceId = InstanceId.fromString(command.instanceId);
 
-    return await this.revoker.execute(instanceId, command.groupId);
+    return this.revoker.execute(instanceId, command.groupId);
   }
 }

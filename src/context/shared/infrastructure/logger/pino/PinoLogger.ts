@@ -94,11 +94,7 @@ export class PinoLogger implements ILogger {
   }
 
   log(message: string | Error | object, ...args: unknown[]): void {
-    if (typeof message === 'string' && args.length > 0 && typeof args[0] === 'object') {
-      this._logger.info(args[0], message);
-      return;
-    }
-    this._logger.info(message, ...(args as never[]));
+    this.info(message, ...args);
   }
 
   getLogger(): PinoLoggerType {

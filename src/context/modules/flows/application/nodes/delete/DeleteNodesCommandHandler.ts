@@ -10,7 +10,7 @@ export class DeleteNodesCommandHandler implements ICommandHandler<DeleteNodesCom
     return DeleteNodesCommand;
   }
 
-  async handle(command: DeleteNodesCommand): Promise<unknown> {
-    return await this.useCase.execute(command.flowId);
+  async handle(command: DeleteNodesCommand): Promise<void> {
+    await this.useCase.execute(command.flowId);
   }
 }

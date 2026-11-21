@@ -31,6 +31,6 @@ export class GroupCreator {
       ]);
     }
 
-    return await adapter.groups.createGroup(command.name, command.participants);
+    return adapter.groups.createGroup(command.name, command.participants);
   }
 }

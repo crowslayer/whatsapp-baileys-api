@@ -23,6 +23,6 @@ export class DescriptionUpdater {
       throw new WhatsAppConnectionError('WhatsApp Instance not connected or not found');
     }
 
-    return await adapter.groups.updateGroupDescription(groupId, description);
+    return adapter.groups.updateGroupDescription(groupId, description);
   }
 }

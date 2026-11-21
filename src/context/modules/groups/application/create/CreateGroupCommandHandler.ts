@@ -10,7 +10,7 @@ export class CreateGroupCommandHandler implements ICommandHandler<CreateGroupCom
     return CreateGroupCommand;
   }
 
-  async handle(command: CreateGroupCommand): Promise<string> {
-    return await this.useCase.execute(command);
+  handle(command: CreateGroupCommand): Promise<string> {
+    return this.useCase.execute(command);
   }
 }

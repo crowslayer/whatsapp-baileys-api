@@ -5,6 +5,7 @@ import { RequestFile } from '@shared/domain/RequestFile';
 import { ImageSender } from '@modules/messages/application/image/ImageSender';
 import { SendImageCommand } from '@modules/messages/application/image/SendImageCommand';
 import { SendImageCommandHandler } from '@modules/messages/application/image/SendImageCommandHandler';
+import { MessageError } from '@modules/messages/application/MessageError';
 
 const INSTANCE_UUID = '0198f3a2-1b4c-7d5e-8f90-1234567890ab';
 
@@ -32,15 +33,20 @@ describe('SendImageCommandHandler', () => {
   it('executes the use case once', async () => {
     const command = new SendImageCommand(INSTANCE_UUID, 'to@s.whatsapp.net', buildFile());
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledTimes(1);
   });
 
   it('forwards the original command to the use case', async () => {
-    const command = new SendImageCommand(INSTANCE_UUID, 'to@s.whatsapp.net', buildFile(), 'caption');
+    const command = new SendImageCommand(
+      INSTANCE_UUID,
+      'to@s.whatsapp.net',
+      buildFile(),
+      'caption'
+    );
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledWith(command);
   });
@@ -48,7 +54,7 @@ describe('SendImageCommandHandler', () => {
   it('forwards a command without caption', async () => {
     const command = new SendImageCommand(INSTANCE_UUID, 'to@s.whatsapp.net', buildFile());
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledWith(command);
   });

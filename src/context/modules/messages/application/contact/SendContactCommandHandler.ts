@@ -11,7 +11,7 @@ export class SendContactCommandHandler implements ICommandHandler<SendContactCom
     return SendContactCommand;
   }
 
-  async handle(command: SendContactCommand): Promise<ISentMessage> {
-    return await this.useCase.execute(command);
+  handle(command: SendContactCommand): Promise<ISentMessage> {
+    return this.useCase.execute(command);
   }
 }

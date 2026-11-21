@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { SendReactionCommandHandler } from '@modules/messages/application/reaction/SendReactionCommandHandler';
-import { SendReactionCommand } from '@modules/messages/application/reaction/SendReactionCommand';
+import { MessageError } from '@modules/messages/application/MessageError';
 import type { ReactionSender } from '@modules/messages/application/reaction/ReactionSender';
+import { SendReactionCommand } from '@modules/messages/application/reaction/SendReactionCommand';
+import { SendReactionCommandHandler } from '@modules/messages/application/reaction/SendReactionCommandHandler';
 
 describe('SendReactionCommandHandler', () => {
   beforeEach(() => vi.clearAllMocks());
@@ -12,10 +13,14 @@ describe('SendReactionCommandHandler', () => {
     // Arrange
     const useCase = { execute: vi.fn().mockResolvedValue(undefined) } as unknown as ReactionSender;
     const handler = new SendReactionCommandHandler(useCase);
-    const command = new SendReactionCommand('instance-1', { messageId: 'message-1', chatId: 'chat-1', fromMe: false }, '👍');
+    const command = new SendReactionCommand(
+      'instance-1',
+      { messageId: 'message-1', chatId: 'chat-1', fromMe: false },
+      '👍'
+    );
 
     // Act
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     // Assert
     expect(handler.subscribedTo()).toBe(SendReactionCommand);

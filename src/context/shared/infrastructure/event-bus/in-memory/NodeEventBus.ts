@@ -14,10 +14,12 @@ export class NodeEventBus implements IEventBus {
     this._emitter.setMaxListeners(100);
   }
 
-  async publish(events: AnyEvent[]): Promise<void> {
+  publish(events: AnyEvent[]): Promise<void> {
     events.forEach((event) => {
       this._emitter.emit(event.eventName, event.payload);
     });
+
+    return Promise.resolve();
   }
 
   addSubscribers(subscribers: IEventSubscribers): void {

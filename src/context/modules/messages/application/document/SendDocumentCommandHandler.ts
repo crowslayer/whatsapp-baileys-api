@@ -11,7 +11,7 @@ export class SendDocumentCommandHandler implements ICommandHandler<SendDocumentC
     return SendDocumentCommand;
   }
 
-  async handle(command: SendDocumentCommand): Promise<ISentMessage> {
-    return await this.useCase.execute(command);
+  handle(command: SendDocumentCommand): Promise<ISentMessage> {
+    return this.useCase.execute(command);
   }
 }

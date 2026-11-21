@@ -13,6 +13,6 @@ export class PromoteParticipantsCommandHandler implements ICommandHandler<Promot
 
   async handle(command: PromoteParticipantsCommand): Promise<void> {
     const instanceId = InstanceId.fromString(command.instanceId);
-    return await this.useCase.execute(instanceId, command.groupId, command.participants);
+    await this.useCase.execute(instanceId, command.groupId, command.participants);
   }
 }

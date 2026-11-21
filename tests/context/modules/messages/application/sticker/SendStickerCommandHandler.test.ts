@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { RequestFile } from '@shared/domain/RequestFile';
 
+import { MessageError } from '@modules/messages/application/MessageError';
 import { SendStickerCommand } from '@modules/messages/application/sticker/SendStickerCommand';
 import { SendStickerCommandHandler } from '@modules/messages/application/sticker/SendStickerCommandHandler';
 import { StickerSender } from '@modules/messages/application/sticker/StickerSender';
@@ -32,7 +33,7 @@ describe('SendStickerCommandHandler', () => {
   it('executes the use case once', async () => {
     const command = new SendStickerCommand(INSTANCE_UUID, 'to@s.whatsapp.net', buildFile(), false);
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledTimes(1);
   });
@@ -40,7 +41,7 @@ describe('SendStickerCommandHandler', () => {
   it('forwards the original command to the use case', async () => {
     const command = new SendStickerCommand(INSTANCE_UUID, 'to@s.whatsapp.net', buildFile(), true);
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledWith(command);
   });
@@ -48,7 +49,7 @@ describe('SendStickerCommandHandler', () => {
   it('resolves with undefined on the happy path', async () => {
     const command = new SendStickerCommand(INSTANCE_UUID, 'to@s.whatsapp.net', buildFile(), false);
 
-    await expect(handler.handle(command)).resolves.toBeUndefined();
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
   });
 
   it('propagates the use case failure', async () => {

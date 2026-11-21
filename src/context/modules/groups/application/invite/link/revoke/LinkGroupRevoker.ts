@@ -20,6 +20,6 @@ export class LinkGroupRevoker {
     if (!adapter) {
       throw new WhatsAppConnectionError('WhatsApp Instance not connected or not found');
     }
-    return await adapter.groups.revokeGroupInviteLink(groupId);
+    return adapter.groups.revokeGroupInviteLink(groupId);
   }
 }

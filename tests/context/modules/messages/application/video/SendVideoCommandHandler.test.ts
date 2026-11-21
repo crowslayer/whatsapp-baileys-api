@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { RequestFile } from '@shared/domain/RequestFile';
 
+import { MessageError } from '@modules/messages/application/MessageError';
 import { SendVideoCommand } from '@modules/messages/application/video/SendVideoCommand';
 import { SendVideoCommandHandler } from '@modules/messages/application/video/SendVideoCommandHandler';
 import { VideoSender } from '@modules/messages/application/video/VideoSender';
@@ -32,7 +33,7 @@ describe('SendVideoCommandHandler', () => {
   it('executes the use case once', async () => {
     const command = new SendVideoCommand(INSTANCE_UUID, 'to@s.whatsapp.net', buildFile());
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledTimes(1);
   });
@@ -46,7 +47,7 @@ describe('SendVideoCommandHandler', () => {
       true
     );
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledWith(command);
   });
@@ -54,7 +55,7 @@ describe('SendVideoCommandHandler', () => {
   it('resolves with undefined on the happy path', async () => {
     const command = new SendVideoCommand(INSTANCE_UUID, 'to@s.whatsapp.net', buildFile());
 
-    await expect(handler.handle(command)).resolves.toBeUndefined();
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
   });
 
   it('propagates the use case failure', async () => {

@@ -44,8 +44,8 @@ export class ConnectionEventsSubscriber {
     this.eventBus.on('pairingCode', this.onPairingCode.bind(this));
   }
 
-  private async onQr(data: QRData): Promise<void> {
-    if (!data.instanceId) return;
+  private onQr(data: QRData): Promise<void> {
+    if (!data.instanceId) return Promise.resolve();
     // store efímero
     const event = QRCodeGeneratedEvent.create({
       aggregateId: data.instanceId,
@@ -54,6 +54,7 @@ export class ConnectionEventsSubscriber {
       payload: data,
     });
     this.domainEventBus.publish([event]);
+    return Promise.resolve();
   }
 
   private async onConnected(data: ConnectedData): Promise<void> {

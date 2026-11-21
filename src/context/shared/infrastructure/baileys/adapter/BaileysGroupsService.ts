@@ -25,9 +25,8 @@ export class BaileysGroupsService implements IGroupService {
    */
   async getGroupMetadata(groupId: string): Promise<IGroupDetails> {
     try {
-      if (!this.isValidJid(groupId)) {
-        throw new BaileysError('GroudId is not valid');
-      }
+      this.isValidJid(groupId);
+
       const groupMetadata = await this.socket.groupMetadata(groupId);
       return this.toGroupDetails(groupMetadata);
     } catch (error) {
@@ -63,9 +62,8 @@ export class BaileysGroupsService implements IGroupService {
   }
   async addParticipantsToGroup(groupId: string, participants: string[]): Promise<void> {
     try {
-      if (!this.isValidJid(groupId)) {
-        throw new Error('GroudId not valid');
-      }
+      this.isValidJid(groupId);
+
       await this.socket.groupParticipantsUpdate(groupId, participants, 'add');
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to add participants for instance `, {
@@ -76,9 +74,8 @@ export class BaileysGroupsService implements IGroupService {
 
   async removeParticipantsFromGroup(groupId: string, participants: string[]): Promise<void> {
     try {
-      if (!this.isValidJid(groupId)) {
-        throw new Error('GroudId not valid');
-      }
+      this.isValidJid(groupId);
+
       await this.socket.groupParticipantsUpdate(groupId, participants, 'remove');
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to remove participants sfor instance`, {
@@ -89,9 +86,8 @@ export class BaileysGroupsService implements IGroupService {
 
   async promoteParticipants(groupId: string, participants: string[]): Promise<void> {
     try {
-      if (!this.isValidJid(groupId)) {
-        throw new Error('GroudId not valid');
-      }
+      this.isValidJid(groupId);
+
       await this.socket.groupParticipantsUpdate(groupId, participants, 'promote');
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to promote participants for instance`, {
@@ -102,9 +98,8 @@ export class BaileysGroupsService implements IGroupService {
 
   async demoteParticipants(groupId: string, participants: string[]): Promise<void> {
     try {
-      if (!this.isValidJid(groupId)) {
-        throw new Error('GroudId not valid');
-      }
+      this.isValidJid(groupId);
+
       await this.socket.groupParticipantsUpdate(groupId, participants, 'demote');
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to demote participants for instance`, {
@@ -115,9 +110,8 @@ export class BaileysGroupsService implements IGroupService {
 
   async updateGroupSubject(groupId: string, subject: string): Promise<void> {
     try {
-      if (!this.isValidJid(groupId)) {
-        throw new Error('GroudId not valid');
-      }
+      this.isValidJid(groupId);
+
       await this.socket.groupUpdateSubject(groupId, subject);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to update group subject for instance`, {
@@ -128,9 +122,8 @@ export class BaileysGroupsService implements IGroupService {
 
   async updateGroupDescription(groupId: string, description: string): Promise<void> {
     try {
-      if (!this.isValidJid(groupId)) {
-        throw new Error('GroudId not valid');
-      }
+      this.isValidJid(groupId);
+
       await this.socket.groupUpdateDescription(groupId, description);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to update group description for instance`, {
@@ -144,9 +137,8 @@ export class BaileysGroupsService implements IGroupService {
    */
   async getGroupInviteLink(groupId: string): Promise<string | undefined> {
     try {
-      if (!this.isValidJid(groupId)) {
-        throw new Error('GroudId not valid');
-      }
+      this.isValidJid(groupId);
+
       return await this.socket.groupInviteCode(groupId);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to get group invite link for instance `, {
@@ -160,9 +152,8 @@ export class BaileysGroupsService implements IGroupService {
    */
   async revokeGroupInviteLink(groupId: string): Promise<string | undefined> {
     try {
-      if (!this.isValidJid(groupId)) {
-        throw new Error('GroudId not valid');
-      }
+      this.isValidJid(groupId);
+
       return await this.socket.groupRevokeInvite(groupId);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to revoke group invite link for instance`, {
@@ -189,9 +180,8 @@ export class BaileysGroupsService implements IGroupService {
    */
   async leaveGroup(groupId: string): Promise<void> {
     try {
-      if (!this.isValidJid(groupId)) {
-        throw new Error('GroudId not valid');
-      }
+      this.isValidJid(groupId);
+
       await this.socket.groupLeave(groupId);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to leave group for instance`, { cause: error });
@@ -206,9 +196,8 @@ export class BaileysGroupsService implements IGroupService {
     setting: 'announcement' | 'not_announcement' | 'locked' | 'unlocked'
   ): Promise<void> {
     try {
-      if (!this.isValidJid(groupId)) {
-        throw new Error('GroudId not valid');
-      }
+      this.isValidJid(groupId);
+
       await this.socket.groupSettingUpdate(groupId, setting);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to update group settings for instance`, {
@@ -237,6 +226,10 @@ export class BaileysGroupsService implements IGroupService {
   }
 
   private isValidJid(jid: string): boolean {
-    return jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
+    const isValid =
+      jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
+    if (!isValid) throw new BaileysError('GroupId is not valid');
+
+    return true;
   }
 }

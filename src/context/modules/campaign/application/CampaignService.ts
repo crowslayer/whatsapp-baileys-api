@@ -42,7 +42,7 @@ export class CampaignService {
     }
 
     // 3️ Ejecutar envío controlado
-    return await this.processQueue(instanceId, finalList, message);
+    return this.processQueue(instanceId, finalList, message);
   }
 
   private async processQueue(

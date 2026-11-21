@@ -2,6 +2,7 @@ import { USyncQueryResultList, WABusinessProfile, WASocket } from '@whiskeysocke
 
 import { InfrastructureError } from '@shared/domain/error/InfrastructureError';
 import { IProfileService } from '@shared/domain/whatsapp/IProfileService';
+import { BaileysError } from '@shared/infrastructure/baileys/adapter/BaileysError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 
 export class BaileysProfileService implements IProfileService {
@@ -13,9 +14,8 @@ export class BaileysProfileService implements IProfileService {
    */
   async getProfilePictureUrl(jid: string, type?: 'image'): Promise<string | undefined> {
     try {
-      if (!this.isValidJid(jid)) {
-        throw new WhatsAppConnectionError(`Invalid JID: ${jid}`);
-      }
+      this.isValidJid(jid);
+
       return await this.socket.profilePictureUrl(jid, type);
     } catch (error) {
       if (error instanceof InfrastructureError) {
@@ -30,9 +30,8 @@ export class BaileysProfileService implements IProfileService {
    */
   async getStatus(jid: string): Promise<USyncQueryResultList[] | undefined> {
     try {
-      if (!this.isValidJid(jid)) {
-        throw new WhatsAppConnectionError(`Invalid JID: ${jid}`);
-      }
+      this.isValidJid(jid);
+
       return await this.socket.fetchStatus(jid);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to fetch status for instance `, { cause: error });
@@ -62,9 +61,8 @@ export class BaileysProfileService implements IProfileService {
    */
   async updateProfilePicture(jid: string, image: Buffer | { url: string }): Promise<void> {
     try {
-      if (!this.isValidJid(jid)) {
-        throw new WhatsAppConnectionError(`Invalid JID: ${jid}`);
-      }
+      this.isValidJid(jid);
+
       await this.socket.updateProfilePicture(jid, image);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to update profile picture for instance`, {
@@ -91,9 +89,8 @@ export class BaileysProfileService implements IProfileService {
    */
   async getBusinessProfile(jid: string): Promise<WABusinessProfile | void> {
     try {
-      if (!this.isValidJid(jid)) {
-        throw new WhatsAppConnectionError(`Invalid JID: ${jid}`);
-      }
+      this.isValidJid(jid);
+
       return await this.socket.getBusinessProfile(jid);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to get business profile for instance`, {
@@ -103,6 +100,10 @@ export class BaileysProfileService implements IProfileService {
   }
 
   private isValidJid(jid: string): boolean {
-    return jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
+    const isValid =
+      jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
+    if (!isValid) throw new BaileysError('Jid is not valid');
+
+    return true;
   }
 }

@@ -21,11 +21,11 @@ export class MessageOrchestrator {
   // ===============================
   // SINGLE MESSAGE
   // ===============================
-  async send(instanceId: string, to: string, text: string): Promise<ISentMessage | undefined> {
+  send(instanceId: string, to: string, text: string): Promise<ISentMessage | undefined> {
     const runtime = this.runtimeRegistry.get(instanceId);
     const limiter = this.limiterFactory.getLimiter(instanceId);
 
-    return this.withRetry(async () => {
+    return this.withRetry(() => {
       return limiter.run(async () => {
         await this.human.simulateTyping(runtime, to, text);
 

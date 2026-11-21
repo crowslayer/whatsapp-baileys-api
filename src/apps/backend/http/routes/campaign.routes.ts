@@ -31,26 +31,32 @@ export const createCampaignRouter = (container: ContainerBuilder): Router => {
     'infrastructure.http.controller.campaign.get_campaign_by_id'
   );
 
+  const campaignId = 'campaignId';
+
   router.get('/', ControllerAdapter(listCampaignController));
 
-  router.get('/:campaignId', validate(campaignIdSchema), ControllerAdapter(campaignByIdController));
+  router.get(
+    `/:${campaignId}`,
+    validate(campaignIdSchema),
+    ControllerAdapter(campaignByIdController)
+  );
 
   router.post('/', validate(createCampaignSchema), ControllerAdapter(CreateCampaignController));
 
   router.get(
-    '/:campaignId/progress',
+    `/:${campaignId}/progress`,
     validate(campaignIdSchema),
     ControllerAdapter(progressCampaignController)
   );
 
   router.put(
-    '/:campaignId',
+    `/:${campaignId}`,
     validate(updateCampaignSchema),
     ControllerAdapter(updateCampaignController)
   );
 
   router.delete(
-    '/:campaignId',
+    `/:${campaignId}`,
     validate(campaignIdSchema),
     ControllerAdapter(deleteCampaignController)
   );

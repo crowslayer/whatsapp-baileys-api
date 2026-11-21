@@ -1,5 +1,6 @@
 import { ValidationError } from '@shared/domain/error/ValidationError';
 import { IRuntimeManager } from '@shared/domain/whatsapp/IRuntimeManager';
+import { ISentMessage } from '@shared/domain/whatsapp/MessageTypes';
 
 import { IInstanceRepository } from '@modules/instances/domain/IInstanceRepository';
 import { InstanceId } from '@modules/instances/domain/InstanceId';
@@ -12,7 +13,7 @@ export class ReactionSender {
     private runtimeManager: IRuntimeManager
   ) {}
 
-  async execute(command: SendReactionCommand): Promise<void> {
+  async execute(command: SendReactionCommand): Promise<ISentMessage | undefined> {
     const instance = await this.repository.findById(InstanceId.fromString(command.instanceId));
     if (!instance) {
       throw new InstanceNotFoundError(`Instance ${command.instanceId} not found`);
@@ -31,6 +32,6 @@ export class ReactionSender {
       ]);
     }
 
-    await adapter.messaging.sendReaction(command.message.chatId, command.message, command.emoji);
+    return adapter.messaging.sendReaction(command.message.chatId, command.message, command.emoji);
   }
 }

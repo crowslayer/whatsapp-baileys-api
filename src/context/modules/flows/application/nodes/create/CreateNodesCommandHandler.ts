@@ -11,6 +11,6 @@ export class CreateNodesCommandHandler implements ICommandHandler<CreateNodesCom
   }
 
   async handle(command: CreateNodesCommand): Promise<void> {
-    return await this.useCase.execute(command);
+    await this.useCase.execute(command);
   }
 }

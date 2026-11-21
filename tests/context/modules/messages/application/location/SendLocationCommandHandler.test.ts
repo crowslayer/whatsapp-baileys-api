@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LocationSender } from '@modules/messages/application/location/LocationSender';
 import { SendLocationCommand } from '@modules/messages/application/location/SendLocationCommand';
 import { SendLocationCommandHandler } from '@modules/messages/application/location/SendLocationCommandHandler';
+import { MessageError } from '@modules/messages/application/MessageError';
 
 const INSTANCE_UUID = '0198f3a2-1b4c-7d5e-8f90-1234567890ab';
 
@@ -25,15 +26,22 @@ describe('SendLocationCommandHandler', () => {
   it('executes the use case once', async () => {
     const command = new SendLocationCommand(INSTANCE_UUID, 'to@s.whatsapp.net', 1, 2);
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledTimes(1);
   });
 
   it('forwards the original command to the use case', async () => {
-    const command = new SendLocationCommand(INSTANCE_UUID, 'to@s.whatsapp.net', 1, 2, 'name', 'addr');
+    const command = new SendLocationCommand(
+      INSTANCE_UUID,
+      'to@s.whatsapp.net',
+      1,
+      2,
+      'name',
+      'addr'
+    );
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledWith(command);
   });
@@ -41,7 +49,7 @@ describe('SendLocationCommandHandler', () => {
   it('resolves with undefined on the happy path', async () => {
     const command = new SendLocationCommand(INSTANCE_UUID, 'to@s.whatsapp.net', 1, 2);
 
-    await expect(handler.handle(command)).resolves.toBeUndefined();
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
   });
 
   it('propagates the use case failure', async () => {

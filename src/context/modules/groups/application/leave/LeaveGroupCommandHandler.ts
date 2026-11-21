@@ -13,6 +13,6 @@ export class LeaveGroupCommandHandler implements ICommandHandler<LeaveGroupComma
 
   async handle(command: LeaveGroupCommand): Promise<void> {
     const instanceId = InstanceId.fromString(command.instanceId);
-    return await this.useCase.execute(instanceId, command.groupId);
+    await this.useCase.execute(instanceId, command.groupId);
   }
 }

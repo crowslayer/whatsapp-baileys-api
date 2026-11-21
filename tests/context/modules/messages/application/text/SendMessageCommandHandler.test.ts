@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { MessageError } from '@modules/messages/application/MessageError';
 import { SendMessageCommand } from '@modules/messages/application/text/SendMessageCommand';
 import { SendMessageCommandHandler } from '@modules/messages/application/text/SendMessageCommandHandler';
 import { TextMessageSender } from '@modules/messages/application/text/TextMessageSender';
@@ -27,7 +28,7 @@ describe('SendMessageCommandHandler', () => {
   it('executes the use case once', async () => {
     const command = new SendMessageCommand(INSTANCE_UUID, RAW_PHONE, 'hello');
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledTimes(1);
   });
@@ -35,7 +36,7 @@ describe('SendMessageCommandHandler', () => {
   it('normalizes the phone number into a jid', async () => {
     const command = new SendMessageCommand(INSTANCE_UUID, RAW_PHONE, 'hello');
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledWith({
       instanceId: INSTANCE_UUID,
@@ -47,7 +48,7 @@ describe('SendMessageCommandHandler', () => {
   it('keeps an already formatted jid untouched', async () => {
     const command = new SendMessageCommand(INSTANCE_UUID, EXPECTED_JID, 'hello');
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledWith({
       instanceId: INSTANCE_UUID,
@@ -59,7 +60,7 @@ describe('SendMessageCommandHandler', () => {
   it('keeps a group jid untouched', async () => {
     const command = new SendMessageCommand(INSTANCE_UUID, '1234567890@g.us', 'hello');
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledWith({
       instanceId: INSTANCE_UUID,
@@ -71,7 +72,7 @@ describe('SendMessageCommandHandler', () => {
   it('sends an empty message body', async () => {
     const command = new SendMessageCommand(INSTANCE_UUID, RAW_PHONE, '');
 
-    await handler.handle(command);
+    await expect(handler.handle(command)).rejects.toBeInstanceOf(MessageError);
 
     expect(useCase.execute).toHaveBeenCalledWith({
       instanceId: INSTANCE_UUID,

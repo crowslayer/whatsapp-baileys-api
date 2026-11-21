@@ -1,6 +1,7 @@
 import { WAPrivacyGroupAddValue, WAPrivacyValue, WASocket } from '@whiskeysockets/baileys';
 
 import { IPrivacyService } from '@shared/domain/whatsapp/IPrivacyService';
+import { BaileysError } from '@shared/infrastructure/baileys/adapter/BaileysError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 
 export class BaileysPrivacyService implements IPrivacyService {
@@ -12,7 +13,7 @@ export class BaileysPrivacyService implements IPrivacyService {
   async updateBlockStatus(jid: string, action: 'block' | 'unblock'): Promise<void> {
     try {
       if (!this.isValidJid(jid)) {
-        throw new Error('Jid invalid');
+        throw new BaileysError('Jid is not valid');
       }
       await this.socket.updateBlockStatus(jid, action);
     } catch (error) {

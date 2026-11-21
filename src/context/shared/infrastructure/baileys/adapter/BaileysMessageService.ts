@@ -16,6 +16,7 @@ import {
   ISentMessage,
   SentMessageContent,
 } from '@shared/domain/whatsapp/MessageTypes';
+import { BaileysError } from '@shared/infrastructure/baileys/adapter/BaileysError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 
 export class BaileysMessageService implements IMessageService {
@@ -29,9 +30,7 @@ export class BaileysMessageService implements IMessageService {
     content: AnyMessageContent,
     options?: MiscMessageGenerationOptions
   ): Promise<WAMessage | undefined> {
-    if (!this.isValidJid(to)) {
-      throw new WhatsAppConnectionError(`Invalid JID: ${to}`);
-    }
+    this.isValidJid(to);
 
     try {
       return await this.timeout(this.socket.sendMessage(to, content, options), 10000);
@@ -395,7 +394,11 @@ export class BaileysMessageService implements IMessageService {
   // ─────────────────────────────────────────────
 
   private isValidJid(jid: string): boolean {
-    return jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
+    const isValid =
+      jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
+    if (!isValid) throw new BaileysError('Jid is not valid');
+
+    return true;
   }
 
   private timeout<T>(promise: Promise<T>, ms: number): Promise<T> {

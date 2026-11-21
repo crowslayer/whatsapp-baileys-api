@@ -20,8 +20,9 @@ export class NodeCacheConnectionStateStore implements IConnectionStateStore {
     return `wa:conn:${instanceId}`;
   }
 
-  async get(instanceId: string): Promise<ConnectionState | null> {
-    return this._cache.get(this.key(instanceId)) || null;
+  get(instanceId: string): Promise<ConnectionState | null> {
+    const result = this._cache.get(this.key(instanceId)) || null;
+    return Promise.resolve(result);
   }
 
   async setQR(instanceId: string, qrBase64: string, qrText: string): Promise<void> {
@@ -62,7 +63,8 @@ export class NodeCacheConnectionStateStore implements IConnectionStateStore {
     this._cache.set(this.key(instanceId), next, 60);
   }
 
-  async clear(instanceId: string): Promise<void> {
+  clear(instanceId: string): Promise<void> {
     this._cache.del(this.key(instanceId));
+    return Promise.resolve();
   }
 }

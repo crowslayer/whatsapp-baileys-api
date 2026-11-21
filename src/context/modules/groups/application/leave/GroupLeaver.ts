@@ -23,6 +23,6 @@ export class GroupLeaver {
       throw new WhatsAppConnectionError('WhatsApp Instance not connected or not found');
     }
 
-    return await adapter.groups.leaveGroup(groupId);
+    await adapter.groups.leaveGroup(groupId);
   }
 }

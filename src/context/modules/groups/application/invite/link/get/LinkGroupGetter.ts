@@ -20,6 +20,6 @@ export class LinkGroupGetter {
     if (!adapter) {
       throw new WhatsAppConnectionError('WhatsApp Instance not connected or not found');
     }
-    return await adapter.groups.getGroupInviteLink(groupId);
+    return adapter.groups.getGroupInviteLink(groupId);
   }
 }

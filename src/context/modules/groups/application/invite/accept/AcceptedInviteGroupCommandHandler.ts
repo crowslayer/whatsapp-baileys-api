@@ -11,8 +11,8 @@ export class AcceptedInviteGroupCommandHandler implements ICommandHandler<Accept
     return AcceptedInviteGroupCommand;
   }
 
-  async handle(command: AcceptedInviteGroupCommand): Promise<string | undefined> {
+  handle(command: AcceptedInviteGroupCommand): Promise<string | undefined> {
     const intanceId = InstanceId.fromString(command.instanceId);
-    return await this.useCase.execute(intanceId, command.code);
+    return this.useCase.execute(intanceId, command.code);
   }
 }

@@ -107,7 +107,7 @@ export class WhatsAppInstanceRuntime implements IWhatsAppRuntime {
 
   // Metdo para usar eventos en lugar de callback
   private bindEvents(): void {
-    this.eventBus.on('qr', async (data) => {
+    this.eventBus.on('qr', (data) => {
       if (data.instanceId !== this.instance.instanceId) return;
       // store efímero
       const event = QRCodeGeneratedEvent.create({

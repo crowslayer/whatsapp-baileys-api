@@ -14,6 +14,6 @@ export class GroupDescriptionCommandHandler implements ICommandHandler<GroupDesc
   async handle(command: GroupDescriptionCommand): Promise<void> {
     const instanceId = InstanceId.fromString(command.instanceId);
 
-    return await this.useCase.execute(instanceId, command.groupId, command.description);
+    await this.useCase.execute(instanceId, command.groupId, command.description);
   }
 }

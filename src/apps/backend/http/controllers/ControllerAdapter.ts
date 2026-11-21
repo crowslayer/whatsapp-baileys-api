@@ -27,10 +27,7 @@ export const ControllerAdapter =
           res.set(httpResponse.headers);
         }
 
-        // const statusCode = httpResponse.body.status;
-
         ExpressResponseAdapter.send(req, res, httpResponse);
-        // res.status(statusCode).json(httpResponse.body);
       })
 
       .catch((error: unknown) => next(error));

@@ -1,6 +1,7 @@
 import { WASocket } from '@whiskeysockets/baileys';
 
 import { IPresenceService } from '@shared/domain/whatsapp/IPresenceService';
+import { BaileysError } from '@shared/infrastructure/baileys/adapter/BaileysError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 
 export class BaileysPresenceService implements IPresenceService {
@@ -12,7 +13,8 @@ export class BaileysPresenceService implements IPresenceService {
    */
   async subscribePresence(jid: string): Promise<void> {
     try {
-      if (!this.isValidJid(jid)) throw new Error('Jid is not valid');
+      this.isValidJid(jid);
+
       await this.socket.presenceSubscribe(jid);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to subscribe to presence for instance`, {
@@ -29,7 +31,7 @@ export class BaileysPresenceService implements IPresenceService {
     type: 'unavailable' | 'available' | 'composing' | 'recording' | 'paused'
   ): Promise<void> {
     try {
-      if (!this.isValidJid(jid)) throw new Error('Jid is not valid');
+      this.isValidJid(jid);
       await this.socket.sendPresenceUpdate(type, jid);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to update presence for instance `, {
@@ -39,6 +41,10 @@ export class BaileysPresenceService implements IPresenceService {
   }
 
   private isValidJid(jid: string): boolean {
-    return jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
+    const isValid =
+      jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
+    if (!isValid) throw new BaileysError('Jid is not valid');
+
+    return true;
   }
 }

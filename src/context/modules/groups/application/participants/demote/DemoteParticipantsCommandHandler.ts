@@ -13,6 +13,6 @@ export class DemoteParticipantsCommandHandler implements ICommandHandler<DemoteP
 
   async handle(command: DemoteParticipantsCommand): Promise<void> {
     const instanceId = InstanceId.fromString(command.instanceId);
-    return await this.useCase.execute(instanceId, command.groupId, command.participants);
+    await this.useCase.execute(instanceId, command.groupId, command.participants);
   }
 }

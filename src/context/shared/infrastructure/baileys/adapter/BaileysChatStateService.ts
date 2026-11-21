@@ -1,5 +1,6 @@
 import { AnyMessageContent, LastMessageList, WASocket } from '@whiskeysockets/baileys';
 
+import { BaileysError } from '@shared/infrastructure/baileys/adapter/BaileysError';
 import { WhatsAppConnectionError } from '@shared/infrastructure/errors/WhatsAppConnectionError';
 
 import {
@@ -15,9 +16,8 @@ export class BaileysChatStateService implements IChatStateService {
    */
   async archiveChat(jid: string, archive: boolean): Promise<void> {
     try {
-      if (!this.isValidJid(jid)) {
-        throw new Error('Jid invalid');
-      }
+      this.isValidJid(jid);
+
       await this.socket.chatModify({ archive, lastMessages: [] }, jid);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to archive chat for ${jid}`, { cause: error });
@@ -30,9 +30,8 @@ export class BaileysChatStateService implements IChatStateService {
    */
   async muteChat(jid: string, until: number | null): Promise<void> {
     try {
-      if (!this.isValidJid(jid)) {
-        throw new Error('Jid invalid');
-      }
+      this.isValidJid(jid);
+
       await this.socket.chatModify({ mute: until }, jid);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to mute chat for instance ${jid}`, {
@@ -50,9 +49,8 @@ export class BaileysChatStateService implements IChatStateService {
     read: boolean
   ): Promise<void> {
     try {
-      if (!this.isValidJid(jid)) {
-        throw new Error('Jid invalid');
-      }
+      this.isValidJid(jid);
+
       const baileysMessages = this.toBaileysLastMessages(lastMessages);
 
       await this.socket.chatModify({ markRead: read, lastMessages: baileysMessages }, jid);
@@ -68,9 +66,8 @@ export class BaileysChatStateService implements IChatStateService {
    */
   async pinChat(jid: string, pin: boolean): Promise<void> {
     try {
-      if (!this.isValidJid(jid)) {
-        throw new Error('Jid invalid');
-      }
+      this.isValidJid(jid);
+
       await this.socket.chatModify({ pin }, jid);
     } catch (error) {
       throw new WhatsAppConnectionError(`Failed to pin chat for instance ${jid}`, { cause: error });
@@ -84,9 +81,8 @@ export class BaileysChatStateService implements IChatStateService {
    */
   async setDisappearingMessages(jid: string, expiration: number): Promise<void> {
     try {
-      if (!this.isValidJid(jid)) {
-        throw new Error('Jid invalid');
-      }
+      this.isValidJid(jid);
+
       await this.socket.sendMessage(jid, {
         disappearingMessagesInChat: expiration,
       } as AnyMessageContent);
@@ -102,7 +98,11 @@ export class BaileysChatStateService implements IChatStateService {
   // ─────────────────────────────────────────────
 
   private isValidJid(jid: string): boolean {
-    return jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
+    const isValid =
+      jid.endsWith('@s.whatsapp.net') || jid.endsWith('@g.us') || jid.endsWith('@lid');
+    if (!isValid) throw new BaileysError('ChatId is not valid');
+
+    return true;
   }
 
   private toBaileysLastMessages(messages: IChatMessageReference[]): LastMessageList {

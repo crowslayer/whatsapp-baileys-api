@@ -20,6 +20,6 @@ export class SubjetUpdater {
     if (!adapter) {
       throw new WhatsAppConnectionError('WhatsApp Instance not connected or not found');
     }
-    return await adapter.groups.updateGroupSubject(groupId, subject);
+    await adapter.groups.updateGroupSubject(groupId, subject);
   }
 }

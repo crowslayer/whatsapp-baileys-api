@@ -27,6 +27,6 @@ export class SettingUpdater {
       throw new WhatsAppConnectionError('WhatsApp Instance not connected or not found');
     }
 
-    return await adapter.groups.updateGroupSettings(groupId, setting);
+    await adapter.groups.updateGroupSettings(groupId, setting);
   }
 }

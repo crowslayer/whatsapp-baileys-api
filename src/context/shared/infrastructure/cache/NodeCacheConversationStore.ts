@@ -25,12 +25,12 @@ export class NodeCacheConversationStore<T = IConversationState> implements IConv
     return `conv:${instanceId}:${userId}`;
   }
 
-  async get(instanceId: string, userId: string): Promise<T | null> {
+  get(instanceId: string, userId: string): Promise<T | null> {
     const value = this._cache.get(this.key(instanceId, userId));
-    return value?.data ?? null;
+    return Promise.resolve(value?.data ?? null);
   }
 
-  async set(instanceId: string, userId: string, data: T, ttlSeconds?: number): Promise<void> {
+  set(instanceId: string, userId: string, data: T, ttlSeconds?: number): Promise<void> {
     const ttl = ttlSeconds ?? this._defaultTTL;
 
     this._cache.set(
@@ -41,6 +41,8 @@ export class NodeCacheConversationStore<T = IConversationState> implements IConv
       },
       ttl
     );
+
+    return Promise.resolve();
   }
 
   async update(
@@ -55,7 +57,9 @@ export class NodeCacheConversationStore<T = IConversationState> implements IConv
     await this.set(instanceId, userId, updated, ttlSeconds);
   }
 
-  async clear(instanceId: string, userId: string): Promise<void> {
+  clear(instanceId: string, userId: string): Promise<void> {
     this._cache.del(this.key(instanceId, userId));
+
+    return Promise.resolve();
   }
 }

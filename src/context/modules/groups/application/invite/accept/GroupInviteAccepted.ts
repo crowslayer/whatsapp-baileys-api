@@ -20,6 +20,6 @@ export class GroupInviteAccepted {
     if (!adapter) {
       throw new WhatsAppConnectionError('WhatsApp Instance not connected or not found');
     }
-    return await adapter.groups.acceptGroupInvite(code);
+    return adapter.groups.acceptGroupInvite(code);
   }
 }

@@ -11,7 +11,7 @@ export class SendAudioCommandHandler implements ICommandHandler<SendAudioCommand
     return SendAudioCommand;
   }
 
-  async handle(command: SendAudioCommand): Promise<ISentMessage> {
-    return await this.useCase.execute(command);
+  handle(command: SendAudioCommand): Promise<ISentMessage> {
+    return this.useCase.execute(command);
   }
 }

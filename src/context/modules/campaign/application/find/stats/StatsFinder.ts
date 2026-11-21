@@ -6,7 +6,7 @@ import {
 export class StatsFinder {
   constructor(private readonly repository: ICampaignReadRepository) {}
 
-  async execute(): Promise<CampaignStats> {
-    return await this.repository.getStats();
+  execute(): Promise<CampaignStats> {
+    return this.repository.getStats();
   }
 }
