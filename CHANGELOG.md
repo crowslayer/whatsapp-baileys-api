@@ -1,3 +1,9 @@
+## [1.7.6](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.7.5...v1.7.6) (2026-11-21)
+
+### Code Refactoring
+
+* streamline async/await usage across various services and controllers ([c186bd8](https://github.com/crowslayer/whatsapp-baileys-api/commit/c186bd8c8d5f533bacd61315acb695b471528482))
+
 ## [1.7.5](https://github.com/crowslayer/whatsapp-baileys-api/compare/v1.7.4...v1.7.5) (2026-11-19)
 
 ### Correction of Errors
